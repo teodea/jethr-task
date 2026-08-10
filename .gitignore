@@ -1,0 +1,22 @@
+# Brief del task (materiale Jet HR, non da ripubblicare)
+Product Builder @ Jet HR _ Notion.html
+Product Builder @ Jet HR _ Notion_files/
+
+# Windows / OneDrive
+desktop.ini
+Thumbs.db
+~$*
+
+# Configurazione locale dell'agente (permessi di questa macchina)
+.claude/settings.local.json
+
+# Dipendenze e build
+node_modules/
+dist/
+build/
+coverage/
+
+# Segreti
+.env
+.env.*
+!.env.example
