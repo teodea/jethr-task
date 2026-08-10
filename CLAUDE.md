@@ -17,6 +17,22 @@ incalzati.
 Un ADR (`docs/adr/`) è un'altra cosa e ha una soglia più alta: irreversibile,
 sorprendente, vero trade-off. Quasi nessuna semplificazione la supera.
 
+### Prima di registrare, chiediti se non sia più veloce farla
+
+Il rischio opposto è usare il registro come discarica del lavoro non fatto. Tre
+domande, in quest'ordine:
+
+1. **È sul percorso RAL → netto?** Se toglierla fa uscire un numero *sbagliato*
+   per il caso che il brief chiede, non è un'assunzione: è un bug. Fallo.
+2. **Il dato è reperibile da fonte primaria in tempi ragionevoli?** Se sì, non ci
+   sono scuse. Fallo.
+3. **Richiede input che il brief non dà?** Solo qui l'assunzione è legittima.
+
+Se la colonna «cosa cambierebbe senza» ti viene vaga, è il segnale che stai
+scappando da qualcosa che non hai capito: la risposta non è scriverla meglio, è
+implementarla. E ogni riga che togli perché l'hai implementata è un punto
+guadagnato — il registro è vivo, non si accumula soltanto.
+
 ### Nessuna costante fiscale senza la sua fonte
 
 Ogni aliquota, scaglione, soglia o massimale porta accanto la fonte primaria e
