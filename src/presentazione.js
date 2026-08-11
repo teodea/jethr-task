@@ -14,6 +14,13 @@ export function presentaCascata(cascata) {
     contributiDipendente: arrotondaCentesimi(cascata.contributiDipendente),
     imponibileFiscale: arrotondaCentesimi(cascata.imponibileFiscale),
     irpefLorda: arrotondaCentesimi(cascata.irpefLorda),
+    // Le due detrazioni esposte come voci proprie: stanno FUORI dalla quadratura del netto
+    // (non entrano nella somma sotto) perche' l'aggregato che abbatte davvero l'imposta e'
+    // detrazioniEffettive. In incapienza la loro somma e' maggiore: non e' un errore di
+    // arrotondamento ma la parte di sconto che si perde, ed e' cio' che la nota su
+    // detrazioniEffettive dice all'utente (src/testi.js).
+    detrazioneLavoroDipendente: arrotondaCentesimi(cascata.detrazioneLavoroDipendente),
+    ulterioreDetrazione: arrotondaCentesimi(cascata.ulterioreDetrazione),
     detrazioniEffettive: arrotondaCentesimi(cascata.detrazioniEffettive),
     irpefNetta: arrotondaCentesimi(cascata.irpefNetta),
     addizionaleRegionale: arrotondaCentesimi(cascata.addizionaleRegionale),
