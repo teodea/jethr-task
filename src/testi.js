@@ -23,7 +23,7 @@
 // destinatario e' un dipendente, non un sostituto d'imposta. Il termine tecnico vive
 // nell'etichetta, la lingua comune nella spiegazione.
 
-import { COSTANTI_PER_ANNO } from './costanti/index.js'
+import { COSTANTI_PER_ANNO, FONTI_PER_ANNO } from './costanti/index.js'
 import { zoneNonMonotonia } from './discontinuita.js'
 
 const EURO = new Intl.NumberFormat('it-IT', {
@@ -88,10 +88,43 @@ export const ORDINE_VOCI = [
   'nettoMensile',
 ]
 
+// L'etichetta che introduce il link alla fonte. Sta qui e non nella pagina per la stessa
+// ragione di tutte le altre: la UI non contiene stringhe (vedi l'intestazione del file).
+export const ETICHETTA_FONTE = 'Fonte'
+
+// Quale gruppo di costanti sta dietro ogni voce della cascata, e quindi quale fonte primaria
+// le tocca. La tabella vive qui e non nei file delle costanti perche' e' l'associazione fra
+// una voce dell'interfaccia e un documento: le costanti non sanno che esiste una cascata.
+//
+// Due coppie di voci condividono la fonte, e non e' una scorciatoia: detrazioni applicate e
+// IRPEF netta sono i due lati della stessa regola di capienza (art. 11 c. 3 TUIR), netto
+// annuo e netto mensile lo stesso importo visto su due periodi (art. 23 DPR 600/1973).
+const FONTE_DELLA_VOCE = {
+  ral: 'redditoLavoroDipendente',
+  contributiDipendente: 'contributi',
+  imponibileFiscale: 'imponibile',
+  irpefLorda: 'irpef',
+  detrazioneLavoroDipendente: 'detrazioneLavoroDipendente',
+  ulterioreDetrazione: 'ulterioreDetrazione',
+  detrazioniEffettive: 'impostaNetta',
+  irpefNetta: 'impostaNetta',
+  addizionaleRegionale: 'addizionaleRegionale',
+  addizionaleComunale: 'addizionaleComunale',
+  trattamentoIntegrativo: 'trattamentoIntegrativo',
+  sommaIntegrativa: 'sommaIntegrativa',
+  nettoAnnuo: 'ritenutaEConguaglio',
+  nettoMensile: 'ritenutaEConguaglio',
+}
+
 /**
  * I testi di ogni voce per una cascata gia' calcolata.
- * Ogni voce: { etichetta, spiegazione, nota }. `nota` e' gia' risolta (stringa o null):
- * la UI renderizza, non decide.
+ * Ogni voce: { etichetta, spiegazione, nota, fonte }. `nota` e' gia' risolta (stringa o
+ * null) e `fonte` e' gia' risolta ({ citazione, url } o null): la UI renderizza, non decide.
+ *
+ * `fonte` e' null sugli aggregati fuori da ORDINE_VOCI (trattenute totali, aliquote): non
+ * sono voci di una norma ma somme e rapporti fra voci, e attaccargli un articolo scelto fra
+ * quelli che compongono la cascata sarebbe una citazione finta. Ogni voce che sta *dentro*
+ * la cascata, invece, la sua fonte ce l'ha - ed e' un test a dirlo (test/testi.test.js).
  */
 export function testiCascata(cascata) {
   const c = COSTANTI_PER_ANNO[cascata.anno]
@@ -123,7 +156,7 @@ export function testiCascata(cascata) {
   const percentualiSomma = c.sommaIntegrativa.fasce.map(({ percentuale }) => percentuale)
   const d = c.detrazioneLavoroDipendente
 
-  return {
+  const testi = {
     ral: {
       etichetta: 'Retribuzione annua lorda (RAL)',
       spiegazione:
@@ -316,6 +349,17 @@ export function testiCascata(cascata) {
       nota: null,
     },
   }
+
+  // La fonte si attacca qui, in un passaggio solo, invece che riga per riga dentro i testi:
+  // cosi' l'associazione voce -> documento si legge tutta insieme in FONTE_DELLA_VOCE, e
+  // una voce nuova senza fonte si vede come un buco nella tabella invece che come una
+  // proprieta' dimenticata in fondo a un letterale lungo.
+  const fonti = FONTI_PER_ANNO[cascata.anno]
+  for (const [voce, testo] of Object.entries(testi)) {
+    testo.fonte = fonti[FONTE_DELLA_VOCE[voce]] ?? null
+  }
+
+  return testi
 }
 
 /**

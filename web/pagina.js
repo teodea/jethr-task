@@ -5,7 +5,13 @@
 
 import { calcolaCascata } from '../src/cascata.js'
 import { presentaCascata } from '../src/presentazione.js'
-import { testiCascata, formattaEuro, formattaPercentuale, ORDINE_VOCI } from '../src/testi.js'
+import {
+  testiCascata,
+  formattaEuro,
+  formattaPercentuale,
+  ORDINE_VOCI,
+  ETICHETTA_FONTE,
+} from '../src/testi.js'
 import { MENSILITA_AMMESSE, MENSILITA_DEFAULT } from '../src/validazione.js'
 import { interpretaImporto, formattaImporto } from '../src/formato.js'
 import { ANNO_CORRENTE } from '../src/costanti/index.js'
@@ -109,7 +115,7 @@ function creaEroe({ etichetta, valore, spiegazione, incidenza, nota }) {
 // Una riga della cascata. <details> invece di un bottone e un pannello: apertura e chiusura
 // da tastiera, stato iniziale chiuso e semantica di divulgazione arrivano dal browser, senza
 // una riga di JavaScript che possa sbagliarli.
-function creaVoce({ etichetta, valore, spiegazione, nota }) {
+function creaVoce({ etichetta, valore, spiegazione, nota, fonte }) {
   const riga = document.createElement('li')
   riga.className = 'voce'
 
@@ -155,6 +161,25 @@ function creaVoce({ etichetta, valore, spiegazione, nota }) {
     corpo.append(avvertenza)
   }
 
+  if (fonte) {
+    // La riga espansa chiude sul documento da cui il numero proviene: la promessa del
+    // README («la fonte normativa accanto a ogni voce») diventa verificabile in un click
+    // invece di restare un'affermazione. Nuova scheda perche' andare a leggere una
+    // circolare non deve far perdere il calcolo appena fatto; rel="noopener" perche' un
+    // target="_blank" senza lascia alla pagina di destinazione un riferimento a questa.
+    const citazione = document.createElement('p')
+    citazione.className = 'voce-fonte'
+
+    const collegamento = document.createElement('a')
+    collegamento.href = fonte.url
+    collegamento.textContent = fonte.citazione
+    collegamento.target = '_blank'
+    collegamento.rel = 'noopener'
+
+    citazione.append(document.createTextNode(`${ETICHETTA_FONTE}: `), collegamento)
+    corpo.append(citazione)
+  }
+
   dettaglio.append(intestazione, corpo)
   riga.append(dettaglio)
   return riga
@@ -189,6 +214,7 @@ function mostraRisultato(cascata) {
         valore: voci[voce],
         spiegazione: testi[voce].spiegazione,
         nota: testi[voce].nota,
+        fonte: testi[voce].fonte,
       }),
     ),
   )

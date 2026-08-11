@@ -363,6 +363,17 @@ a {
   flex: none;
 }
 
+/* La fonte chiude la riga espansa. Piu' piccola e tenue della spiegazione: e' l'apparato
+   critico della voce, non il suo contenuto — chi vuole verificare la trova, chi vuole solo
+   capire non ci inciampa. La citazione puo' essere lunga (estremi + data + delibera):
+   `overflow-wrap` le impedisce di allargare la riga sugli schermi stretti. */
+.voce-fonte {
+  margin: 0.7rem 0 0;
+  font-size: 0.82rem;
+  color: var(--inchiostro-tenue);
+  overflow-wrap: anywhere;
+}
+
 /* Chiusura */
 
 .chiusura {

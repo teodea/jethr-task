@@ -90,3 +90,74 @@ export const COSTANTI_2025 = {
     esenzioneFinoA: 23000,
   },
 }
+
+// Le fonti primarie del set 2025, stesse chiavi del set 2026 (src/costanti/2026.js, dove
+// il perche' della mappa e' scritto per esteso). Divergono dove diverge il documento:
+// circolare INPS dell'anno per i contributi, testo vigente al 31/12/2025 per gli articoli
+// del TUIR, pagina MEF dell'anno d'imposta per le addizionali. Le fonti che citano una
+// norma non toccata dal 2025 al 2026 restano identiche: il set 2025 serve a rendere
+// rilevabile la divergenza, non a fabbricarla.
+export const FONTI_2025 = {
+  redditoLavoroDipendente: {
+    citazione: 'art. 51 c. 1 TUIR (DPR 917/1986), testo vigente al 31/12/2025',
+    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art51!vig=2025-12-31',
+  },
+
+  contributi: {
+    citazione: 'Circolare INPS n. 26 del 30/01/2025 (aliquote, minimale e massimale per il 2025)',
+    url: 'https://www.inps.it/content/dam/inps-site/it/scorporati/circolari-e-messaggi/2025/01/Circolare_14806/Allegati/15874_Circolare-numero-26-del-30-01-2025.pdf',
+  },
+
+  imponibile: {
+    citazione: 'art. 51 c. 2 lett. a TUIR (DPR 917/1986), testo vigente al 31/12/2025',
+    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art51!vig=2025-12-31',
+  },
+
+  irpef: {
+    citazione: 'art. 11 c. 1 TUIR (DPR 917/1986), testo vigente al 31/12/2025',
+    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art11!vig=2025-12-31',
+  },
+
+  impostaNetta: {
+    citazione: 'art. 11 c. 3 TUIR (DPR 917/1986), testo vigente al 31/12/2025',
+    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art11!vig=2025-12-31',
+  },
+
+  detrazioneLavoroDipendente: {
+    citazione: 'art. 13 cc. 1 e 1.1 TUIR (DPR 917/1986), testo vigente al 31/12/2025',
+    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art13!vig=2025-12-31',
+  },
+
+  ulterioreDetrazione: {
+    citazione: 'L. 207/2024 art. 1 c. 6, testo vigente al 31/12/2025',
+    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:legge:2024-12-30;207~art1!vig=2025-12-31',
+  },
+
+  trattamentoIntegrativo: {
+    citazione: 'DL 3/2020 art. 1 (conv. L. 21/2020), testo vigente al 31/12/2025',
+    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.legge:2020-02-05;3~art1!vig=2025-12-31',
+  },
+
+  sommaIntegrativa: {
+    citazione: 'L. 207/2024 art. 1 cc. 4-5',
+    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:legge:2024-12-30;207~art1',
+  },
+
+  addizionaleRegionale: {
+    citazione:
+      'MEF, addizionale regionale IRPEF della Lombardia, anno d’imposta 2025 (art. 72 c. 1 L.R. 10/2003)',
+    url: 'https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/addregirpef/addregirpef.php?reg=10',
+  },
+
+  addizionaleComunale: {
+    citazione:
+      'MEF, addizionale comunale IRPEF di Milano (cod. F205), anno d’imposta 2025: delibera C.C. n. 46 del 28/09/2020',
+    url: 'https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/nuova_addcomirpef/risultato.htm?anno=2025&pr=MI&cc=F205&r=1',
+  },
+
+  ritenutaEConguaglio: {
+    citazione:
+      'art. 23 DPR 600/1973 (ritenuta e conguaglio di fine anno), testo vigente al 31/12/2025',
+    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:1973-09-29;600~art23!vig=2025-12-31',
+  },
+}

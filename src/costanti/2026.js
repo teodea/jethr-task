@@ -92,3 +92,95 @@ export const COSTANTI_2026 = {
     esenzioneFinoA: 23000, // soglia secca: sopra, l'aliquota si applica all'INTERO imponibile (D.Lgs. 360/1998 art. 1 c. 3-bis)
   },
 }
+
+// Le fonti primarie come dato, una per gruppo di costanti: la pagina le mostra in fondo a
+// ogni riga espansa della cascata, come link cliccabile (issue #14). Vivono qui, nello
+// stesso file dei valori, per la stessa ragione per cui ci vivono i commenti - un file di
+// fonti separato divergerebbe al primo aggiornamento.
+//
+// Il motore non le legge: continua a leggere i valori nudi di COSTANTI_2026. Le legge
+// src/testi.js, che sa quale gruppo sta dietro ogni voce della cascata.
+//
+// Quattro chiavi non corrispondono a un gruppo di costanti (redditoLavoroDipendente,
+// imponibile, impostaNetta, ritenutaEConguaglio): sono le voci che il motore deriva per
+// somma o differenza senza usare alcuna costante d'anno. La regola che le governa sta
+// comunque in una norma, e finora era l'unico pezzo di cascata senza fonte scritta da
+// nessuna parte.
+//
+// Dove un gruppo poggia su piu' documenti - i contributi: circolare dell'anno per soglie e
+// massimali, norme istitutive per le aliquote - la citazione porta quello che certifica i
+// valori che cambiano ogni anno. Gli altri restano nei commenti riga per riga
+// (semplificazione registrata in docs/ASSUNZIONI.md).
+export const FONTI_2026 = {
+  redditoLavoroDipendente: {
+    citazione: 'art. 51 c. 1 TUIR (DPR 917/1986), testo vigente 2026',
+    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art51!vig=',
+  },
+
+  contributi: {
+    citazione: 'Circolare INPS n. 6 del 30/01/2026 (aliquote, minimale e massimale per il 2026)',
+    url: 'https://www.inps.it/it/it/inps-comunica/atti/circolari-messaggi-e-normativa/dettaglio.circolari-e-messaggi.2026.01.circolare-numero-6-del-30-01-2026_15151.html',
+  },
+
+  // "I contributi previdenziali e assistenziali versati dal datore di lavoro o dal
+  // lavoratore in ottemperanza a disposizioni di legge" non concorrono al reddito: e' la
+  // norma dietro l'identita' imponibile fiscale = RAL - contributi (src/cascata.js).
+  imponibile: {
+    citazione: 'art. 51 c. 2 lett. a TUIR (DPR 917/1986), testo vigente 2026',
+    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art51!vig=',
+  },
+
+  irpef: {
+    citazione: 'art. 11 c. 1 TUIR (DPR 917/1986), testo vigente 2026',
+    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art11!vig=',
+  },
+
+  // "L'imposta netta e' determinata operando sull'imposta lorda, fino alla concorrenza del
+  // suo ammontare, le detrazioni": la norma dietro la capienza, cioe' dietro il fatto che
+  // uno sconto che avanza non diventa un credito.
+  impostaNetta: {
+    citazione: 'art. 11 c. 3 TUIR (DPR 917/1986), testo vigente 2026',
+    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art11!vig=',
+  },
+
+  detrazioneLavoroDipendente: {
+    citazione: 'art. 13 cc. 1 e 1.1 TUIR (DPR 917/1986), testo vigente 2026',
+    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art13!vig=',
+  },
+
+  ulterioreDetrazione: {
+    citazione: 'L. 207/2024 art. 1 c. 6, vigente per il 2026',
+    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:legge:2024-12-30;207~art1',
+  },
+
+  trattamentoIntegrativo: {
+    citazione: 'DL 3/2020 art. 1 (conv. L. 21/2020), testo vigente 2026',
+    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.legge:2020-02-05;3~art1',
+  },
+
+  sommaIntegrativa: {
+    citazione: 'L. 207/2024 art. 1 cc. 4-5',
+    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:legge:2024-12-30;207~art1',
+  },
+
+  addizionaleRegionale: {
+    citazione:
+      'MEF, addizionale regionale IRPEF della Lombardia, anno d’imposta 2026 (art. 72 c. 1 L.R. 10/2003)',
+    url: 'https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/addregirpef/addregirpef.php?reg=10',
+  },
+
+  addizionaleComunale: {
+    citazione:
+      'MEF, addizionale comunale IRPEF di Milano (cod. F205): delibera C.C. n. 46 del 28/09/2020, prorogata per il 2026',
+    url: 'https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/nuova_addcomirpef/risultato.htm?anno=9999&lista=1&pagina=lombardia.htm&cm=&pr=MI&cc=F205&r=1',
+  },
+
+  // Il netto annuo e quello mensile non hanno una costante propria: sono il risultato della
+  // cascata. La norma che li governa e' quella del sostituto d'imposta - ritenuta a ogni
+  // periodo di paga (c. 1) e conguaglio di fine anno (c. 3) - ed e' anche la fonte della
+  // frase che la pagina ripete: nessuna busta reale coincide con la media mensile.
+  ritenutaEConguaglio: {
+    citazione: 'art. 23 DPR 600/1973 (ritenuta e conguaglio di fine anno), testo vigente 2026',
+    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:1973-09-29;600~art23!vig=',
+  },
+}

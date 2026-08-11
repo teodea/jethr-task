@@ -208,6 +208,13 @@ tutte sono interpolate dalle costanti dell'anno. Con due set attivi, un "33%" ha
 sarebbe falso metà delle volte — e un test lo verifica confrontando gli stessi testi
 sul 2025 e sul 2026.
 
+E la fonte non resta nel codice: la mappa `FONTI`, esportata dallo stesso file delle
+costanti di ogni anno, la porta **in pagina**. Apri una voce della cascata e in fondo trovi
+la circolare, la delibera o l'articolo da cui quel numero proviene, come link che apre il
+documento in una nuova scheda. Un test al seam dei testi fallisce se una voce resta senza
+fonte, se l'URL non è utilizzabile o se punta fuori dai domini delle fonti primarie: la
+promessa è verificata, non affidata alla memoria.
+
 ### Perché le costanti sono in JavaScript e non in JSON
 
 Perché JSON non ha commenti, e la fonte deve stare **accanto al valore**: un file di fonti

@@ -21,6 +21,75 @@ test('ogni voce della cascata ha etichetta e spiegazione non vuote', () => {
   }
 })
 
+test('ogni voce della cascata porta una fonte primaria con URL, in entrambi gli anni', () => {
+  // Il README promette «la fonte normativa accanto a ogni voce»: senza questo test la
+  // promessa e' affidata alla memoria di chi aggiunge la prossima voce. Gira sui due anni
+  // perche' un set di fonti puo' restare indietro solo su uno.
+  for (const anno of [2026, 2025]) {
+    const testi = testiCascata(calcolaCascata({ ral: 30000, anno }))
+    for (const voce of ORDINE_VOCI) {
+      const { fonte } = testi[voce]
+      assert.ok(fonte, `voce senza fonte (${anno}): ${voce}`)
+      assert.ok(fonte.citazione.length > 0, `citazione vuota (${anno}): ${voce}`)
+      assert.match(fonte.url, /^https:\/\/\S+$/, `URL non utilizzabile (${anno}): ${voce}`)
+    }
+  }
+})
+
+test('le fonti stanno sui domini delle fonti primarie, mai su un riassunto di terze parti', () => {
+  // Regola del repo: Agenzia delle Entrate, INPS, Gazzetta Ufficiale, Normattiva, MEF.
+  // Un link a un portale di consulenza passerebbe il test qui sopra e tradirebbe la regola.
+  const DOMINI_PRIMARI = [
+    'www.normattiva.it',
+    'www.inps.it',
+    'www1.finanze.gov.it',
+    'www.agenziaentrate.gov.it',
+    'www.gazzettaufficiale.it',
+  ]
+
+  for (const anno of [2026, 2025]) {
+    const testi = testiCascata(calcolaCascata({ ral: 30000, anno }))
+    for (const voce of ORDINE_VOCI) {
+      const { host } = new URL(testi[voce].fonte.url)
+      assert.ok(DOMINI_PRIMARI.includes(host), `fonte non primaria (${anno}) su ${voce}: ${host}`)
+    }
+  }
+})
+
+test('anche le fonti seguono l’anno: circolare INPS 6/2026 nel 2026, 26/2025 nel 2025', () => {
+  // Stesso presidio delle cifre nei testi, applicato ai documenti: se le fonti fossero
+  // condivise fra i due set, il valore cambierebbe con l'anno e la citazione no.
+  const fonte2026 = testiCascata(calcolaCascata({ ral: 30000, anno: 2026 })).contributiDipendente
+    .fonte
+  const fonte2025 = testiCascata(calcolaCascata({ ral: 30000, anno: 2025 })).contributiDipendente
+    .fonte
+
+  assert.match(fonte2026.citazione, /n\. 6 del 30\/01\/2026/)
+  assert.match(fonte2025.citazione, /n\. 26 del 30\/01\/2025/)
+  assert.notEqual(fonte2026.url, fonte2025.url)
+})
+
+test('la fonte dell’IRPEF punta al testo vigente dell’anno, non a un testo unico senza data', () => {
+  // Il 2026 e il 2025 divergono sul secondo scaglione (33% contro 35%): due anni che
+  // linkassero la stessa pagina di Normattiva manderebbero il valutatore a leggere un
+  // testo che non e' quello da cui viene il numero mostrato.
+  const url2026 = testiCascata(calcolaCascata({ ral: 40000, anno: 2026 })).irpefLorda.fonte.url
+  const url2025 = testiCascata(calcolaCascata({ ral: 40000, anno: 2025 })).irpefLorda.fonte.url
+
+  assert.notEqual(url2026, url2025)
+  assert.match(url2025, /vig=2025-12-31/)
+})
+
+test('gli aggregati fuori dalla cascata non fingono una fonte', () => {
+  // Trattenute totali e aliquote sono somme e rapporti fra voci: nessuna norma le
+  // istituisce. Una citazione qui sarebbe piu' dannosa dell'assenza — sembrerebbe
+  // certificare un numero che nessun documento certifica.
+  const testi = testiCascata(cascata2026(30000))
+  assert.equal(testi.trattenuteTotali.fonte, null)
+  assert.equal(testi.aliquotaMarginale.fonte, null)
+  assert.equal(testi.aliquotaMedia.fonte, null)
+})
+
 test('le aliquote citate nei testi seguono l’anno: 33% nel 2026, 35% nel 2025', () => {
   // Il test che rende falsificabile la regola "nessun numero scritto a mano nei testi":
   // un "33%" hardcodato passerebbe la riga 2026 e fallirebbe questa.
