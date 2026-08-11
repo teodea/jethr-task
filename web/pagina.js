@@ -5,7 +5,7 @@
 
 import { calcolaCascata } from '../src/cascata.js'
 import { presentaCascata } from '../src/presentazione.js'
-import { testiCascata, formattaEuro, formattaPercentuale } from '../src/testi.js'
+import { testiCascata, formattaEuro, formattaPercentuale, ORDINE_VOCI } from '../src/testi.js'
 import { MENSILITA_AMMESSE, MENSILITA_DEFAULT } from '../src/validazione.js'
 import { interpretaImporto, formattaImporto } from '../src/formato.js'
 import { ANNO_CORRENTE } from '../src/costanti/index.js'
@@ -16,6 +16,7 @@ const gruppoMensilita = document.querySelector('#mensilita')
 const errore = document.querySelector('#errore')
 const risultato = document.querySelector('#risultato')
 const eroi = document.querySelector('#eroi')
+const elencoVoci = document.querySelector('#voci')
 
 // I tre numeri hero, nell'ordine in cui rispondono alle domande dell'utente: quanto prendo
 // in un anno, quanto al mese, quanto non mi arriva.
@@ -105,6 +106,60 @@ function creaEroe({ etichetta, valore, spiegazione, incidenza, nota }) {
   return eroe
 }
 
+// Una riga della cascata. <details> invece di un bottone e un pannello: apertura e chiusura
+// da tastiera, stato iniziale chiuso e semantica di divulgazione arrivano dal browser, senza
+// una riga di JavaScript che possa sbagliarli.
+function creaVoce({ etichetta, valore, spiegazione, nota }) {
+  const riga = document.createElement('li')
+  riga.className = 'voce'
+
+  const dettaglio = document.createElement('details')
+
+  const intestazione = document.createElement('summary')
+  intestazione.className = 'voce-riga'
+
+  const nome = document.createElement('span')
+  nome.className = 'voce-etichetta'
+  nome.textContent = etichetta
+
+  const importo = document.createElement('span')
+  // Una voce a zero resta in cascata e si vede che e' zero: la struttura non cambia con
+  // l'input, cambia l'importo. Il grigio dice "non e' il tuo caso" senza toglierla di mezzo.
+  importo.className = valore === 0 ? 'voce-importo voce-importo-zero' : 'voce-importo'
+  importo.textContent = formattaEuro(valore)
+
+  intestazione.append(nome, importo)
+
+  const corpo = document.createElement('div')
+  corpo.className = 'voce-corpo'
+
+  const glossa = document.createElement('p')
+  glossa.className = 'voce-spiegazione'
+  glossa.textContent = spiegazione
+  corpo.append(glossa)
+
+  if (nota) {
+    // Il motore emette una nota solo dove il caso devia da quello liscio — massimale,
+    // incapienza, gate delle addizionali, soglia secca: e' il motore a decidere che c'e'
+    // qualcosa da segnalare, la pagina si limita a segnalarlo. Il segno e' decorativo e
+    // resta fuori dall'albero di accessibilita': il testo della nota si spiega da solo.
+    const avvertenza = document.createElement('p')
+    avvertenza.className = 'voce-nota'
+
+    const segno = document.createElement('span')
+    segno.className = 'voce-segno'
+    segno.textContent = '⚠️'
+    segno.setAttribute('aria-hidden', 'true')
+
+    avvertenza.append(segno, document.createTextNode(nota))
+    corpo.append(avvertenza)
+  }
+
+  dettaglio.append(intestazione, corpo)
+  riga.append(dettaglio)
+  return riga
+}
+
 function mostraRisultato(cascata) {
   const voci = presentaCascata(cascata)
   const testi = testiCascata(cascata)
@@ -120,6 +175,20 @@ function mostraRisultato(cascata) {
           voce === 'trattenuteTotali'
             ? `${formattaPercentuale(voci.incidenzaTrattenute)} della RAL`
             : null,
+      }),
+    ),
+  )
+
+  // La cascata si renderizza come mappa su ORDINE_VOCI: l'ordine e' dominio (ogni passo
+  // parte da dove e' arrivato il precedente) e la pagina non lo ricostruisce. Le righe sono
+  // ricreate a ogni calcolo, quindi nascono tutte chiuse anche dopo il secondo click.
+  elencoVoci.replaceChildren(
+    ...ORDINE_VOCI.map((voce) =>
+      creaVoce({
+        etichetta: testi[voce].etichetta,
+        valore: voci[voce],
+        spiegazione: testi[voce].spiegazione,
+        nota: testi[voce].nota,
       }),
     ),
   )

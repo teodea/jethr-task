@@ -65,6 +65,16 @@
       <!-- Nessun risultato prima del click: il numero arriva da un gesto dell'utente -->
       <section class="risultato" id="risultato" aria-live="polite" hidden>
         <div class="eroi" id="eroi"></div>
+
+        <section class="cascata" aria-labelledby="titolo-cascata">
+          <h2 class="titolo-sezione" id="titolo-cascata">Voce per voce</h2>
+          <p class="occhiello">
+            L&rsquo;ordine &egrave; quello reale del calcolo: ogni passo parte da dove &egrave;
+            arrivato il precedente. Apri una riga per sapere che cos&rsquo;&egrave;.
+          </p>
+          <!-- Le righe nascono da ORDINE_VOCI: vedi web/pagina.js -->
+          <ol class="voci" id="voci"></ol>
+        </section>
       </section>
 
       <footer class="chiusura">

@@ -99,6 +99,33 @@ test('trattenute totali negative: il testo spiega che le erogazioni superano i p
   assert.equal(testiCascata(cascata2026(30000)).trattenuteTotali.nota, null)
 })
 
+test('una voce a zero spiega perche’ non spetta: l’ulteriore detrazione sotto i 20.000', () => {
+  // La cascata mostra anche le voci a zero (issue #13): una riga a zero la cui spiegazione
+  // dice "1.000 € pieni fra 20.000 e 32.000" letta da chi ha 8.532 di reddito e' una
+  // contraddizione, non un'informazione. La soglia inferiore e' in L. 207/2024 art. 1 c. 6
+  // (RC > 20.000), gia' nelle costanti come `sogliaInferiore`.
+  const bassoReddito = cascata2026(9396.46)
+  assert.ok(bassoReddito.redditoComplessivo <= COSTANTI_2026.ulterioreDetrazione.sogliaInferiore)
+  assert.equal(bassoReddito.ulterioreDetrazione, 0)
+
+  const testi = testiCascata(bassoReddito)
+  assert.match(testi.ulterioreDetrazione.nota, /Non ti spetta/)
+  assert.match(testi.ulterioreDetrazione.spiegazione, /20\.000/)
+
+  // dentro la finestra piena la nota non deve comparire
+  assert.equal(testiCascata(cascata2026(30000)).ulterioreDetrazione.nota, null)
+})
+
+test('quando il netto supera la RAL, la voce netto annuo lo dice', () => {
+  // Stessa finestra della nota su trattenuteTotali, ma vista dalla cascata: l'ultima riga
+  // chiude su un numero piu' alto della prima e la sequenza non torna a occhio.
+  const dentroLaFinestra = cascata2026(9396.46)
+  assert.ok(dentroLaFinestra.nettoAnnuo > dentroLaFinestra.ral)
+  assert.match(testiCascata(dentroLaFinestra).nettoAnnuo.nota, /non è un errore/)
+
+  assert.equal(testiCascata(cascata2026(30000)).nettoAnnuo.nota, null)
+})
+
 test('l’avviso sullo scalino compare dentro una zona di non-monotonia e non fuori', () => {
   // La zona esiste per costruzione (censimento in src/discontinuita.js); qui si verifica
   // che il testo la intercetti e che citi entrambi gli estremi.

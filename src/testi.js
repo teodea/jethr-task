@@ -30,6 +30,10 @@ const EURO = new Intl.NumberFormat('it-IT', {
   style: 'currency',
   currency: 'EUR',
   maximumFractionDigits: 0,
+  // Stessa ragione di EURO_CENTESIMI qui sotto e di formattaImporto (src/formato.js): senza,
+  // CLDR scrive "1000 € pieni fra 20.000 € e 32.000 €" nella stessa riga, e il numero non
+  // raggruppato in mezzo a due raggruppati si legge come un refuso, non come una regola.
+  useGrouping: 'always',
 })
 
 const EURO_CENTESIMI = new Intl.NumberFormat('it-IT', {
@@ -172,10 +176,19 @@ export function testiCascata(cascata) {
     ulterioreDetrazione: {
       etichetta: 'Ulteriore detrazione',
       spiegazione:
-        `Sconto aggiuntivo per i redditi medi: ${EURO.format(c.ulterioreDetrazione.importo)} pieni fino a ` +
+        `Sconto aggiuntivo per i redditi medi: ${EURO.format(c.ulterioreDetrazione.importo)} pieni fra ` +
+        `${EURO.format(c.ulterioreDetrazione.sogliaInferiore)} e ` +
         `${EURO.format(c.ulterioreDetrazione.inizioDecalage)}, poi cala fino ad azzerarsi a ` +
         `${EURO.format(c.ulterioreDetrazione.azzeramento)}.`,
-      nota: null,
+      // Sotto la soglia inferiore la voce vale zero pur restando in cascata (issue #13). La
+      // spiegazione da sola non basta: chi ha 8.500 di reddito legge "1.000 EUR pieni" e una
+      // riga a zero, e le due cose si contraddicono finche' nessuno nomina il pavimento.
+      nota:
+        cascata.redditoComplessivo <= c.ulterioreDetrazione.sogliaInferiore
+          ? `Non ti spetta: sotto ${EURO.format(c.ulterioreDetrazione.sogliaInferiore)} di reddito ` +
+            'questo sconto non è previsto. A quei redditi intervengono le erogazioni, che si ' +
+            "aggiungono al netto invece di ridurre l'imposta."
+          : null,
     },
 
     detrazioniEffettive: {
@@ -249,7 +262,16 @@ export function testiCascata(cascata) {
     nettoAnnuo: {
       etichetta: 'Netto annuo',
       spiegazione: 'Quanto incassi in un anno.',
-      nota: null,
+      // Nella cascata voce per voce questa riga chiude la sequenza, e sotto certi redditi
+      // chiude su un numero piu' grande della RAL da cui era partita: senza dirlo, la
+      // sequenza smette di tornare a occhio proprio sull'ultimo numero. La nota gemella su
+      // trattenuteTotali risponde all'altra stranezza visibile — un aggregato negativo.
+      nota:
+        cascata.nettoAnnuo > cascata.ral
+          ? 'Incassi più della tua RAL, e non è un errore: trattamento integrativo e somma ' +
+            'integrativa sono esenti da imposta e insieme valgono più di contributi e imposte. ' +
+            'Succede solo ai redditi bassi.'
+          : null,
     },
 
     nettoMensile: {

@@ -254,6 +254,115 @@ a {
   padding-left: 0.6rem;
 }
 
+/* La cascata, voce per voce */
+
+.cascata {
+  margin-top: 2.5rem;
+}
+
+.titolo-sezione {
+  margin: 0;
+  font-size: 1.15rem;
+  letter-spacing: -0.01em;
+}
+
+.occhiello {
+  margin: 0.3rem 0 1rem;
+  font-size: 0.9rem;
+  color: var(--inchiostro-tenue);
+}
+
+.voci {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: #fff;
+  overflow: hidden;
+}
+
+.voce + .voce {
+  border-top: 1px solid var(--bordo);
+}
+
+.voce-riga {
+  display: grid;
+  grid-template-columns: 1fr auto 0.75rem;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0.9rem;
+  cursor: pointer;
+  list-style: none; /* toglie il triangolo nativo: al suo posto il chevron sotto */
+}
+
+.voce-riga::-webkit-details-marker {
+  display: none;
+}
+
+.voce-riga:hover {
+  background: var(--accento-tenue);
+}
+
+.voce-riga:focus-visible {
+  outline: 2px solid var(--accento);
+  outline-offset: -2px;
+}
+
+.voce-etichetta {
+  font-size: 0.95rem;
+}
+
+.voce-importo {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+/* Le voci a zero restano in cascata: la struttura non cambia con l'input, cambia l'importo. */
+.voce-importo-zero {
+  color: var(--inchiostro-tenue);
+  font-weight: 400;
+}
+
+/* Chevron: giu' quando la riga e' chiusa, su quando e' aperta. */
+.voce-riga::after {
+  content: '';
+  width: 0.45rem;
+  height: 0.45rem;
+  border-right: 2px solid var(--inchiostro-tenue);
+  border-bottom: 2px solid var(--inchiostro-tenue);
+  transform: translateY(-0.15rem) rotate(45deg);
+  transition: transform 0.15s ease;
+}
+
+.voce details[open] > .voce-riga::after {
+  transform: translateY(0.1rem) rotate(225deg);
+}
+
+.voce-corpo {
+  padding: 0 0.9rem 0.9rem;
+  max-width: 42rem;
+}
+
+.voce-spiegazione {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--inchiostro-tenue);
+}
+
+.voce-nota {
+  margin: 0.6rem 0 0;
+  display: flex;
+  gap: 0.45rem;
+  font-size: 0.9rem;
+  border-left: 3px solid var(--accento);
+  padding-left: 0.6rem;
+}
+
+.voce-segno {
+  flex: none;
+}
+
 /* Chiusura */
 
 .chiusura {
