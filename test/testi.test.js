@@ -9,9 +9,16 @@ import { calcolaCascata } from '../src/cascata.js'
 import { zoneNonMonotonia } from '../src/discontinuita.js'
 import { COSTANTI_2026 } from '../src/costanti/index.js'
 import { presentaScalino } from '../src/presentazione.js'
-import { testiCascata, avvisoScalino, ORDINE_VOCI } from '../src/testi.js'
+import {
+  testiCascata,
+  avvisoScalino,
+  avvisoPeriodo,
+  descriviGiorniDelRapporto,
+  ORDINE_VOCI,
+} from '../src/testi.js'
 
 const cascata2026 = (ral) => calcolaCascata({ ral, anno: 2026 })
+const SEMESTRE = { dataInizio: '2026-07-01', dataFine: '2026-12-31' } // 184 giorni
 
 test('ogni voce della cascata ha etichetta e spiegazione non vuote', () => {
   const testi = testiCascata(cascata2026(30000))
@@ -209,6 +216,85 @@ test('l’avviso sullo scalino compare dentro una zona di non-monotonia e non fu
 
   // una RAL lontana da ogni soglia non deve produrre avvisi
   assert.equal(avvisoScalino(cascata2026(100000)), null)
+})
+
+// ————— Periodo di lavoro (issue #22) —————
+
+test('il banner sul periodo parziale compare solo se il periodo non e’ l’anno intero', () => {
+  assert.equal(avvisoPeriodo(cascata2026(30000)), null)
+  // anche con le date scritte a mano, se coprono l'anno intero non c'e' niente da dire
+  assert.equal(
+    avvisoPeriodo(calcolaCascata({ ral: 30000, anno: 2026, dataInizio: '2026-01-01', dataFine: '2026-12-31' })),
+    null,
+  )
+
+  const avviso = avvisoPeriodo(calcolaCascata({ ral: 30000, anno: 2026, ...SEMESTRE }))
+  assert.ok(avviso)
+  assert.match(avviso, /184 giorni su 365/)
+  // la cosa che il banner esiste per dire
+  assert.match(avviso, /non è la stessa frazione del netto di un anno intero/)
+})
+
+test('il banner nomina le voci che si accendono e quelle che si spengono, non un importo', () => {
+  // A RAL 30.000 su mezzo anno: entrano le due erogazioni, escono ulteriore detrazione e
+  // addizionale comunale (test/cascata.casi.test.js). Il banner deve dirlo con le stesse
+  // etichette della cascata, non con parole sue.
+  const avviso = avvisoPeriodo(calcolaCascata({ ral: 30000, anno: 2026, ...SEMESTRE }))
+  assert.match(avviso, /si accendono trattamento integrativo e somma integrativa/)
+  assert.match(avviso, /si spengono ulteriore detrazione e addizionale comunale/)
+  assert.match(avviso, /voci che compaiono o spariscono/)
+
+  // Le etichette non sono riscritte a mano: sono quelle della cascata, in minuscolo.
+  const testi = testiCascata(calcolaCascata({ ral: 30000, anno: 2026, ...SEMESTRE }))
+  for (const voce of ['trattamentoIntegrativo', 'sommaIntegrativa', 'ulterioreDetrazione']) {
+    assert.ok(avviso.includes(testi[voce].etichetta.toLowerCase()), `etichetta assente: ${voce}`)
+  }
+})
+
+test('il numero derivato accanto ai campi data e’ uno solo: i giorni su 365', () => {
+  assert.equal(descriviGiorniDelRapporto(184), '184 giorni su 365')
+  assert.equal(descriviGiorniDelRapporto(365), '365 giorni su 365')
+  assert.equal(descriviGiorniDelRapporto(calcolaCascata({ ral: 30000, anno: 2026, ...SEMESTRE })), '184 giorni su 365')
+  // niente da dire finche' le due date non stanno in piedi
+  assert.equal(descriviGiorniDelRapporto(null), null)
+})
+
+test('la voce «retribuzione effettiva» resta in cascata anche ad anno intero, e lo dice', () => {
+  // La struttura della cascata non cambia con l'input: cambia l'importo. Ad anno intero la
+  // voce vale la RAL, e senza la nota una riga che ripete lo stesso numero sembrerebbe un
+  // errore di rendering.
+  assert.ok(ORDINE_VOCI.includes('retribuzioneEffettiva'))
+  assert.equal(ORDINE_VOCI.indexOf('retribuzioneEffettiva'), ORDINE_VOCI.indexOf('ral') + 1)
+
+  // Ad anno intero la riga ripete il numero di quella sopra e la spiegazione lo dice; la nota
+  // resta vuota perche' porta il segno di attenzione, e qui non c'e' niente da segnalare.
+  const intero = testiCascata(cascata2026(30000)).retribuzioneEffettiva
+  assert.match(intero.spiegazione, /copre l’anno intero \(365 giorni su 365\)/)
+  assert.equal(intero.nota, null)
+
+  const mezzo = testiCascata(calcolaCascata({ ral: 30000, anno: 2026, ...SEMESTRE })).retribuzioneEffettiva
+  assert.match(mezzo.nota, /184 giorni su 365/)
+  // la cosa contro-intuitiva del conteggio, detta dove serve
+  assert.match(mezzo.nota, /non sono i giorni lavorati/)
+})
+
+test('il netto mensile dichiara il divisore che ha usato davvero', () => {
+  const intero = testiCascata(cascata2026(30000)).nettoMensile
+  assert.match(intero.spiegazione, /diviso 13 mensilità/)
+  assert.equal(intero.nota, null)
+
+  const mezzo = testiCascata(calcolaCascata({ ral: 30000, anno: 2026, ...SEMESTRE })).nettoMensile
+  assert.match(mezzo.spiegazione, /6,55 delle 13/)
+  assert.match(mezzo.nota, /Dividere per 13/)
+})
+
+test('con un periodo parziale le trattenute si misurano su quello che maturi, non sulla RAL', () => {
+  const mezzo = testiCascata(calcolaCascata({ ral: 30000, anno: 2026, ...SEMESTRE }))
+  assert.match(mezzo.trattenuteTotali.spiegazione, /retribuzione che maturi nel periodo/)
+  assert.doesNotMatch(mezzo.trattenuteTotali.spiegazione, /fra la tua RAL/)
+
+  const intero = testiCascata(cascata2026(30000))
+  assert.match(intero.trattenuteTotali.spiegazione, /fra la tua RAL/)
 })
 
 test('il grafico dello scalino e il suo testo compaiono e tacciono insieme', () => {

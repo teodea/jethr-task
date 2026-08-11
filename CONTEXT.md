@@ -8,34 +8,77 @@ verità dei termini, non una specifica.
 
 **RAL**:
 La retribuzione annua lorda pattuita in contratto, mensilità aggiuntive
-comprese. Con le mensilità, è uno dei due input del calcolo.
+comprese, per un anno intero di lavoro. È un input del calcolo, non un suo
+risultato.
 _Avoid_: stipendio lordo, lordo annuo, `grossSalary`. Mai "stipendio mensile
-× 12": le mensilità aggiuntive sono già dentro la RAL, non si sommano.
+× 12": le mensilità aggiuntive sono già dentro la RAL, non si sommano. E mai
+"quanto ho percepito nell'anno": quella è la retribuzione effettiva del periodo,
+e con un rapporto parziale i due numeri divergono.
+
+**Retribuzione effettiva del periodo**:
+La quota di RAL che matura nei giorni in cui il rapporto è in essere. Coincide
+con la RAL quando il rapporto copre l'anno intero. È la prima voce della cascata
+e la base di ogni voce successiva: contributi, imposte e sconti si applicano a
+questa, mai alla RAL.
+_Avoid_: RAL rapportata, RAL effettiva — tengono nel nome una parola, "annua",
+che il concetto nega.
 
 **Netto annuo**:
-Quanto il lavoratore incassa in un anno dopo contributi e imposte. È l'output
-del calcolo.
+Quanto il lavoratore incassa nell'anno d'imposta dopo contributi e imposte. È
+l'output del calcolo.
 _Avoid_: `netSalary`, netto in busta (che è un'altra cosa, vedi Netto mensile).
+Anche con un rapporto parziale resta "annuo": fuori dal periodo non c'è altro
+reddito.
 
 **Netto mensile**:
-Netto annuo diviso le mensilità. È una media: nessuna busta paga reale coincide
-con questo numero, perché le trattenute mensili sono provvisorie fino al
-conguaglio.
+Netto annuo diviso le mensilità maturate. È una media: nessuna busta paga reale
+coincide con questo numero, perché le trattenute mensili sono provvisorie fino
+al conguaglio.
 _Avoid_: netto in busta, stipendio mensile.
 
 **Trattenute totali**:
-La differenza fra la RAL e il netto annuo: contributi previdenziali e imposte
-insieme, già al netto delle erogazioni. È un aggregato di presentazione, non una
-voce della cascata — esiste per rispondere alla domanda «quante tasse pago»
-senza costringere a una sottrazione.
+La differenza fra la retribuzione effettiva del periodo e il netto annuo:
+contributi previdenziali e imposte insieme, già al netto delle erogazioni. È un
+aggregato di presentazione, non una voce della cascata — esiste per rispondere
+alla domanda «quante tasse pago» senza costringere a una sottrazione.
 _Avoid_: tasse, prelievo fiscale. Entrambi mettono i contributi sotto
-l'etichetta dell'imposta.
+l'etichetta dell'imposta. E mai la differenza dalla RAL: la retribuzione che il
+rapporto non copre non è trattenuta da nessuno.
 
 **Mensilità**:
-Le rate in cui la RAL viene erogata nell'anno — 12, 13 o 14 secondo il CCNL.
-Secondo input del calcolo e divisore del netto mensile; non incide sul netto
-annuo.
+Le rate in cui la RAL viene erogata in un anno intero — 12, 13 o 14 secondo il
+CCNL. Input del calcolo; non incide sul netto annuo.
 _Avoid_: tredicesima intesa come importo che si aggiunge alla RAL.
+
+**Mensilità maturate**:
+Le mensilità che il rapporto matura nel suo periodo, ed è il divisore del netto
+mensile. Coincidono con le mensilità quando il rapporto copre l'anno intero.
+_Avoid_: dividere per le mensilità intere un netto di periodo — dà la media su
+mesi non lavorati, che non è quello che si incassa nei mesi lavorati.
+
+## Il periodo di lavoro
+
+**Periodo di lavoro**:
+L'intervallo, dentro l'anno d'imposta, in cui il rapporto è in essere: due date
+che sono un input del calcolo. Il default è l'anno intero.
+_Avoid_: durata del contratto — un tempo indeterminato non ha durata, ma ha una
+data di inizio.
+
+**Giorni del rapporto**:
+I giorni di calendario compresi nel periodo di lavoro, estremi inclusi: sabati,
+domeniche, festivi e ferie ci stanno dentro. Sono l'unità con cui si rapportano
+al periodo la detrazione per lavoro dipendente e le erogazioni.
+_Avoid_: giorni lavorati, giornate — designano l'opposto (le giornate
+effettivamente prestate) e sono l'errore di dominio più facile da fare qui. Le
+giornate retribuite, altra unità ancora, servono solo al minimale contributivo.
+
+**Ragguaglio al periodo**:
+La riduzione di un importo in proporzione ai giorni del rapporto. Riguarda gli
+**importi**, mai le soglie: queste si valutano sempre sul reddito effettivamente
+percepito. È il motivo per cui la cascata di un periodo non è la cascata annua
+moltiplicata per una frazione — a reddito più basso cambia la fascia, e con la
+fascia cambiano le voci che spettano.
+_Avoid_: proporzionale, pro-rata.
 
 ## Le due basi di calcolo
 
@@ -43,13 +86,13 @@ Sono due, mai una. Confonderle è l'errore di dominio più costoso del progetto.
 
 **Base imponibile contributiva**:
 L'importo su cui si calcolano i contributi previdenziali. Per un dipendente
-retribuito interamente in denaro coincide con la RAL, fino al massimale
-contributivo.
+retribuito interamente in denaro coincide con la retribuzione effettiva del
+periodo, fino al massimale contributivo.
 _Avoid_: imponibile, reddito.
 
 **Imponibile fiscale**:
-L'importo su cui si calcolano IRPEF e addizionali: la RAL meno i contributi a
-carico del dipendente. È sempre minore della RAL.
+L'importo su cui si calcolano IRPEF e addizionali: la retribuzione effettiva del
+periodo meno i contributi a carico del dipendente. È sempre minore di essa.
 _Avoid_: reddito, reddito imponibile, imponibile, `taxableIncome`. Una variabile
 chiamata `reddito` significa che le due basi sono state fuse: è un bug, non uno
 stile.

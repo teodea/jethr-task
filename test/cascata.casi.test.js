@@ -16,6 +16,7 @@ import {
   addizionaleRegionale,
   addizionaleComunale,
   troncaQuoziente,
+  cambiDiStatoDelPeriodo,
 } from '../src/cascata.js'
 import { presentaCascata } from '../src/presentazione.js'
 import { COSTANTI_2026, COSTANTI_2025 } from '../src/costanti/index.js'
@@ -205,6 +206,154 @@ test('trattenute totali: quadrano con i due numeri esposti e restano al netto de
       prelievi - erogazioni,
       `erogazioni contate come trattenute a RAL ${ral}`,
     )
+  }
+})
+
+// ————— Periodo di lavoro parziale (issue #22) —————
+// Convenzione dei valori attesi: la retribuzione del periodo e' RAL x giorni / 365
+// (docs/ASSUNZIONI.md, «Retribuzione effettiva del periodo rapportata ai giorni»). I numeri
+// sono [derivazione] dalle regole di docs/ricerca/giorni-del-rapporto-e-ragguaglio-al-periodo.md,
+// ricalcolati fuori dal motore prima di essere scritti qui.
+
+const SEMESTRE = { dataInizio: '2026-07-01', dataFine: '2026-12-31' } // 184 giorni
+
+test('la coppia della issue: RAL 30.000 su tutto l’anno e dal 1° luglio [derivazione, ricerca #20 par. 7.1]', () => {
+  const intero = calcolaCascata({ ral: 30000, anno: 2026 })
+  const mezzo = calcolaCascata({ ral: 30000, anno: 2026, ...SEMESTRE })
+
+  assert.equal(mezzo.giorniRapporto, 184)
+  vicino(mezzo.retribuzioneEffettiva, 15123.288) // 30.000 x 184/365
+  vicino(intero.retribuzioneEffettiva, 30000)
+
+  vicino(mezzo.contributiDipendente, 1389.83) // 9,19% sulla retribuzione del periodo
+  vicino(mezzo.imponibileFiscale, 13733.458)
+  vicino(mezzo.irpefLorda, 3158.695)
+  vicino(mezzo.detrazioneLavoroDipendente, 985.534) // 1.955 x 184/365, pavimento 690 non raggiunto
+  vicino(mezzo.irpefNetta, 2173.161)
+  vicino(mezzo.addizionaleRegionale, 168.922)
+  vicino(mezzo.nettoAnnuo, 12655.512)
+
+  // Il punto della issue: il netto di mezzo anno NON e' meta' del netto annuo, ed e' di piu'
+  vicino(intero.nettoAnnuo, 23425.485)
+  assert.ok(
+    mezzo.nettoAnnuo > intero.nettoAnnuo / 2,
+    `mezzo anno ${mezzo.nettoAnnuo} non supera la meta' dell'annuo ${intero.nettoAnnuo / 2}`,
+  )
+})
+
+test('cinque voci cambiano di STATO per effetto della sola data, non di importo [issue #22]', () => {
+  const intero = calcolaCascata({ ral: 30000, anno: 2026 })
+  const mezzo = calcolaCascata({ ral: 30000, anno: 2026, ...SEMESTRE })
+
+  // si accendono: il reddito effettivo scende sotto le soglie delle due erogazioni
+  assert.equal(intero.trattamentoIntegrativo, 0) // RC 27.243 > 15.000
+  vicino(mezzo.trattamentoIntegrativo, 604.932) // 1.200 x 184/365, RC 13.733 <= 15.000
+  assert.equal(intero.sommaIntegrativa, 0) // RC 27.243 > 20.000
+  vicino(mezzo.sommaIntegrativa, 659.206) // 4,8% x 13.733,46
+
+  // si spengono: sotto quelle stesse soglie l'ulteriore detrazione e l'addizionale comunale
+  // non spettano piu'
+  vicino(intero.ulterioreDetrazione, 1000)
+  assert.equal(mezzo.ulterioreDetrazione, 0) // RC <= 20.000
+  vicino(intero.addizionaleComunale, 217.944)
+  assert.equal(mezzo.addizionaleComunale, 0) // imponibile <= 23.000 di esenzione
+
+  // e la maggiorazione di 65 EUR, che sta dentro la detrazione: presente sopra 25.000 di RC
+  const senzaMaggiorazione = detrazioneLavoroDipendente(mezzo.redditoComplessivo, COSTANTI_2026)
+  assert.ok(intero.detrazioneLavoroDipendente > 2044 - 0.01) // 1.979,26 + 65
+  assert.ok(senzaMaggiorazione <= 1955) // RC 13.733: fascia a, niente +65
+
+  const { accese, spente } = cambiDiStatoDelPeriodo(mezzo)
+  assert.deepEqual(accese.sort(), ['sommaIntegrativa', 'trattamentoIntegrativo'])
+  assert.deepEqual(spente.sort(), ['addizionaleComunale', 'ulterioreDetrazione'])
+  // ad anno intero non c'e' niente da confrontare
+  assert.deepEqual(cambiDiStatoDelPeriodo(intero), { accese: [], spente: [] })
+})
+
+test('la maggiorazione di 65 EUR non si rapporta al periodo, l’importo di fascia sì [Circ. AdE 4/E/2022]', () => {
+  // «deve essere corrisposto ... per intero ..., senza effettuare alcun ragguaglio al periodo
+  // di lavoro nell'anno». RC 30.000 sta dentro la finestra 25.000-35.000 in entrambi i casi.
+  const q = 184 / 365
+  const conRagguaglio = detrazioneLavoroDipendente(30000, COSTANTI_2026, q)
+  const senzaRagguaglio = detrazioneLavoroDipendente(30000, COSTANTI_2026)
+  const baseFasciaC = senzaRagguaglio - 65
+  vicino(conRagguaglio, baseFasciaC * q + 65)
+  // se i 65 si rapportassero, la detrazione sarebbe piu' bassa di 65 x (1 - 184/365)
+  assert.ok(conRagguaglio > senzaRagguaglio * q)
+})
+
+test('il pavimento dei 690 EUR scatta sotto i 129 giorni, e non si rapporta [derivazione, ricerca #20 par. 7.2]', () => {
+  const centoventi = calcolaCascata({ ral: 30000, anno: 2026, dataFine: '2026-04-30' }) // 120 gg
+  const centotrenta = calcolaCascata({ ral: 30000, anno: 2026, dataFine: '2026-05-10' }) // 130 gg
+
+  assert.equal(centoventi.giorniRapporto, 120)
+  assert.equal(centotrenta.giorniRapporto, 130)
+  // 1.955 x 120/365 = 642,74 < 690 -> il pavimento rialza al minimo di legge
+  assert.equal(centoventi.detrazioneLavoroDipendente, 690)
+  // 1.955 x 130/365 = 696,30 > 690 -> il ragguaglio resta
+  vicino(centotrenta.detrazioneLavoroDipendente, 696.301)
+})
+
+test('la percentuale della somma integrativa si sceglie sul reddito ragguagliato ad anno [L. 207/2024 c. 5]', () => {
+  // Il ragguaglio del c. 5 lavora CONTRO il rapporto breve: il reddito ragguagliato ad anno
+  // e' l'imponibile che la stessa RAL avrebbe su tutto l'anno, quindi la fascia e' la stessa.
+  // Conseguenza verificabile: la RAL a cui la percentuale cambia non si muove con le date.
+  const intero = calcolaCascata({ ral: 30000, anno: 2026 })
+  const mezzo = calcolaCascata({ ral: 30000, anno: 2026, ...SEMESTRE })
+  vicino(mezzo.redditoComplessivo / mezzo.quotaPeriodo, intero.redditoComplessivo, 1e-6)
+
+  // 4,8% e non 5,3%: il reddito effettivo (13.733) e' sotto i 15.000, il ragguagliato no
+  vicino(mezzo.sommaIntegrativa, 0.048 * mezzo.redditoComplessivo)
+  assert.ok(mezzo.sommaIntegrativa < 0.053 * mezzo.redditoComplessivo)
+})
+
+test('il divisore del netto mensile sono le mensilita’ maturate nel periodo [issue #22]', () => {
+  const mezzo = calcolaCascata({ ral: 30000, anno: 2026, ...SEMESTRE })
+  vicino(mezzo.mensilitaMaturate, 13 * (184 / 365), 1e-9)
+  vicino(mezzo.nettoMensile, mezzo.nettoAnnuo / mezzo.mensilitaMaturate, 1e-9)
+
+  // Il numero che la issue chiede di non produrre: netto del periodo diviso 13 intere darebbe
+  // ~973 EUR, meta' di quello che entra in banca nei mesi lavorati.
+  assert.ok(mezzo.nettoMensile > 1.9 * (mezzo.nettoAnnuo / 13))
+  // e resta nello stesso ordine di grandezza del mensile ad anno intero, che e' il punto
+  const intero = calcolaCascata({ ral: 30000, anno: 2026 })
+  assert.ok(Math.abs(mezzo.nettoMensile - intero.nettoMensile) < 200)
+})
+
+test('quadratura per differenza anche con un periodo parziale: la catena parte dalla retribuzione effettiva', () => {
+  for (const [dataInizio, dataFine] of [
+    ['2026-01-01', '2026-12-31'],
+    ['2026-07-01', '2026-12-31'],
+    ['2026-03-15', '2026-11-02'],
+    ['2026-12-31', '2026-12-31'],
+  ]) {
+    for (const ral of [8500, 30000, 87654.32, 150000]) {
+      const voci = presentaCascata(calcolaCascata({ ral, anno: 2026, dataInizio, dataFine }))
+      const cent = (v) => Math.round(v * 100)
+      const somma =
+        cent(voci.retribuzioneEffettiva) -
+        cent(voci.contributiDipendente) -
+        cent(voci.irpefNetta) -
+        cent(voci.addizionaleRegionale) -
+        cent(voci.addizionaleComunale) +
+        cent(voci.trattamentoIntegrativo) +
+        cent(voci.sommaIntegrativa)
+      const dove = `RAL ${ral}, ${dataInizio}/${dataFine}`
+      assert.equal(somma, cent(voci.nettoAnnuo), `quadratura rotta a ${dove}`)
+      assert.equal(
+        cent(voci.retribuzioneEffettiva) - cent(voci.contributiDipendente),
+        cent(voci.imponibileFiscale),
+        `retribuzione - contributi != imponibile a ${dove}`,
+      )
+      // le trattenute si misurano su quello che si matura, non sulla RAL: la parte di RAL
+      // che il rapporto non copre non e' trattenuta da nessuno
+      assert.equal(
+        cent(voci.trattenuteTotali),
+        cent(voci.retribuzioneEffettiva) - cent(voci.nettoAnnuo),
+        `trattenute non quadrate a ${dove}`,
+      )
+      assert.ok(voci.incidenzaTrattenute < 1, `incidenza fuori scala a ${dove}`)
+    }
   }
 })
 

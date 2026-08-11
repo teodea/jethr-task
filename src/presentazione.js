@@ -4,7 +4,7 @@
 // carico del dipendente, l'unica sempre strettamente positiva (RAL > 0 => contributi > 0),
 // quindi mai portata sotto zero dai pochi centesimi di scarto.
 
-import { profiloScalino } from './discontinuita.js'
+import { profiloScalino, periodoDellaCascata } from './discontinuita.js'
 import { COSTANTI_PER_ANNO } from './costanti/index.js'
 
 function arrotondaCentesimi(valore) {
@@ -14,6 +14,10 @@ function arrotondaCentesimi(valore) {
 export function presentaCascata(cascata) {
   const voci = {
     ral: arrotondaCentesimi(cascata.ral),
+    // La prima voce che entra davvero nella quadratura: da qui in giu' la catena parte dalla
+    // retribuzione del periodo, non dalla RAL. Con l'anno intero le due coincidono al
+    // centesimo e la somma di prima resta valida parola per parola.
+    retribuzioneEffettiva: arrotondaCentesimi(cascata.retribuzioneEffettiva),
     contributiDipendente: arrotondaCentesimi(cascata.contributiDipendente),
     imponibileFiscale: arrotondaCentesimi(cascata.imponibileFiscale),
     irpefLorda: arrotondaCentesimi(cascata.irpefLorda),
@@ -34,11 +38,14 @@ export function presentaCascata(cascata) {
     nettoMensile: arrotondaCentesimi(cascata.nettoMensile),
   }
 
-  // Quadratura: ral - contributi - irpefNetta - addizionali + erogazioni = nettoAnnuo,
-  // esattamente, sui valori esposti. Lo scarto di arrotondamento (fino a 2 centesimi,
-  // registrato in docs/ASSUNZIONI.md) va sui contributi.
+  // Quadratura: retribuzione effettiva - contributi - irpefNetta - addizionali + erogazioni
+  // = nettoAnnuo, esattamente, sui valori esposti. Lo scarto di arrotondamento (fino a 2
+  // centesimi, registrato in docs/ASSUNZIONI.md) va sui contributi. La RAL resta fuori dalla
+  // somma: e' il dato di contratto da cui la catena parte, non un termine della catena —
+  // con un rapporto parziale la differenza fra le due e' retribuzione mai maturata, non una
+  // trattenuta, e sommarla direbbe che l'utente ha perso quei soldi.
   const sommaVoci =
-    voci.ral -
+    voci.retribuzioneEffettiva -
     voci.contributiDipendente -
     voci.irpefNetta -
     voci.addizionaleRegionale -
@@ -52,7 +59,9 @@ export function presentaCascata(cascata) {
   // esposti (RAL - contributi = imponibile; lorda - detrazioni = netta): si derivano
   // per differenza invece di arrotondarle indipendentemente. Nessuna delle due entra
   // nella somma del netto: la quadratura sopra resta intatta.
-  voci.imponibileFiscale = arrotondaCentesimi(voci.ral - voci.contributiDipendente)
+  voci.imponibileFiscale = arrotondaCentesimi(
+    voci.retribuzioneEffettiva - voci.contributiDipendente,
+  )
   voci.detrazioniEffettive = arrotondaCentesimi(voci.irpefLorda - voci.irpefNetta)
 
   // Aggregato di presentazione, non una voce della cascata (issue #11): e' la risposta
@@ -61,8 +70,13 @@ export function presentaCascata(cascata) {
   // differenza fra i due numeri che la pagina mostra, senza un centesimo di scarto.
   // Comprende contributi e imposte ed e' gia' al netto delle erogazioni: e' il motivo
   // per cui il glossario lo definisce a parte e vieta l'etichetta "tasse" (CONTEXT.md).
-  voci.trattenuteTotali = arrotondaCentesimi(voci.ral - voci.nettoAnnuo)
-  voci.incidenzaTrattenute = voci.trattenuteTotali / voci.ral // RAL > 0 garantita da validaInput
+  // Il minuendo e' la retribuzione effettiva, non la RAL: con un rapporto parziale la
+  // differenza fra le due non e' trattenuta da nessuno, e' retribuzione che non e' mai
+  // maturata. Contarla come prelievo gonfierebbe l'aggregato — e con lui l'incidenza, che
+  // su mezzo anno arriverebbe oltre il 50% della RAL senza che nulla sia stato trattenuto.
+  voci.trattenuteTotali = arrotondaCentesimi(voci.retribuzioneEffettiva - voci.nettoAnnuo)
+  // Retribuzione effettiva > 0: RAL > 0 e giorni >= 1 sono garantiti da validaInput.
+  voci.incidenzaTrattenute = voci.trattenuteTotali / voci.retribuzioneEffettiva
 
   return voci
 }
@@ -80,5 +94,5 @@ export function presentaCascata(cascata) {
 export function presentaScalino(cascata) {
   const costanti = COSTANTI_PER_ANNO[cascata.anno]
   if (!costanti) throw new RangeError(`anno d’imposta non supportato: ${cascata.anno}`)
-  return profiloScalino(cascata.ral, costanti)
+  return profiloScalino(cascata.ral, costanti, periodoDellaCascata(cascata))
 }
