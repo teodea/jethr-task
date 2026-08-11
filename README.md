@@ -180,6 +180,7 @@ il risultato annuale a consuntivo e non simula le dodici buste.
 | [src/testi.js](src/testi.js) | i testi dell'interfaccia, con i numeri interpolati dalle costanti |
 | [src/discontinuita.js](src/discontinuita.js) | censimento dei salti legittimi e delle zone non monotone |
 | [src/validazione.js](src/validazione.js) | input fuori dominio (errori) e implausibili (avvisi) |
+| [src/formato.js](src/formato.js) | come si legge e si riscrive un importo in italiano; rifiuta le forme ambigue |
 | [test/](test/) | casi ancorati alle fonti, suite di proprietà, test dei testi |
 | [CONTEXT.md](CONTEXT.md) | il glossario del dominio: fonte di verità dei termini |
 | [docs/ASSUNZIONI.md](docs/ASSUNZIONI.md) | cosa il prototipo non copre, e cosa cambierebbe se lo coprisse |

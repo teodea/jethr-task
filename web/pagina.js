@@ -7,6 +7,7 @@ import { calcolaCascata } from '../src/cascata.js'
 import { presentaCascata } from '../src/presentazione.js'
 import { testiCascata, formattaEuro, formattaPercentuale } from '../src/testi.js'
 import { MENSILITA_AMMESSE, MENSILITA_DEFAULT } from '../src/validazione.js'
+import { interpretaImporto, formattaImporto } from '../src/formato.js'
 import { ANNO_CORRENTE } from '../src/costanti/index.js'
 
 const form = document.querySelector('#calcolatore')
@@ -43,19 +44,20 @@ for (const mensilita of MENSILITA_AMMESSE) {
   gruppoMensilita.append(segmento)
 }
 
-function leggiInput() {
-  return {
-    // Il parsing tollerante dei formati italiani («30.000», «30.000,50») arriva con #12:
-    // per ora il campo e' un input numerico e la conversione e' quella del browser.
-    ral: Number(campoRal.value),
-    mensilita: Number(new FormData(form).get('mensilita')),
-    anno: ANNO_CORRENTE,
-  }
+function leggiMensilita() {
+  return Number(new FormData(form).get('mensilita'))
 }
 
+// Un solo posto e un solo stile per tutti i messaggi bloccanti: quelli di forma
+// (src/formato.js, «non riesco a leggere questo importo») e quelli di dominio
+// (src/validazione.js, «la RAL deve essere maggiore di zero») arrivano da moduli diversi
+// ma rispondono alla stessa domanda dell'utente — perche' non vedo un numero.
 function mostraErrore(messaggio) {
   errore.textContent = messaggio
   errore.hidden = false
+  // L'unico input che puo' essere invalido e' la RAL: le mensilita' fuori dominio non sono
+  // rappresentabili dal segmented control.
+  campoRal.setAttribute('aria-invalid', 'true')
   // Il risultato precedente sparisce: un numero accanto a un input invalido verrebbe
   // letto come vero.
   risultato.hidden = true
@@ -64,6 +66,7 @@ function mostraErrore(messaggio) {
 function nascondiErrore() {
   errore.hidden = true
   errore.textContent = ''
+  campoRal.removeAttribute('aria-invalid')
 }
 
 function creaEroe({ etichetta, valore, spiegazione, incidenza, nota }) {
@@ -124,15 +127,37 @@ function mostraRisultato(cascata) {
   risultato.hidden = false
 }
 
+// Al blur il campo si riscrive in stile italiano: «30000» diventa «30.000», cosi' l'utente
+// rilegge senza ambiguita' la cifra su cui sta per calcolare. Se l'importo non e'
+// interpretabile si lascia intatto quello che ha scritto — riformattare a forza vorrebbe
+// dire indovinare, e correggergli il testo sotto le dita gli toglierebbe il modo di capire
+// dove ha sbagliato.
+campoRal.addEventListener('blur', () => {
+  const importo = interpretaImporto(campoRal.value)
+  if (importo.valido) campoRal.value = formattaImporto(importo.valore)
+})
+
+// Mentre l'utente corregge, il messaggio precedente diventa vecchio: sparisce. Il risultato
+// no — quello torna solo da un click su «Calcola».
+campoRal.addEventListener('input', nascondiErrore)
+
 form.addEventListener('submit', (evento) => {
   evento.preventDefault()
 
+  const importo = interpretaImporto(campoRal.value)
+  if (!importo.valido) {
+    mostraErrore(importo.errore)
+    return
+  }
+
   try {
-    mostraRisultato(calcolaCascata(leggiInput()))
+    mostraRisultato(
+      calcolaCascata({ ral: importo.valore, mensilita: leggiMensilita(), anno: ANNO_CORRENTE }),
+    )
     nascondiErrore()
   } catch (problema) {
     // Il motore rifiuta gli input fuori dominio con un messaggio gia' in lingua
-    // (src/validazione.js). Lo stile dell'errore inline si completa con #12.
+    // (src/validazione.js): RAL <= 0 arriva qui, non dal parsing.
     mostraErrore(
       problema instanceof RangeError
         ? problema.message

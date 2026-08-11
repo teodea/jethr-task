@@ -102,6 +102,12 @@ a {
   box-shadow: 0 0 0 3px var(--accento-tenue);
 }
 
+/* Il campo si tinge insieme al messaggio: il colore da solo non porta l'informazione
+   (il testo dell'errore c'e' sempre), ma lega l'errore al campo che lo ha generato. */
+.campo-valuta:has(input[aria-invalid='true']) {
+  border-color: var(--allarme);
+}
+
 .campo-valuta input {
   flex: 1;
   min-width: 0;

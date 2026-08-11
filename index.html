@@ -35,15 +35,17 @@
         <div class="campo">
           <label class="etichetta-campo" for="ral">Retribuzione annua lorda (RAL)</label>
           <div class="campo-valuta">
+            <!-- Campo testo, non number: il parsing dei formati italiani e' nostro
+                 (src/formato.js). Un input numerico accetterebbe solo il punto decimale
+                 inglese e scarterebbe in silenzio «30.000,50». -->
             <input
               id="ral"
               name="ral"
-              type="number"
+              type="text"
               inputmode="decimal"
-              min="0"
-              step="0.01"
-              value="30000"
+              value="30.000"
               autocomplete="off"
+              spellcheck="false"
               aria-describedby="errore"
             />
             <span class="unita" aria-hidden="true">&euro;</span>
