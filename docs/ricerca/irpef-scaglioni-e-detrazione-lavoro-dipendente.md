@@ -309,7 +309,10 @@ INPS.
   modello della circolare 4/E del 16/05/2025 per la LdB 2025). La Circolare
   2/E del 24/02/2026 copre solo i commi 7 e 10-12. Le coppie a cavallo di
   soglia qui sopra sono quindi calcoli miei dalle formule di legge, non valori
-  attesi certificati da fonte.
+  attesi certificati da fonte. Presidio dei cicli di verifica:
+  `rivalidazioni-fonti.md` (al ciclo del 2026-08-11 nessuna delle sette
+  circolari 2026 tratta i commi 3-4; la 3/E del 24-06-2026, letta
+  integralmente, copre solo i commi 7, 10 e 11).
 - **Convenzione dei 4 decimali per il 2026**: documentata nelle istruzioni
   Redditi PF 2026, che si riferiscono all'anno d'imposta 2025. Poiché l'art.
   13 è invariato nel 2026 si assume identica; da riverificare sulle istruzioni

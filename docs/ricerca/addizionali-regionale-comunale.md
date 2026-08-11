@@ -371,7 +371,9 @@ issue #4.)
   del brief (solo reddito da lavoro dipendente, nessun onere) la distinzione non
   cambia il risultato.
 - **Delibera 2026 di Milano inesistente alla data della ricerca**: i valori
-  2026 derivano dalla proroga (§4). Rivalidare dopo il 20-12-2026.
+  2026 derivano dalla proroga (§4). Rivalidare dopo il 20-12-2026 — presidio
+  dei cicli di verifica: `rivalidazioni-fonti.md` (al ciclo del 2026-08-11
+  ancora nessuna delibera 2026 sul portale MEF).
 - ~~Soglie di versamento minimo e loro interazione con la debenza~~ **Chiusa
   dalla ricerca della issue #5** (`docs/ricerca/arrotondamenti-e-quadratura.md`,
   §9-§10): la liquidazione 730 attiva le addizionali solo sopra 10 euro di IRPEF
