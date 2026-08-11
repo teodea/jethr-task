@@ -120,10 +120,44 @@ lo Stato non versa imposta al contribuente.
 _Avoid_: imposta dovuta — ambiguo fra lorda e netta.
 
 **Addizionale regionale** e **Addizionale comunale**:
-Imposte locali sull'imponibile fiscale, dovute alla regione e al comune di
-residenza. Non sono ridotte dalle detrazioni IRPEF.
+Imposte locali sull'imponibile fiscale, dovute all'ente impositore e al comune
+del domicilio fiscale. Non sono ridotte dalle detrazioni IRPEF.
 _Avoid_: trattarle come un'unica "addizionale". Attenzione anche alla provincia:
-non è un'entità fiscale e non deve comparire nel calcolo.
+non è un'entità fiscale e non deve comparire nel calcolo — compare solo come
+etichetta nel menù, per distinguere i comuni omonimi.
+
+**Ente impositore**:
+Chi delibera l'addizionale che la legge chiama "regionale". Sono **ventuno**, non
+venti: le province autonome di Trento e Bolzano hanno leggi proprie e stanno al
+posto della regione, mentre il Trentino-Alto Adige come ente impositore non
+esiste. È la chiave del modello dati e la prima delle due tendine. Si deriva dal
+comune (sigla TN → Trento, BZ → Bolzano, ogni altra → la regione ISTAT), quindi
+non introduce la provincia come input: è l'unico punto in cui il livello
+provinciale tocca il calcolo, e lo tocca come identità di un ente, non come
+territorio.
+_Avoid_: "regione" quando il discorso include Trento e Bolzano.
+
+**Domicilio fiscale**:
+Il comune nella cui anagrafe il contribuente è iscritto, che determina entrambe
+le addizionali per come risulta **al 1° gennaio** dell'anno d'imposta. Non è la
+residenza attuale: un trasferimento produce effetti dal sessantesimo giorno, e
+chi trasloca in corso d'anno paga per l'anno intero agli enti di partenza.
+_Avoid_: residenza, "dove abiti" — raccolgono la risposta sbagliata da chi ha
+traslocato di recente.
+
+**Soglia di esenzione**:
+Il limite di imponibile sotto il quale un'addizionale non è dovuta. Superandolo
+si paga sull'**intero** imponibile, non sull'eccedenza: è una soglia secca, e per
+l'addizionale comunale è il salto più visibile della curva RAL → netto. Vale
+anche per alcuni enti impositori, dove la deduzione pari alla soglia (Trento) è
+la stessa cosa scritta in altra forma.
+_Avoid_: franchigia. Una franchigia esenta la parte sotto la soglia; questa no.
+
+**Variante di aliquota**:
+Una scala di aliquote **alternativa**, che sostituisce quella ordinaria sotto una
+soglia di reddito invece di esentare. La usano il Friuli-Venezia Giulia, l'Umbria
+e il Lazio. Non è il primo scaglione di una scala progressiva: letta così darebbe
+un numero più basso e sbagliato.
 
 ## Le tre leve
 
@@ -221,3 +255,9 @@ fiscale, che ne è la differenza rispetto al netto.
 **Anno d'imposta**:
 L'anno le cui regole — aliquote, scaglioni, detrazioni, soglie — si applicano al
 calcolo. Qui il 2026.
+
+**Contesto di calcolo**:
+La coppia **anno d'imposta + comune**: è ciò che determina l'intero insieme di
+costanti da cui esce un netto. L'anno da solo non basta più da quando il luogo è
+un input — due voci della cascata su quattordici dipendono dal comune, e con
+loro il punto in cui la curva fa il suo salto.

@@ -5,7 +5,7 @@
 // quindi mai portata sotto zero dai pochi centesimi di scarto.
 
 import { profiloScalino } from './discontinuita.js'
-import { COSTANTI_PER_ANNO } from './costanti/index.js'
+import { costantiPerLuogo } from './luoghi.js'
 
 function arrotondaCentesimi(valore) {
   return Math.round(valore * 100) / 100
@@ -78,7 +78,7 @@ export function presentaCascata(cascata) {
  * l'utente legge, e qui non c'e' niente da sommare.
  */
 export function presentaScalino(cascata) {
-  const costanti = COSTANTI_PER_ANNO[cascata.anno]
-  if (!costanti) throw new RangeError(`anno d’imposta non supportato: ${cascata.anno}`)
-  return profiloScalino(cascata.ral, costanti)
+  // Le costanti si ritrovano dalla coppia `{ anno, comune }` della cascata, non dal solo
+  // anno: lo scalino da disegnare e' quello del comune scelto.
+  return profiloScalino(cascata.ral, costantiPerLuogo(cascata.anno, cascata.comune))
 }

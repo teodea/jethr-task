@@ -33,9 +33,12 @@
         <p class="sottotitolo">
           Quanto della tua retribuzione lorda arriva davvero in banca, e dove finisce il resto.
         </p>
+        <!-- «Residente a Milano» non c'e' piu': il luogo ha smesso di essere perimetro
+             dichiarato ed e' diventato un input (issue #21). Resta qui solo cio' che il
+             prototipo continua a dare per assunto. -->
         <p class="perimetro">
           Anno d&rsquo;imposta <strong data-anno></strong> &middot; impiegato privato a tempo
-          indeterminato, tempo pieno &middot; residente a Milano.
+          indeterminato, tempo pieno.
           <!-- Su GitHub Pages un .md viene servito come text/markdown e il browser lo scarica
                invece di mostrarlo: il registro si linka dove viene renderizzato davvero. -->
           <a
@@ -75,6 +78,25 @@
           <!-- I segmenti nascono da MENSILITA_AMMESSE: vedi web/pagina.js -->
           <div class="segmentato" id="mensilita"></div>
         </fieldset>
+
+        <!-- Due menu' a cascata: cambiando ente il comune salta al capoluogo, cosi' lo
+             stato «Lombardia + comune del Lazio» non e' esprimibile dall'interfaccia. Le
+             voci, le etichette e il testo di aiuto arrivano tutti da src/: qui non c'e'
+             nessuna stringa di dominio. -->
+        <div class="campo campo-luogo">
+          <div class="sotto-campo">
+            <label class="etichetta-campo" for="ente"></label>
+            <select id="ente" name="ente" disabled></select>
+          </div>
+          <div class="sotto-campo">
+            <label class="etichetta-campo" for="comune"></label>
+            <select id="comune" name="comune" aria-describedby="aiuto-comune" disabled></select>
+          </div>
+          <!-- Non e' un vezzo: le addizionali seguono il domicilio fiscale al 1° gennaio,
+               non la residenza attuale, e senza questa riga chi ha traslocato di recente
+               sceglierebbe il comune sbagliato (ricerca issue #19). -->
+          <p class="aiuto" id="aiuto-comune"></p>
+        </div>
 
         <button class="calcola" type="submit">Calcola</button>
       </form>

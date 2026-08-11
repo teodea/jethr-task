@@ -4,7 +4,8 @@
 // quattro cifre decimali (art. 13 c. 6 TUIR - docs/ricerca/arrotondamenti-e-quadratura.md).
 // L'arrotondamento ai centesimi avviene solo in presentazione (src/presentazione.js).
 
-import { COSTANTI_PER_ANNO, ANNO_CORRENTE } from './costanti/index.js'
+import { ANNO_CORRENTE } from './costanti/index.js'
+import { costantiPerLuogo } from './luoghi.js'
 import { validaInput, MENSILITA_DEFAULT } from './validazione.js'
 
 // art. 13 c. 6 TUIR: "si assume nelle prime quattro cifre decimali" = troncamento.
@@ -95,23 +96,71 @@ export function sommaIntegrativa(rc, redditoLavoroDipendente, costanti) {
   return fascia.percentuale * redditoLavoroDipendente
 }
 
-// Scaglioni progressivi come l'IRPEF (D.Lgs. 68/2011 art. 6; art. 72 L.R. Lombardia 10/2003).
-export function addizionaleRegionale(imponibileFiscale, costanti) {
-  return perScaglioni(imponibileFiscale, costanti.addizionaleRegionale.scaglioni)
+// Una detrazione dell'addizionale, per fascia di imponibile. `rampa` copre l'unico caso non
+// tabellare censito in Italia (Bolzano: 125 EUR moltiplicati per il rapporto fra
+// l'imponibile diminuito di 50.000 e 25.000, con tetto a 125).
+function detrazioneAddizionale(imponibileFiscale, { da, finoA, importo, rampa }) {
+  if (imponibileFiscale < da) return 0
+  if (finoA != null && imponibileFiscale > finoA) return 0
+  if (!rampa) return importo
+  return Math.min(importo, (importo * (imponibileFiscale - rampa.da)) / rampa.ampiezza)
 }
 
-// Soglia secca (D.Lgs. 360/1998 art. 1 c. 3-bis): sopra l'esenzione si paga sull'INTERO imponibile.
-export function addizionaleComunale(imponibileFiscale, costanti) {
-  const a = costanti.addizionaleComunale
-  return imponibileFiscale > a.esenzioneFinoA ? a.aliquota * imponibileFiscale : 0
+/**
+ * UNA funzione per entrambe le addizionali, applicata due volte. Regionale e comunale hanno
+ * destinatario, base normativa e delibere proprie — e restano due voci distinte in cascata,
+ * come il glossario impone — ma la FORMA della regola e' la stessa per tutti i 7.896 comuni
+ * e i 21 enti impositori censiti (ricerca issue #18, par. 6). Prima erano due funzioni con
+ * due forme diverse: una sapeva fare gli scaglioni ma non l'esenzione, l'altra il contrario.
+ * Per l'Italia intera servono entrambe le cose a entrambe, e il selettore toglie codice
+ * invece di aggiungerne.
+ *
+ * L'ordine dei quattro passi e' dominio, non implementazione:
+ *
+ *  1. esenzione a scalino — sotto la soglia non e' dovuta; sopra si paga sull'INTERO
+ *     imponibile, mai sulla sola eccedenza (D.Lgs. 360/1998 art. 1 c. 3-bis: «nel caso di
+ *     superamento del suddetto limite, la stessa si applica al reddito complessivo»). La
+ *     deduzione di Trento, pari alla soglia che la fa perdere, e' esattamente questo.
+ *  2. varianti — alcuni enti sostituiscono l'INTERA scala sotto una soglia di reddito
+ *     invece di esentare (FVG 0,70% fino a 15.000; Umbria e Lazio fino a 28.000). E' una
+ *     scala alternativa, non un primo scaglione: letta come progressiva darebbe un numero
+ *     piu' basso e sbagliato.
+ *  3. scaglioni progressivi sull'imponibile, sui confini statali (D.L. 138/2011 art. 1
+ *     c. 11 per i comuni, D.Lgs. 68/2011 art. 6 per le regioni). L'aliquota unica e' il caso
+ *     a un solo scaglione, aperto.
+ *  4. detrazioni per fascia, con pavimento a zero: «non sorge alcun credito d'imposta» e' la
+ *     formula ricorrente delle delibere regionali.
+ */
+export function addizionale(imponibileFiscale, regola) {
+  if (regola.esenzioneFinoA != null && imponibileFiscale <= regola.esenzioneFinoA) return 0
+
+  const variante = (regola.varianti ?? []).find(
+    ({ seImponibileFinoA }) => imponibileFiscale <= seImponibileFinoA,
+  )
+  const lorda = perScaglioni(imponibileFiscale, variante ? variante.scaglioni : regola.scaglioni)
+
+  const detratto = (regola.detrazioni ?? []).reduce(
+    (totale, detrazione) => totale + detrazioneAddizionale(imponibileFiscale, detrazione),
+    0,
+  )
+  return Math.max(0, lorda - detratto)
 }
 
 // La cascata completa. Le addizionali sono calcolate DOPO l'IRPEF netta perche' la loro
 // debenza dipende da essa (gate "IRPEF netta > 0", D.Lgs. 446/1997 art. 50 c. 2 e
 // D.Lgs. 360/1998 art. 1 c. 4 - scelta registrata in docs/ASSUNZIONI.md).
-export function calcolaCascata({ ral, mensilita = MENSILITA_DEFAULT, anno = ANNO_CORRENTE }) {
-  const costanti = COSTANTI_PER_ANNO[anno]
-  if (!costanti) throw new RangeError(`anno d'imposta non supportato: ${anno}`)
+export function calcolaCascata({
+  ral,
+  mensilita = MENSILITA_DEFAULT,
+  anno = ANNO_CORRENTE,
+  comune = null,
+}) {
+  // Il contesto del calcolo non e' piu' il solo anno: e' la coppia `{ anno, comune }`. Due
+  // voci su quattordici dipendono dal luogo, e con loro il censimento dei salti — lo
+  // scalino dell'esenzione comunale si sposta da comune a comune. `comune` a null e' il
+  // luogo predefinito (src/luoghi.js): tiene il motore usabile senza caricare i dati
+  // dell'Italia intera.
+  const costanti = costantiPerLuogo(anno, comune)
 
   const validazione = validaInput({ ral, mensilita }, costanti)
   if (!validazione.valida) {
@@ -133,14 +182,23 @@ export function calcolaCascata({ ral, mensilita = MENSILITA_DEFAULT, anno = ANNO
   const somma = sommaIntegrativa(redditoComplessivo, redditoComplessivo, costanti)
 
   const addizionaliDovute = irpefNetta > 0
-  const regionale = addizionaliDovute ? addizionaleRegionale(imponibileFiscale, costanti) : 0
-  const comunale = addizionaliDovute ? addizionaleComunale(imponibileFiscale, costanti) : 0
+  const regionale = addizionaliDovute
+    ? addizionale(imponibileFiscale, costanti.addizionaleRegionale)
+    : 0
+  const comunale = addizionaliDovute
+    ? addizionale(imponibileFiscale, costanti.addizionaleComunale)
+    : 0
 
   const erogazioni = trattamento + somma
   const nettoAnnuo = ral - contributi.totale - irpefNetta - regionale - comunale + erogazioni
 
   return {
     anno,
+    // Il comune viaggia col risultato perche' chi lo riceve — presentazione, testi, avviso
+    // sullo scalino — deve poter ritrovare le STESSE costanti da cui questo numero e' uscito.
+    // Prima bastava l'anno; ora rideriverle dal solo anno darebbe le aliquote di Milano a
+    // chiunque, che e' esattamente il difetto che questa issue chiude.
+    comune,
     ral,
     mensilita,
     baseContributiva: contributi.baseContributiva,

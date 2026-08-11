@@ -6,15 +6,16 @@ Data una retribuzione annua lorda, questo prototipo proietta il netto annuale e 
 ed espone **ogni singola voce** che sta in mezzo — con, accanto a ciascuna, la spiegazione
 di cosa sia e la fonte normativa da cui il numero proviene.
 
-Anno d'imposta **2026**. Impiegato privato a tempo indeterminato, tempo pieno, residente
-a Milano. Il perimetro completo, e cosa resta fuori, sta in
-[docs/ASSUNZIONI.md](docs/ASSUNZIONI.md).
+Anno d'imposta **2026**. Impiegato privato a tempo indeterminato, tempo pieno, in uno
+qualunque dei **7.896 comuni italiani**: regione e comune si scelgono, e con loro cambiano
+le due addizionali, la fonte linkata e il punto in cui la curva fa il suo salto. Il
+perimetro completo, e cosa resta fuori, sta in [docs/ASSUNZIONI.md](docs/ASSUNZIONI.md).
 
 ---
 
 ## Cosa produce
 
-Per una RAL di 30.000 € su 13 mensilità:
+Per una RAL di 30.000 € su 13 mensilità, a Milano:
 
 | Voce | Importo |
 |---|---:|
@@ -68,6 +69,9 @@ import { calcolaCascata } from './src/cascata.js'
 import { presentaCascata } from './src/presentazione.js'
 import { testiCascata, avvisoScalino, ORDINE_VOCI } from './src/testi.js'
 
+// Il contesto del calcolo è la coppia { anno, comune }. Senza `comune` vale il luogo
+// predefinito (Milano), curato in src/costanti/ con la fonte accanto al valore: il motore
+// resta usabile senza caricare i dati dell'Italia intera.
 const cascata = calcolaCascata({ ral: 30000, mensilita: 13, anno: 2026 })
 
 const voci = presentaCascata(cascata) // importi arrotondati e quadrati
@@ -165,6 +169,13 @@ L'addizionale comunale di Milano è esente fino a 23.000 € di imponibile. A 23
 paga lo 0,8% **sull'intero imponibile**, non sull'eccedenza: circa 184 € persi per un
 centesimo guadagnato.
 
+E questa soglia **si sposta con il comune**. Non è scritta da nessuna parte nel codice: il
+censimento dei salti la deriva dalle costanti del luogo scelto, quindi a Trento lo scalino
+sta a 30.000 € (dove l'esenzione è della Provincia autonoma, non del Comune), a Milano a
+23.000 €, e in un comune senza esenzione non c'è affatto. Mini-grafico compreso — è il
+motivo per cui il selettore rende personale l'intuizione migliore del prototipo invece di
+lasciarla milanese.
+
 ### Il netto mensile è una media
 
 Netto annuo diviso le mensilità. **Nessuna busta paga reale coincide con quel numero**:
@@ -181,6 +192,9 @@ il risultato annuale a consuntivo e non simula le dodici buste.
 | [web/](web/) | lo strato di pagina — legge gli input, chiama i seam, renderizza; nessuna decisione di dominio |
 | [src/cascata.js](src/cascata.js) | il motore: ogni voce dichiara cosa toglie e su quale base |
 | [src/costanti/](src/costanti/) | un file per anno d'imposta (2025, 2026); ogni valore con la sua fonte |
+| [src/luoghi.js](src/luoghi.js) | dal codice catastale alle costanti del luogo: registro dei comuni e caricamento per regione |
+| [dati/addizionali/](dati/addizionali/) | le addizionali di tutti i comuni, importate dal MEF: un JSON per ente impositore, con la data di scarico |
+| [strumenti/](strumenti/) | lo script rieseguibile che rigenera quei JSON dalle fonti MEF e ISTAT |
 | [src/presentazione.js](src/presentazione.js) | arrotondamento ai centesimi e quadratura delle voci esposte |
 | [src/testi.js](src/testi.js) | i testi dell'interfaccia, con i numeri interpolati dalle costanti |
 | [src/discontinuita.js](src/discontinuita.js) | censimento dei salti legittimi e delle zone non monotone |
@@ -224,8 +238,30 @@ promessa è verificata, non affidata alla memoria.
 
 Perché JSON non ha commenti, e la fonte deve stare **accanto al valore**: un file di fonti
 separato divergerebbe al primo aggiornamento. In più il formato usa `Infinity` per lo
-scaglione più alto, che in JSON non esiste. Tabelle importate da una macchina — per
-esempio i comuni dal portale MEF — andrebbero invece in JSON: sono dati, non costanti curate.
+scaglione più alto, che in JSON non esiste. Tabelle importate da una macchina — i comuni
+dal portale MEF — stanno invece in JSON: sono dati, non costanti curate.
+
+### Le addizionali di tutta Italia
+
+Sono 7.896 comuni e 21 enti impositori (19 regioni più Trento e Bolzano, che hanno leggi
+proprie). Nessuno li trascrive a mano: li importa uno script rieseguibile che unisce gli
+elenchi MEF all'anagrafica ISTAT sul codice catastale, e li scrive **un file per ente**,
+con la data di scarico dentro:
+
+```bash
+node strumenti/importa-addizionali.mjs
+```
+
+Un file per ente perché la pagina scarica solo la regione scelta: i due menù a cascata sono
+anche la strategia di caricamento. Lo script **si ferma invece di indovinare** — se cambia
+il tracciato di un CSV, se il join perde comuni, se compare un ente nuovo, o se cambia il
+testo di un'agevolazione regionale curata a mano. E quello che non sa leggere lo dichiara:
+i 108 comuni con esenzioni descrittive e i 2 con fasce non progressive nell'elenco MEF
+finiscono in pagina come avvertenza accanto al numero, non in silenzio.
+
+Milano e la Lombardia restano scritte a mano in `src/costanti/`, con la fonte accanto al
+valore, e servono da **oracolo**: un test confronta il dato importato con quello curato, e
+fallisce se le due strade divergono. È così che un errore del parser si fa vedere.
 
 ---
 

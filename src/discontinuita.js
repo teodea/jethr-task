@@ -6,6 +6,15 @@
 
 import { calcolaCascata } from './cascata.js'
 
+// Da un set di costanti al contesto che lo ha prodotto. Serve perche' il censimento delle
+// zone ricalcola la cascata a passi di un centesimo: senza il comune, la ricalcolerebbe
+// sulle aliquote del luogo predefinito e troverebbe gli estremi di uno scalino diverso da
+// quello che l'utente sta guardando. `comune` e' assente sulle costanti curate, che sono
+// gia' il luogo predefinito.
+function contestoDi(costanti) {
+  return { anno: costanti.anno, comune: costanti.comune ?? null }
+}
+
 // Sotto la prima fascia contributiva vale imponibileFiscale = ral x (1 - aliquotaIvs):
 // tutte le soglie censite cadono li' (la piu' alta, RC 35.000, e' RAL ~38.542 < 56.224).
 function ralDaRedditoComplessivo(rc, costanti) {
@@ -63,14 +72,31 @@ export function censimentoSalti(costanti) {
     },
   ].map((salto) => ({ ...salto, ral: ralDaRedditoComplessivo(salto.rc, costanti) }))
 
-  // Scalino comunale: la soglia e' definita sull'imponibile fiscale (= RC nel perimetro).
-  const esenzione = costanti.addizionaleComunale.esenzioneFinoA
-  salti.push({
-    nome: 'esenzione addizionale comunale',
-    rc: esenzione,
-    ral: ralDaRedditoComplessivo(esenzione, costanti),
-    descrizione: `sopra ${esenzione} di imponibile l'addizionale comunale si paga sull'INTERO imponibile (D.Lgs. 360/1998 art. 1 c. 3-bis; delibera C.C. Milano 46/2020)`,
-  })
+  // Gli scalini che dipendono dal LUOGO, non dall'anno: la soglia di esenzione dell'ente
+  // impositore e quella del comune. Si derivano dalle costanti come tutti gli altri, quindi
+  // lo scalino si sposta da solo quando cambia il comune — mini-grafico compreso. E' il
+  // motivo per cui il selettore rende personale l'intuizione migliore del prototipo invece
+  // di lasciarla milanese: a Trento lo scalino sta a 30.000 di imponibile, a Milano a
+  // 23.000, e in un comune senza esenzione non c'e' proprio.
+  const addizionaliDelLuogo = [
+    { regola: costanti.addizionaleComunale, quale: 'comunale', chi: costanti.addizionaleComunale.nome },
+    {
+      regola: costanti.addizionaleRegionale,
+      quale: 'regionale',
+      chi: costanti.addizionaleRegionale.denominazione,
+    },
+  ]
+  for (const { regola, quale, chi } of addizionaliDelLuogo) {
+    if (regola.esenzioneFinoA == null) continue
+    salti.push({
+      nome: `esenzione addizionale ${quale}`,
+      rc: regola.esenzioneFinoA,
+      ral: ralDaRedditoComplessivo(regola.esenzioneFinoA, costanti),
+      descrizione:
+        `sopra ${regola.esenzioneFinoA} di imponibile l'addizionale ${quale} si paga sull'INTERO ` +
+        `imponibile (D.Lgs. 360/1998 art. 1 c. 3-bis; ${chi})`,
+    })
+  }
 
   return salti.sort((a, b) => a.ral - b.ral)
 }
@@ -85,10 +111,9 @@ const SCOSTAMENTO = 0.005
 const zonePerCostanti = new WeakMap()
 
 export function zoneNonMonotonia(costanti) {
-  const anno = costanti.anno
   if (zonePerCostanti.has(costanti)) return zonePerCostanti.get(costanti)
 
-  const netto = (ral) => calcolaCascata({ ral, anno }).nettoAnnuo
+  const netto = (ral) => calcolaCascata({ ral, ...contestoDi(costanti) }).nettoAnnuo
   const zone = []
   for (const salto of censimentoSalti(costanti)) {
     const prima = netto(salto.ral - SCOSTAMENTO)
@@ -124,7 +149,7 @@ export function profiloScalino(ral, costanti) {
   const zona = zoneNonMonotonia(costanti).find(({ da, a }) => ral > da && ral < a)
   if (!zona) return null
 
-  const netto = (r) => calcolaCascata({ ral: r, anno: costanti.anno }).nettoAnnuo
+  const netto = (r) => calcolaCascata({ ral: r, ...contestoDi(costanti) }).nettoAnnuo
   const margine = (zona.a - zona.da) * MARGINE_FINESTRA
   const inizio = zona.da - margine
   const passo = (zona.a - zona.da + 2 * margine) / CAMPIONI_FINESTRA

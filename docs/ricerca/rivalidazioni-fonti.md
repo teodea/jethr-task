@@ -11,11 +11,28 @@ punto, "documento trovato" (con estremi) oppure "nessun documento pubblicato
 alla data di verifica". Il file si aggiorna a ogni ciclo, non si duplica
 (convenzione di `docs/ricerca/README.md`).
 
-1. **Delibera 2026 del Comune di Milano** sull'addizionale comunale IRPEF: il
-   motore usa 0,8% con esenzione a 23.000 EUR per proroga della delibera
-   C.C. 46/2020. Una delibera pubblicata sul sito MEF entro il 20-12-2026
-   avrebbe effetto retroattivo al 1° gennaio 2026 (D.Lgs. 23/2011, art. 14,
-   c. 8 — vedi `addizionali-regionale-comunale.md`, §4).
+1. **Data di scarico degli elenchi MEF** delle addizionali. Il presidio ha
+   cambiato natura con la issue #21: non è più «una delibera da controllare» ma
+   «una data di scarico da rinfrescare». Prima l'unico valore a rischio era
+   l'addizionale comunale di Milano, trascritta a mano per proroga della
+   delibera C.C. 46/2020; ora i dati di tutti i 7.896 comuni stanno in
+   `dati/addizionali/<anno>/`, ognuno col campo `scaricatoIl`, e si rigenerano
+   con un comando:
+
+   ```bash
+   node strumenti/importa-addizionali.mjs
+   ```
+
+   Il ciclo di verifica non deve più leggere una scheda comunale: deve
+   rieseguire lo script e committare il diff. Resta la stessa scadenza — una
+   delibera pubblicata sul MEF entro il **20-12-2026** ha effetto retroattivo al
+   1° gennaio 2026 (D.Lgs. 23/2011, art. 14, c. 8 — vedi
+   `addizionali-regionale-comunale.md`, §4) — e al 12-08-2026 riguarda **4.909
+   comuni** ancora senza delibera 2026, che il calcolo tratta per proroga
+   dell'anno precedente. Due presidi automatici sostituiscono la lettura a mano:
+   un test confronta i dati importati di Milano e della Lombardia con le
+   costanti curate (`test/luoghi.test.js`), e lo script si ferma se cambia il
+   tracciato dei CSV o il testo di un'agevolazione regionale curata.
 2. **Modello e istruzioni 730/2027** (anno d'imposta 2026): confermerebbero che
    le regole di arrotondamento dichiarative (regola dei 50 centesimi,
    arrotondamento a fine voce, troncamento del quoziente a 4 decimali) restano
@@ -114,10 +131,12 @@ file**, da aggiornare a ogni ciclo di verifica.
 Prossimi momenti utili di verifica:
 
 - **dopo il 20-12-2026** — punto 1 (termine di efficacia delle delibere
-  comunali per il 2026): se sul MEF è comparsa una delibera 2026 di Milano,
+  comunali per il 2026): rieseguire `node strumenti/importa-addizionali.mjs` e
+  committare il diff dei JSON. Se il test che confronta i dati importati con le
+  costanti curate fallisce, il MEF ha pubblicato per Milano una delibera 2026:
   aggiornare `src/costanti/2026.js` e `addizionali-regionale-comunale.md`
-  (§1b e §4); se non è comparsa, la proroga è definitiva e la nota nei file
-  passa da «caveat» a «confermato»;
+  (§1b e §4). Se passa e il diff è vuoto sui comuni già deliberati, la proroga
+  è definitiva e la nota nei file passa da «caveat» a «confermato»;
 - **febbraio 2027** — punto 2 (finestra storica di pubblicazione delle bozze
   730) e punto 3 (una circolare sulle aliquote potrebbe arrivare in qualunque
   momento; ricontrollare la sezione Circolari a ogni ciclo);

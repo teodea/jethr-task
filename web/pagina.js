@@ -13,10 +13,14 @@ import {
   ORDINE_VOCI,
   ETICHETTA_FONTE,
   ETICHETTA_TU_SEI_QUI,
+  etichettaEnte,
+  etichettaComune,
+  aiutoComune,
 } from '../src/testi.js'
 import { MENSILITA_AMMESSE, MENSILITA_DEFAULT } from '../src/validazione.js'
 import { interpretaImporto, formattaImporto } from '../src/formato.js'
 import { ANNO_CORRENTE } from '../src/costanti/index.js'
+import { caricaIndice, caricaEnte, comuniDellEnte, luogoDefault } from '../src/luoghi.js'
 
 const form = document.querySelector('#calcolatore')
 const campoRal = document.querySelector('#ral')
@@ -29,6 +33,9 @@ const scalinoTesto = document.querySelector('#scalino-testo')
 const scalinoGrafico = document.querySelector('#scalino-grafico')
 const eroi = document.querySelector('#eroi')
 const elencoVoci = document.querySelector('#voci')
+const menuEnte = document.querySelector('#ente')
+const menuComune = document.querySelector('#comune')
+const aiutoDelComune = document.querySelector('#aiuto-comune')
 
 // I tre numeri hero, nell'ordine in cui rispondono alle domande dell'utente: quanto prendo
 // in un anno, quanto al mese, quanto non mi arriva.
@@ -60,6 +67,85 @@ for (const mensilita of MENSILITA_AMMESSE) {
 function leggiMensilita() {
   return Number(new FormData(form).get('mensilita'))
 }
+
+// ---------------------------------------------------------------------------
+// Il selettore del luogo
+// ---------------------------------------------------------------------------
+
+// I due menu' a cascata. Il primo elenca i ventuno enti impositori — diciannove regioni piu'
+// le due province autonome, che hanno leggi proprie e nella norma stanno al posto della
+// regione: elencarne venti lascerebbe fuori Trento o Bolzano. Il secondo elenca i comuni del
+// solo ente scelto, ed e' anche la ragione per cui i dati sono divisi per ente: la pagina
+// scarica una regione, non l'Italia.
+const { ente: ENTE_DEFAULT, comune: COMUNE_DEFAULT } = luogoDefault(ANNO_CORRENTE)
+
+// Finche' i dati non sono arrivati il calcolo usa il luogo predefinito, curato nelle
+// costanti: `null` e' esattamente questo, e tiene la pagina utile anche se il caricamento
+// fallisce del tutto.
+let luogoScelto = null
+
+document.querySelector('label[for="ente"]').textContent = etichettaEnte()
+document.querySelector('label[for="comune"]').textContent = etichettaComune(ANNO_CORRENTE)
+aiutoDelComune.textContent = aiutoComune(ANNO_CORRENTE)
+
+function riempiMenu(menu, voci, selezionato) {
+  menu.replaceChildren(
+    ...voci.map(({ valore, testo }) => {
+      const opzione = document.createElement('option')
+      opzione.value = valore
+      opzione.textContent = testo
+      opzione.selected = valore === selezionato
+      return opzione
+    }),
+  )
+}
+
+async function mostraComuniDi(slug, comuneDaSelezionare) {
+  const { capoluogo } = await caricaEnte(ANNO_CORRENTE, slug)
+  const comuni = comuniDellEnte(ANNO_CORRENTE, slug)
+  riempiMenu(
+    menuComune,
+    // La provincia compare solo come etichetta, per distinguere i comuni omonimi — e sono
+    // molti. Nel calcolo non entra mai: non e' un'entita' fiscale (CONTEXT.md).
+    comuni.map(({ codice, nome, provincia }) => ({ valore: codice, testo: `${nome} (${provincia})` })),
+    comuneDaSelezionare ?? capoluogo,
+  )
+  menuComune.disabled = false
+  luogoScelto = menuComune.value
+}
+
+async function preparaSelettore() {
+  const { enti } = await caricaIndice(ANNO_CORRENTE)
+  riempiMenu(
+    menuEnte,
+    enti.map(({ slug, denominazione }) => ({ valore: slug, testo: denominazione })),
+    ENTE_DEFAULT,
+  )
+  menuEnte.disabled = false
+  await mostraComuniDi(ENTE_DEFAULT, COMUNE_DEFAULT)
+}
+
+// Cambiando ente il comune salta al capoluogo di quell'ente: cosi' lo stato «Lombardia +
+// comune del Lazio» non e' rappresentabile dall'interfaccia, che e' il modo piu' solido di
+// impedirlo — piu' di una validazione che lo scopre dopo.
+menuEnte.addEventListener('change', async () => {
+  menuComune.disabled = true
+  await mostraComuniDi(menuEnte.value, null)
+})
+
+menuComune.addEventListener('change', () => {
+  luogoScelto = menuComune.value
+})
+
+preparaSelettore().catch(() => {
+  // I dati delle addizionali non sono arrivati. Il calcolo resta corretto sul luogo
+  // predefinito, quindi la pagina non si blocca: si dice che il selettore non e'
+  // disponibile e si va avanti, invece di negare un numero che sappiamo dare.
+  menuEnte.disabled = true
+  menuComune.disabled = true
+  aiutoDelComune.textContent =
+    'Non riesco a caricare l’elenco dei comuni: il calcolo usa il comune predefinito.'
+})
 
 // Un solo posto e un solo stile per tutti i messaggi bloccanti: quelli di forma
 // (src/formato.js, «non riesco a leggere questo importo») e quelli di dominio
@@ -405,7 +491,12 @@ form.addEventListener('submit', (evento) => {
 
   try {
     mostraRisultato(
-      calcolaCascata({ ral: importo.valore, mensilita: leggiMensilita(), anno: ANNO_CORRENTE }),
+      calcolaCascata({
+        ral: importo.valore,
+        mensilita: leggiMensilita(),
+        anno: ANNO_CORRENTE,
+        comune: luogoScelto,
+      }),
     )
     nascondiErrore()
   } catch (problema) {

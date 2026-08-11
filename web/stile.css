@@ -183,6 +183,58 @@ a {
   color: var(--inchiostro-tenue);
 }
 
+/* I due menu' del luogo stanno affiancati finche' c'e' spazio: sono un input solo diviso in
+   due passi, non due domande indipendenti. */
+.campo-luogo {
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 0.45rem 1rem;
+}
+
+.sotto-campo {
+  display: grid;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+/* Il testo di aiuto vale per entrambi i menu' e va a capo sotto di loro. */
+.campo-luogo .aiuto {
+  grid-column: 1 / -1;
+}
+
+.campo-luogo select {
+  width: 100%;
+  min-width: 0;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: #fff;
+  font: inherit;
+  color: inherit;
+  /* L'elenco dei comuni arriva a millecinquecento voci: il menu' nativo si cerca da
+     tastiera scrivendo le prime lettere, cosa che nessun sostituto costruito a mano fa
+     altrettanto bene — e il repo non ha dipendenze. */
+  cursor: pointer;
+}
+
+.campo-luogo select:focus-visible {
+  outline: 0;
+  border-color: var(--accento);
+  box-shadow: 0 0 0 3px var(--accento-tenue);
+}
+
+.campo-luogo select:disabled {
+  background: #f4f5f3;
+  color: var(--inchiostro-tenue);
+  cursor: progress;
+}
+
+.aiuto {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--inchiostro-tenue);
+}
+
 .segmentato {
   display: inline-flex;
   border: 1px solid var(--bordo);

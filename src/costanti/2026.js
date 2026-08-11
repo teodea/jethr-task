@@ -72,24 +72,55 @@ export const COSTANTI_2026 = {
     ],
   },
 
+  // Le due addizionali del LUOGO PREDEFINITO. Il selettore le sostituisce con quelle del
+  // comune scelto, lette dai JSON importati (src/luoghi.js); queste restano il caso curato
+  // a mano, con la fonte accanto al valore, e sono l'oracolo contro cui un test confronta
+  // l'output dello script di importazione (test/luoghi.test.js). Se il MEF pubblicasse per
+  // Milano una delibera diversa, il confronto fallirebbe invece di lasciar divergere in
+  // silenzio il percorso curato e quello importato.
+  //
+  // La forma e' la stessa per entrambe — `{ scaglioni, esenzioneFinoA }`, piu' `varianti` e
+  // `detrazioni` dove un ente le prevede — perche' il motore le calcola con una funzione
+  // sola (`addizionale`, src/cascata.js). Restano due voci distinte in cascata: il glossario
+  // vieta di trattarle come un'unica addizionale, e hanno davvero destinatario, base
+  // normativa e delibere proprie. Forma stabilita dalla ricerca della issue #18,
+  // docs/ricerca/modello-dati-addizionali-italia.md, par. 6.
+
   // Lombardia: art. 72 c. 1 L.R. 10/2003 (mod. L.R. 5/2022), scaglioni progressivi - fonte:
   // MEF, aliquote addizionale regionale Lombardia anno d'imposta 2026,
   // https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/addregirpef/addregirpef.php?reg=10, anno 2026
   addizionaleRegionale: {
+    ente: 'lombardia',
+    denominazione: 'Regione Lombardia',
     scaglioni: [
       { fino: 15000, aliquota: 0.0123 },
       { fino: 28000, aliquota: 0.0158 },
       { fino: 50000, aliquota: 0.0172 },
       { fino: Infinity, aliquota: 0.0173 },
     ],
+    esenzioneFinoA: null, // la Lombardia non prevede esenzione: sei enti su ventuno lo fanno
+    fonte: {
+      citazione:
+        'MEF, addizionale regionale IRPEF della Lombardia, anno d’imposta 2026 (art. 72 c. 1 L.R. 10/2003)',
+      url: 'https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/addregirpef/addregirpef.php?reg=10',
+    },
   },
 
   // Milano: delibera C.C. n. 46 del 28/09/2020, prorogata per il 2026 (nessuna delibera 2026 al 11/08/2026,
   // art. 1 c. 169 L. 296/2006) - fonte: MEF, addizionale comunale Milano (cod. F205),
   // https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/nuova_addcomirpef/risultato.htm?anno=9999&lista=1&pagina=lombardia.htm&cm=&pr=MI&cc=F205&r=1, anno 2026 (proroga)
   addizionaleComunale: {
-    aliquota: 0.008,
+    codice: 'F205', // codice catastale: la chiave con cui il MEF indicizza i comuni, e quella del selettore
+    nome: 'Milano',
+    provincia: 'MI',
+    scaglioni: [{ fino: Infinity, aliquota: 0.008 }], // aliquota unica = un solo scaglione, aperto
     esenzioneFinoA: 23000, // soglia secca: sopra, l'aliquota si applica all'INTERO imponibile (D.Lgs. 360/1998 art. 1 c. 3-bis)
+    nota: null, // il testo libero delle esenzioni non universali: Milano non ne ha
+    fonte: {
+      citazione:
+        'MEF, addizionale comunale IRPEF di Milano (cod. F205): delibera C.C. n. 46 del 28/09/2020, prorogata per il 2026',
+      url: 'https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/nuova_addcomirpef/risultato.htm?anno=9999&lista=1&pagina=lombardia.htm&cm=&pr=MI&cc=F205&r=1',
+    },
   },
 }
 
@@ -163,17 +194,11 @@ export const FONTI_2026 = {
     url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:legge:2024-12-30;207~art1',
   },
 
-  addizionaleRegionale: {
-    citazione:
-      'MEF, addizionale regionale IRPEF della Lombardia, anno d’imposta 2026 (art. 72 c. 1 L.R. 10/2003)',
-    url: 'https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/addregirpef/addregirpef.php?reg=10',
-  },
-
-  addizionaleComunale: {
-    citazione:
-      'MEF, addizionale comunale IRPEF di Milano (cod. F205): delibera C.C. n. 46 del 28/09/2020, prorogata per il 2026',
-    url: 'https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/nuova_addcomirpef/risultato.htm?anno=9999&lista=1&pagina=lombardia.htm&cm=&pr=MI&cc=F205&r=1',
-  },
+  // Le due addizionali non stanno in questa mappa: la loro fonte dipende dal LUOGO, non
+  // dall'anno, quindi viaggia dentro la regola stessa (`addizionaleRegionale.fonte` e
+  // `addizionaleComunale.fonte` qui sopra, e il campo omonimo nei JSON importati). La
+  // scheda MEF e' indicizzata per codice catastale: parametrizzare il comune parametrizza
+  // il link alla fonte, senza una seconda tabella da tenere allineata a ottomila voci.
 
   // Il netto annuo e quello mensile non hanno una costante propria: sono il risultato della
   // cascata. La norma che li governa e' quella del sostituto d'imposta - ritenuta a ogni

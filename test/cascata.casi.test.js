@@ -13,8 +13,7 @@ import {
   ulterioreDetrazione,
   trattamentoIntegrativo,
   sommaIntegrativa,
-  addizionaleRegionale,
-  addizionaleComunale,
+  addizionale,
   troncaQuoziente,
 } from '../src/cascata.js'
 import { presentaCascata } from '../src/presentazione.js'
@@ -88,8 +87,11 @@ test('somma integrativa: percentuale sul reddito intero, discontinua alle soglie
   assert.equal(s(20001), 0) // soglia secca sul reddito complessivo
 })
 
+// Le due addizionali passano dalla STESSA funzione, applicata due volte su due regole: e'
+// il punto della issue #21, e questi due test lo dimostrano tenendo fermi gli stessi valori
+// attesi di prima — la Lombardia e Milano danno gli stessi numeri, con meta' del codice.
 test('addizionale regionale Lombardia per scaglioni progressivi [derivazione, issue #3]', () => {
-  const r = (imponibile) => addizionaleRegionale(imponibile, COSTANTI_2026)
+  const r = (imponibile) => addizionale(imponibile, COSTANTI_2026.addizionaleRegionale)
   vicino(r(15000), 184.5)
   vicino(r(16000), 200.3) // se fosse sull'intero reddito sarebbe 252,80
   vicino(r(23000), 310.9)
@@ -98,7 +100,7 @@ test('addizionale regionale Lombardia per scaglioni progressivi [derivazione, is
 })
 
 test('addizionale comunale Milano: esenzione a scalino a 23.000 [derivazione, issue #3]', () => {
-  const c = (imponibile) => addizionaleComunale(imponibile, COSTANTI_2026)
+  const c = (imponibile) => addizionale(imponibile, COSTANTI_2026.addizionaleComunale)
   assert.equal(c(23000), 0)
   vicino(c(23000.01), 184.0) // sopra la soglia si paga sull'INTERO imponibile
   vicino(c(28000), 224)
