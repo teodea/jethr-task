@@ -76,6 +76,29 @@
           <div class="segmentato" id="mensilita"></div>
         </fieldset>
 
+        <fieldset class="campo">
+          <legend class="etichetta-campo">Periodo di lavoro nell&rsquo;anno</legend>
+          <!-- Due date e nient'altro: sono loro a cambiare il numero. Un calendario mostrerebbe
+               *quali* giorni, che non sposta una cifra — e con le caselle riempite insegnerebbe
+               che il sabato non conta, mentre e' esattamente il contrario (src/periodo.js).
+               Valori, minimo e massimo li scrive web/pagina.js dalle costanti dell'anno: qui
+               una data scritta a mano sarebbe dominio nel posto sbagliato. -->
+          <div class="periodo">
+            <label class="periodo-estremo">
+              <span class="periodo-preposizione">Dal</span>
+              <input id="data-inizio" name="data-inizio" type="date" aria-describedby="errore-periodo" />
+            </label>
+            <label class="periodo-estremo">
+              <span class="periodo-preposizione">Al</span>
+              <input id="data-fine" name="data-fine" type="date" aria-describedby="errore-periodo" />
+            </label>
+          </div>
+          <!-- L'unico numero derivato accanto ai campi: «184 giorni su 365». Si aggiorna
+               mentre l'utente tocca le date, prima che esista un risultato. -->
+          <p class="periodo-giorni" id="periodo-giorni" aria-live="polite"></p>
+          <p class="errore" id="errore-periodo" role="alert" hidden></p>
+        </fieldset>
+
         <button class="calcola" type="submit">Calcola</button>
       </form>
 
@@ -87,6 +110,13 @@
       <!-- Nessun risultato prima del click: il numero arriva da un gesto dell'utente -->
       <section class="risultato" id="risultato" aria-live="polite" hidden>
         <div class="eroi" id="eroi"></div>
+
+        <!-- Stesso livello e stesso pattern del banner sullo scalino: commenta i numeri qui
+             sopra, e compare solo quando il periodo non e' l'anno intero. Sta prima perche'
+             riguarda tutti e tre gli eroi, mentre lo scalino riguarda il solo netto. -->
+        <div class="periodo-avviso" id="periodo-avviso" hidden>
+          <p class="periodo-avviso-testo" id="periodo-avviso-testo"></p>
+        </div>
 
         <!-- Il terzo livello: dentro l'area risultati, sotto i numeri hero, perche' parla
              del numero appena letto — non dell'input. -->

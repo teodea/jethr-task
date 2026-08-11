@@ -231,6 +231,72 @@ a {
   box-shadow: inset 0 0 0 2px #fff;
 }
 
+/* I due campi data. Affiancati finche' ci stanno, incolonnati quando la colonna si stringe:
+   sono un intervallo, e un intervallo si legge da sinistra a destra finche' e' possibile. */
+.periodo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 0.9rem;
+}
+
+.periodo-estremo {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: #fff;
+  overflow: hidden;
+}
+
+.periodo-estremo:focus-within {
+  border-color: var(--accento);
+  box-shadow: 0 0 0 3px var(--accento-tenue);
+}
+
+/* Stessa regola del campo valuta: il colore da solo non porta l'informazione — il testo
+   dell'errore c'e' sempre — ma lega il messaggio ai campi che lo hanno generato. */
+.periodo-estremo:has(input[aria-invalid='true']) {
+  border-color: var(--allarme);
+}
+
+/* «Dal» e «Al» stanno dentro il controllo, dal lato da cui si legge: fuori sarebbero due
+   etichette in piu' in una colonna che ne ha gia' tre. Stesso trattamento del simbolo
+   dell'euro accanto alla RAL, dall'altro lato. */
+.periodo-preposizione {
+  display: flex;
+  align-items: center;
+  padding: 0 0.7rem;
+  border-right: 1px solid var(--bordo);
+  background: #f4f5f3;
+  color: var(--inchiostro-tenue);
+  font-size: 0.9rem;
+}
+
+.periodo-estremo input {
+  min-width: 0;
+  padding: 0.7rem 0.85rem;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  color: inherit;
+}
+
+/* L'unico numero derivato del form: non e' un risultato — quelli stanno sotto il bottone —
+   ma la lettura di cio' che si sta per calcolare. Discreto, quindi, e nel colore del testo
+   secondario. */
+.periodo-giorni {
+  margin: 0;
+  color: var(--inchiostro-tenue);
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.periodo-giorni:empty {
+  display: none;
+}
+
 .calcola {
   justify-self: start;
   padding: 0.75rem 1.9rem;
@@ -386,6 +452,24 @@ a {
    da' — l'unico posto in cui la pagina spiega perche' il numero appena letto e' piu' basso
    di quello che si otterrebbe guadagnando meno — e sta attaccato ai numeri hero perche'
    commenta quelli. Fondo pieno d'accento: si vede prima di leggerlo. */
+
+/* Il banner sul periodo parziale: stesso pattern e stessa veste di quello sullo scalino —
+   dentro l'area risultati, nel colore d'accento, perche' commenta i numeri e non l'input.
+   Sta sopra perche' riguarda tutti e tre gli eroi, mentre lo scalino riguarda il solo netto;
+   quando compaiono insieme si leggono nell'ordine in cui i due effetti si sommano. */
+.periodo-avviso {
+  margin: 1rem 0 0;
+  padding: 0.9rem 1.05rem;
+  border: 1px solid var(--accento);
+  border-left-width: 4px;
+  border-radius: var(--raggio);
+  background: var(--accento-tenue);
+  font-size: 0.92rem;
+}
+
+.periodo-avviso-testo {
+  margin: 0;
+}
 
 .scalino {
   margin: 1rem 0 0;

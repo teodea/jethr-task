@@ -37,10 +37,15 @@ for (const anno of [2026, 2025]) {
     }
   })
 
-  test(`[${anno}] imponibile fiscale = RAL - contributi, sempre minore della RAL (anche sopra il massimale)`, () => {
+  test(`[${anno}] imponibile fiscale = retribuzione effettiva - contributi, sempre minore (anche sopra il massimale)`, () => {
     for (const c of punti) {
-      assert.equal(c.imponibileFiscale, c.ral - c.contributiDipendente)
-      assert.ok(c.imponibileFiscale < c.ral, `imponibile non inferiore alla RAL a ${c.ral}`)
+      assert.equal(c.imponibileFiscale, c.retribuzioneEffettiva - c.contributiDipendente)
+      assert.ok(
+        c.imponibileFiscale < c.retribuzioneEffettiva,
+        `imponibile non inferiore alla retribuzione a ${c.ral}`,
+      )
+      // ad anno intero le due basi coincidono: e' la definizione del default
+      assert.equal(c.retribuzioneEffettiva, c.ral)
     }
   })
 
@@ -194,4 +199,101 @@ test("[2026] nessun profilo fuori dalle zone: dove non c'e' uno scalino non c'e'
   const costanti = COSTANTI_PER_ANNO[2026]
   assert.equal(profiloScalino(20000, costanti), null)
   assert.equal(profiloScalino(100000, costanti), null)
+})
+
+// ————— Le stesse proprieta' su un rapporto parziale (issue #22) —————
+// Le soglie restano dove sono — sono scritte sul reddito complessivo — ma la RAL a cui si
+// incontrano si sposta. Se `censimentoSalti` non seguisse il periodo, la griglia troverebbe
+// discese fuori censimento: e' il presidio che la issue chiede esplicitamente.
+
+const SEMESTRE = { dataInizio: '2026-07-01', dataFine: '2026-12-31', quota: 184 / 365 }
+
+test('[2026, mezzo anno] nessuna discesa del netto fuori dalle soglie censite', () => {
+  const costanti = COSTANTI_PER_ANNO[2026]
+  const salti = censimentoSalti(costanti, SEMESTRE.quota)
+  const punti = []
+  for (let ral = RAL_MIN; ral <= RAL_MAX; ral += PASSO) {
+    punti.push(calcolaCascata({ ral, anno: 2026, dataInizio: SEMESTRE.dataInizio, dataFine: SEMESTRE.dataFine }))
+  }
+
+  for (const c of punti) assert.ok(c.nettoAnnuo > 0, `netto non positivo a RAL ${c.ral}`)
+
+  for (let i = 1; i < punti.length; i++) {
+    const prima = punti[i - 1]
+    const dopo = punti[i]
+    if (salti.some(({ ral }) => ral > prima.ral && ral <= dopo.ral)) continue
+    assert.ok(
+      dopo.nettoAnnuo - prima.nettoAnnuo > 0,
+      `netto decrescente fuori censimento fra ${prima.ral} e ${dopo.ral}`,
+    )
+  }
+})
+
+test('[2026, mezzo anno] il periodo apre due scalini che l’anno intero non ha', () => {
+  const costanti = COSTANTI_PER_ANNO[2026]
+  const intero = zoneNonMonotonia(costanti)
+  const mezzo = zoneNonMonotonia(costanti, SEMESTRE)
+  assert.equal(intero.length, 4)
+  assert.equal(mezzo.length, 6, `attese 6 zone su mezzo anno, trovate ${mezzo.length}`)
+
+  // Il primo dei due nasce dal ragguaglio: sopra i 20.000 di reddito la somma integrativa si
+  // perde per intero (non si rapporta) e al suo posto entra l'ulteriore detrazione, che
+  // invece si rapporta. Ad anno intero il cambio e' quasi neutro, a mezzo anno e' una
+  // perdita netta: 1.000 x 184/365 non copre i 960 di somma perduta.
+  const spartiacque = mezzo.find(({ salto }) => salto.includes('spartiacque'))
+  assert.ok(spartiacque, 'lo spartiacque somma/ulteriore detrazione non produce una zona')
+  assert.equal(
+    intero.some(({ salto }) => salto.includes('spartiacque')),
+    false,
+    'ad anno intero lo spartiacque non e’ una discesa',
+  )
+
+  // Il secondo nasce dalla separazione di due soglie che ad anno intero coincidono a 15.000:
+  // il cambio di percentuale della somma integrativa sta sul reddito ragguagliato ad anno, la
+  // fascia della detrazione sul reddito effettivo. Ad anno intero il censimento le unisce in
+  // un salto solo — il "triplo punto" — e con un periodo parziale si staccano.
+  const insieme = (quota) =>
+    censimentoSalti(COSTANTI_PER_ANNO[2026], quota).some(
+      ({ nome }) =>
+        nome.includes('fine del trattamento integrativo') &&
+        nome.includes('cambio di percentuale a 15000'),
+    )
+  assert.equal(insieme(1), true, 'ad anno intero le due soglie a 15.000 sono un salto solo')
+  assert.equal(insieme(SEMESTRE.quota), false, 'a mezzo anno le due soglie devono separarsi')
+})
+
+test('[2026, mezzo anno] ogni zona censita e’ una discesa vera, e si richiude', () => {
+  const costanti = COSTANTI_PER_ANNO[2026]
+  const netto = (ral) =>
+    calcolaCascata({ ral, anno: 2026, dataInizio: SEMESTRE.dataInizio, dataFine: SEMESTRE.dataFine })
+      .nettoAnnuo
+
+  for (const zona of zoneNonMonotonia(costanti, SEMESTRE)) {
+    const dentro = netto((zona.da + zona.a) / 2)
+    assert.ok(dentro < zona.livello, `dentro la zona "${zona.salto}" il netto non scende`)
+    assert.ok(netto(zona.a) >= zona.livello - 0.01, `a fine zona "${zona.salto}" il netto non recupera`)
+    assert.ok(zona.a > zona.da, `zona "${zona.salto}" degenere`)
+  }
+})
+
+test('[2026] la RAL a cui cambia la percentuale della somma integrativa non si muove con le date', () => {
+  // Conseguenza del ragguaglio ad anno del c. 5: il reddito che sceglie la percentuale e'
+  // sempre `RAL x (1 - aliquota IVS)`, qualunque sia la durata. E' l'unica soglia del
+  // censimento che sta ferma in RAL mentre tutte le altre si spostano.
+  const costanti = COSTANTI_PER_ANNO[2026]
+  const perNome = (salti, frammento) => salti.filter(({ nome }) => nome.includes(frammento))
+
+  const interoSomma = perNome(censimentoSalti(costanti, 1), 'cambio di percentuale')
+  const mezzoSomma = perNome(censimentoSalti(costanti, SEMESTRE.quota), 'cambio di percentuale')
+  for (const ral of mezzoSomma.map(({ ral }) => ral)) {
+    assert.ok(
+      interoSomma.some((salto) => Math.abs(salto.ral - ral) < 0.01),
+      `la soglia a RAL ${ral.toFixed(2)} si e’ spostata con il periodo`,
+    )
+  }
+
+  // mentre la fine della maggiorazione, che sta sul reddito effettivo, si sposta eccome
+  const [interoMagg] = perNome(censimentoSalti(costanti, 1), 'fine maggiorazione')
+  const [mezzoMagg] = perNome(censimentoSalti(costanti, SEMESTRE.quota), 'fine maggiorazione')
+  assert.ok(mezzoMagg.ral > interoMagg.ral * 1.9)
 })

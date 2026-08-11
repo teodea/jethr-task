@@ -8,19 +8,28 @@ import { presentaCascata, presentaScalino } from '../src/presentazione.js'
 import {
   testiCascata,
   avvisoScalino,
+  avvisoPeriodo,
+  descriviGiorniDelRapporto,
   formattaEuro,
   formattaPercentuale,
   ORDINE_VOCI,
   ETICHETTA_FONTE,
   ETICHETTA_TU_SEI_QUI,
 } from '../src/testi.js'
-import { MENSILITA_AMMESSE, MENSILITA_DEFAULT } from '../src/validazione.js'
+import { MENSILITA_AMMESSE, MENSILITA_DEFAULT, validaPeriodo } from '../src/validazione.js'
 import { interpretaImporto, formattaImporto } from '../src/formato.js'
-import { ANNO_CORRENTE } from '../src/costanti/index.js'
+import { inizioAnno, fineAnno, giorniDelRapporto } from '../src/periodo.js'
+import { ANNO_CORRENTE, COSTANTI_PER_ANNO } from '../src/costanti/index.js'
 
 const form = document.querySelector('#calcolatore')
 const campoRal = document.querySelector('#ral')
 const gruppoMensilita = document.querySelector('#mensilita')
+const campoInizio = document.querySelector('#data-inizio')
+const campoFine = document.querySelector('#data-fine')
+const periodoGiorni = document.querySelector('#periodo-giorni')
+const errorePeriodo = document.querySelector('#errore-periodo')
+const periodoAvviso = document.querySelector('#periodo-avviso')
+const periodoAvvisoTesto = document.querySelector('#periodo-avviso-testo')
 const errore = document.querySelector('#errore')
 const avvisi = document.querySelector('#avvisi')
 const risultato = document.querySelector('#risultato')
@@ -72,16 +81,36 @@ function leggiMensilita() {
   return Number(new FormData(form).get('mensilita'))
 }
 
-// Un solo posto e un solo stile per tutti i messaggi bloccanti: quelli di forma
-// (src/formato.js, «non riesco a leggere questo importo») e quelli di dominio
-// (src/validazione.js, «la RAL deve essere maggiore di zero») arrivano da moduli diversi
-// ma rispondono alla stessa domanda dell'utente — perche' non vedo un numero.
-function mostraErrore(messaggio) {
-  errore.textContent = messaggio
-  errore.hidden = false
-  // L'unico input che puo' essere invalido e' la RAL: le mensilita' fuori dominio non sono
-  // rappresentabili dal segmented control.
-  campoRal.setAttribute('aria-invalid', 'true')
+// I due campi data nascono sul perimetro dell'anno d'imposta: default agli estremi (il
+// rapporto in essere per tutto l'anno resta il caso normale, e chi non ha date da inserire
+// non deve fare niente) e min/max che rendono difficile uscirne. La validazione del motore
+// resta come cintura di sicurezza — `min` e `max` un browser puo' non applicarli, e le date
+// si possono anche scrivere a mano.
+campoInizio.value = inizioAnno(ANNO_CORRENTE)
+campoFine.value = fineAnno(ANNO_CORRENTE)
+for (const campo of [campoInizio, campoFine]) {
+  campo.min = inizioAnno(ANNO_CORRENTE)
+  campo.max = fineAnno(ANNO_CORRENTE)
+}
+
+function leggiPeriodo() {
+  return { dataInizio: campoInizio.value, dataFine: campoFine.value }
+}
+
+// Un solo stile per tutti i messaggi bloccanti — quelli di forma (src/formato.js, «non
+// riesco a leggere questo importo») e quelli di dominio (src/validazione.js, «la RAL deve
+// essere maggiore di zero») arrivano da moduli diversi ma rispondono alla stessa domanda
+// dell'utente: perche' non vedo un numero. Due posti pero', uno per gruppo di campi: un
+// messaggio sulle date scritto sotto la RAL manderebbe a correggere il campo sbagliato.
+// Le mensilita' non hanno uno slot perche' non hanno errori possibili — un valore fuori
+// dominio non e' rappresentabile dal segmented control.
+const SLOT_RAL = { messaggio: errore, campi: [campoRal] }
+const SLOT_PERIODO = { messaggio: errorePeriodo, campi: [campoInizio, campoFine] }
+
+function mostraErrore(slot, messaggio) {
+  slot.messaggio.textContent = messaggio
+  slot.messaggio.hidden = false
+  for (const campo of slot.campi) campo.setAttribute('aria-invalid', 'true')
   // Il risultato precedente sparisce: un numero accanto a un input invalido verrebbe
   // letto come vero. Lo scalino se ne va con lui perche' ci vive dentro; gli avvisi
   // stanno fuori dall'area risultati e vanno tolti a mano, altrimenti resterebbero in
@@ -90,10 +119,10 @@ function mostraErrore(messaggio) {
   mostraAvvisi([])
 }
 
-function nascondiErrore() {
-  errore.hidden = true
-  errore.textContent = ''
-  campoRal.removeAttribute('aria-invalid')
+function nascondiErrore(slot) {
+  slot.messaggio.hidden = true
+  slot.messaggio.textContent = ''
+  for (const campo of slot.campi) campo.removeAttribute('aria-invalid')
 }
 
 // Il segno di attenzione: decorativo, fuori dall'albero di accessibilita'. Il testo che
@@ -392,6 +421,13 @@ function mostraRisultato(cascata, apertura = new Set()) {
 
   mostraAvvisi(cascata.avvisi)
 
+  // Il periodo parziale cambia tutti e tre i numeri hero — e non nella proporzione che
+  // chiunque si aspetterebbe — quindi il banner li precede. Compare solo quando c'e'
+  // qualcosa da dire: il motore restituisce null sull'anno intero.
+  const periodoDaSpiegare = avvisoPeriodo(cascata)
+  periodoAvvisoTesto.textContent = periodoDaSpiegare ?? ''
+  periodoAvviso.hidden = periodoDaSpiegare === null
+
   // Lo scalino e' l'unico contenuto della pagina che spiega un numero *piu' basso* di
   // quello che l'utente avrebbe visto con una RAL minore: senza gli estremi espliciti
   // sembrerebbe un errore del calcolo. Sta sotto i numeri hero perche' commenta quelli.
@@ -456,16 +492,46 @@ campoRal.addEventListener('blur', () => {
 
 // Mentre l'utente corregge, il messaggio precedente diventa vecchio: sparisce. Il risultato
 // no — quello torna solo da un click su «Calcola».
-campoRal.addEventListener('input', nascondiErrore)
+campoRal.addEventListener('input', () => nascondiErrore(SLOT_RAL))
+
+// I giorni si aggiornano mentre l'utente tocca le date, non al click: sono il numero che
+// dice cosa sta per calcolare, e arriva insieme alla scelta invece che dopo. Con le date
+// incoerenti sparisce, e al suo posto parla l'errore.
+function aggiornaGiorni() {
+  const esito = validaPeriodo(leggiPeriodo(), COSTANTI_PER_ANNO[ANNO_CORRENTE])
+  if (esito.valida) {
+    nascondiErrore(SLOT_PERIODO)
+    const { dataInizio, dataFine } = leggiPeriodo()
+    periodoGiorni.textContent = descriviGiorniDelRapporto(giorniDelRapporto(dataInizio, dataFine))
+    return true
+  }
+  periodoGiorni.textContent = ''
+  mostraErrore(SLOT_PERIODO, esito.errori[0])
+  return false
+}
+
+for (const campo of [campoInizio, campoFine]) {
+  campo.addEventListener('change', aggiornaGiorni)
+  campo.addEventListener('input', aggiornaGiorni)
+}
+
+// Il numero c'e' gia' al primo caricamento, prima di ogni gesto: i campi nascono pieni, e
+// una riga vuota accanto a due date valide sembrerebbe un pezzo che non ha funzionato.
+periodoGiorni.textContent = descriviGiorniDelRapporto(
+  giorniDelRapporto(inizioAnno(ANNO_CORRENTE), fineAnno(ANNO_CORRENTE)),
+)
 
 form.addEventListener('submit', (evento) => {
   evento.preventDefault()
 
   const importo = interpretaImporto(campoRal.value)
   if (!importo.valido) {
-    mostraErrore(importo.errore)
+    mostraErrore(SLOT_RAL, importo.errore)
     return
   }
+  // Le date si controllano prima di chiamare il motore, cosi' il messaggio finisce sotto i
+  // campi che lo hanno prodotto invece che nel catch generico sotto la RAL.
+  if (!aggiornaGiorni()) return
 
   try {
     mostraRisultato(
@@ -473,16 +539,18 @@ form.addEventListener('submit', (evento) => {
         ral: importo.valore,
         mensilita: leggiMensilita(),
         anno: ANNO_CORRENTE,
+        ...leggiPeriodo(),
         // La deroga eventualmente attivata resta: e' una risposta su di se', non su questa
         // RAL. Sotto il massimale non cambia nulla, quindi non ha modo di sorprendere.
         iscrittoAnte1996,
       }),
     )
-    nascondiErrore()
+    nascondiErrore(SLOT_RAL)
   } catch (problema) {
     // Il motore rifiuta gli input fuori dominio con un messaggio gia' in lingua
     // (src/validazione.js): RAL <= 0 arriva qui, non dal parsing.
     mostraErrore(
+      SLOT_RAL,
       problema instanceof RangeError
         ? problema.message
         : 'non riesco a calcolare il netto con questo input',

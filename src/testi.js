@@ -26,7 +26,9 @@
 // nell'etichetta, la lingua comune nella spiegazione.
 
 import { COSTANTI_PER_ANNO, FONTI_PER_ANNO } from './costanti/index.js'
-import { zoneNonMonotonia } from './discontinuita.js'
+import { zoneNonMonotonia, periodoDellaCascata } from './discontinuita.js'
+import { cambiDiStatoDelPeriodo } from './cascata.js'
+import { GIORNI_ANNO_FISCALE } from './periodo.js'
 
 const EURO = new Intl.NumberFormat('it-IT', {
   style: 'currency',
@@ -54,6 +56,12 @@ const PERCENTUALE = new Intl.NumberFormat('it-IT', {
   maximumFractionDigits: 2,
 })
 
+// Per i due numeri che non sono importi: i giorni del rapporto (interi) e le mensilita'
+// maturate, che con un periodo parziale non sono un numero intero — «6,55 mensilita'» e'
+// esattamente cio' che il divisore vale, e arrotondarlo a 7 renderebbe il netto mensile
+// mostrato irriproducibile con la calcolatrice.
+const NUMERO = new Intl.NumberFormat('it-IT', { maximumFractionDigits: 2 })
+
 // Esposti perche' i numeri mostrati dall'interfaccia si scrivano come quelli citati dentro
 // i testi: un netto reso "23.425,48 €" nell'eroe e "23425.48" in una nota sarebbero due
 // voci diverse della stessa pagina.
@@ -75,6 +83,7 @@ function descriviScaglioni(scaglioni) {
 // l'ordine e' dominio (ogni passo parte da dove e' arrivato il precedente), non layout.
 export const ORDINE_VOCI = [
   'ral',
+  'retribuzioneEffettiva',
   'contributiDipendente',
   'imponibileFiscale',
   'irpefLorda',
@@ -102,11 +111,16 @@ export const ETICHETTA_TU_SEI_QUI = 'tu sei qui'
 // le tocca. La tabella vive qui e non nei file delle costanti perche' e' l'associazione fra
 // una voce dell'interfaccia e un documento: le costanti non sanno che esiste una cascata.
 //
-// Due coppie di voci condividono la fonte, e non e' una scorciatoia: detrazioni applicate e
+// Tre coppie di voci condividono la fonte, e non e' una scorciatoia: detrazioni applicate e
 // IRPEF netta sono i due lati della stessa regola di capienza (art. 11 c. 3 TUIR), netto
-// annuo e netto mensile lo stesso importo visto su due periodi (art. 23 DPR 600/1973).
+// annuo e netto mensile lo stesso importo visto su due periodi (art. 23 DPR 600/1973), RAL e
+// retribuzione effettiva la stessa retribuzione vista dal contratto e dall'art. 51 c. 1
+// TUIR, che tassa quello che si e' **percepito nel periodo d'imposta**. La differenza fra le
+// due non e' una norma diversa: e' la stessa norma applicata a un rapporto che dura meno di
+// un anno.
 const FONTE_DELLA_VOCE = {
   ral: 'redditoLavoroDipendente',
+  retribuzioneEffettiva: 'redditoLavoroDipendente',
   contributiDipendente: 'contributi',
   imponibileFiscale: 'imponibile',
   irpefLorda: 'irpef',
@@ -193,13 +207,43 @@ export function testiCascata(cascata) {
   const percentualiSomma = c.sommaIntegrativa.fasce.map(({ percentuale }) => percentuale)
   const d = c.detrazioneLavoroDipendente
 
+  // Il confronto sta sulla retribuzione del periodo e non sulla RAL: su un rapporto parziale
+  // il netto sta sotto la RAL per costruzione, e usarla come metro spegnerebbe la nota
+  // proprio nei casi — redditi bassi, dove le erogazioni superano i prelievi — in cui serve.
+  const incassiPiuDiQuantoMaturi = cascata.nettoAnnuo > cascata.retribuzioneEffettiva
+  const retribuzioneDelPeriodo = cascata.annoIntero ? 'la tua RAL' : 'quello che maturi nel periodo'
+
   const testi = {
     ral: {
       etichetta: 'Retribuzione annua lorda (RAL)',
       spiegazione:
-        'Quello che c’è scritto sul contratto. Comprende già tredicesima ed eventuale ' +
-        'quattordicesima: non si sommano a parte.',
+        'Quello che c’è scritto sul contratto, per un anno intero di lavoro. Comprende già ' +
+        'tredicesima ed eventuale quattordicesima: non si sommano a parte.',
       nota: null,
+    },
+
+    // La voce che apre la cascata quando il rapporto non copre l'anno: la RAL resta il dato
+    // di contratto e questa e' la parte che se ne matura. E' esposta anche ad anno intero,
+    // dove vale esattamente la RAL: la struttura della cascata non cambia con l'input —
+    // cambia l'importo, come per ogni altra voce che puo' valere zero.
+    retribuzioneEffettiva: {
+      etichetta: 'Retribuzione effettiva del periodo',
+      spiegazione:
+        'Quanto della RAL matura nei giorni in cui il rapporto è in essere: la RAL rapportata ' +
+        `ai giorni del periodo su ${NUMERO.format(GIORNI_ANNO_FISCALE)}. È da qui che parte tutto ` +
+        'il resto del calcolo — contributi, imposta e sconti si applicano a questa cifra, mai ' +
+        'alla RAL.' +
+        // A rapporto pieno la riga ripete il numero della riga sopra: senza dirlo, sembra un
+        // errore di rendering invece che il caso normale. Sta nella spiegazione e non nella
+        // nota perche' la nota porta il segno di attenzione, e qui non c'e' niente da temere.
+        (cascata.annoIntero
+          ? ` Il tuo rapporto copre l’anno intero (${descriviGiorniDelRapporto(cascata)}), quindi ` +
+            'qui la cifra è la stessa.'
+          : ''),
+      nota: cascata.annoIntero
+        ? null
+        : `${descriviGiorniDelRapporto(cascata)}. Si contano i giorni di calendario compresi fra ` +
+          'le due date — sabati, domeniche, festivi e ferie inclusi: non sono i giorni lavorati.',
     },
 
     contributiDipendente: {
@@ -335,26 +379,38 @@ export function testiCascata(cascata) {
 
     nettoAnnuo: {
       etichetta: 'Netto annuo',
-      spiegazione: 'Quanto incassi in un anno.',
+      spiegazione: cascata.annoIntero
+        ? 'Quanto incassi in un anno.'
+        : 'Quanto incassi in tutto l’anno d’imposta: il rapporto ne copre una parte, e fuori da ' +
+          'quella parte il calcolo non prevede altri redditi.',
       // Nella cascata voce per voce questa riga chiude la sequenza, e sotto certi redditi
       // chiude su un numero piu' grande della RAL da cui era partita: senza dirlo, la
       // sequenza smette di tornare a occhio proprio sull'ultimo numero. La nota gemella su
       // trattenuteTotali risponde all'altra stranezza visibile — un aggregato negativo.
-      nota:
-        cascata.nettoAnnuo > cascata.ral
-          ? 'Incassi più della tua RAL, e non è un errore: trattamento integrativo e somma ' +
-            'integrativa sono esenti da imposta e insieme valgono più di contributi e imposte. ' +
-            'Succede solo ai redditi bassi.'
-          : null,
+      nota: incassiPiuDiQuantoMaturi
+        ? `Incassi più di ${retribuzioneDelPeriodo}, e non è un errore: trattamento integrativo ` +
+          'e somma integrativa sono esenti da imposta e insieme valgono più di contributi e ' +
+          'imposte. Succede solo ai redditi bassi.'
+        : null,
     },
 
     nettoMensile: {
       etichetta: 'Netto mensile',
-      spiegazione:
-        `Netto annuo diviso ${cascata.mensilita} mensilità. È una media: nessuna busta paga ` +
-        'reale coincide con questo numero, perché le trattenute mensili sono provvisorie fino al ' +
-        'conguaglio di dicembre.',
-      nota: null,
+      spiegazione: cascata.annoIntero
+        ? `Netto annuo diviso ${cascata.mensilita} mensilità. È una media: nessuna busta paga ` +
+          'reale coincide con questo numero, perché le trattenute mensili sono provvisorie fino ' +
+          'al conguaglio di dicembre.'
+        : `Netto diviso le mensilità che maturi nel periodo: ${NUMERO.format(cascata.mensilitaMaturate)} ` +
+          `delle ${cascata.mensilita} di un anno intero. È una media: nessuna busta paga reale ` +
+          'coincide con questo numero, perché le trattenute mensili sono provvisorie fino al ' +
+          'conguaglio.',
+      // Il divisore e' la sola cosa che qui cambia con le date, ed e' anche la piu' facile da
+      // rifare male a mano: chi divide per 13 il netto di mezzo anno ottiene la meta' di
+      // quello che prende nei mesi in cui lavora.
+      nota: cascata.annoIntero
+        ? null
+        : `Dividere per ${cascata.mensilita} darebbe la media su mesi che non hai lavorato: un ` +
+          'numero più basso di quello che ti arriva in banca nei mesi in cui lavori.',
     },
 
     // Non e' una voce della cascata (non sta in ORDINE_VOCI): e' l'aggregato che la pagina
@@ -364,16 +420,17 @@ export function testiCascata(cascata) {
     trattenuteTotali: {
       etichetta: 'Trattenute totali',
       spiegazione:
-        'La differenza fra la tua RAL e il netto annuo: contributi previdenziali e imposte ' +
-        'messi insieme, già al netto di quello che ti viene aggiunto. Non sono tutte tasse — ' +
-        'la parte previdenziale finanzia la tua pensione.',
+        (cascata.annoIntero
+          ? 'La differenza fra la tua RAL e il netto annuo: '
+          : 'La differenza fra la retribuzione che maturi nel periodo e il netto: ') +
+        'contributi previdenziali e imposte messi insieme, già al netto di quello che ti viene ' +
+        'aggiunto. Non sono tutte tasse — la parte previdenziale finanzia la tua pensione.',
       // Sotto certi redditi le erogazioni esenti superano i prelievi e l'aggregato diventa
       // negativo: senza dirlo, un "-676,18 €" di trattenute si legge come un errore.
-      nota:
-        cascata.nettoAnnuo > cascata.ral
-          ? 'Il numero è negativo, e non è un errore: le erogazioni esenti che ti spettano ' +
-            'superano contributi e imposte, quindi in un anno incassi più della tua RAL.'
-          : null,
+      nota: incassiPiuDiQuantoMaturi
+        ? 'Il numero è negativo, e non è un errore: le erogazioni esenti che ti spettano ' +
+          `superano contributi e imposte, quindi incassi più di ${retribuzioneDelPeriodo}.`
+        : null,
     },
 
     aliquotaMarginale: {
@@ -404,6 +461,70 @@ export function testiCascata(cascata) {
 }
 
 /**
+ * Il numero derivato che sta accanto ai due campi data: «184 giorni su 365». Uno solo, e
+ * quello che decide il calcolo — l'alternativa era un calendario, che mostrerebbe *quali*
+ * giorni senza cambiare una cifra, e con le caselle riempite insegnerebbe pure una regola
+ * falsa (che il sabato non conta) proprio dove il punto e' l'opposto.
+ *
+ * Accetta i giorni nudi perche' la pagina lo aggiorna mentre l'utente tocca le date, prima
+ * che esista una cascata da mostrare. null se i giorni non ci sono: non c'e' niente da dire
+ * finche' le due date non stanno in piedi.
+ */
+export function descriviGiorniDelRapporto(giorniOCascata) {
+  const giorni =
+    typeof giorniOCascata === 'number' ? giorniOCascata : (giorniOCascata?.giorniRapporto ?? null)
+  if (giorni === null) return null
+  return `${NUMERO.format(giorni)} giorni su ${NUMERO.format(GIORNI_ANNO_FISCALE)}`
+}
+
+// Congiunzione italiana di un elenco: «a», «a e b», «a, b e c». Sta qui perche' e' lingua,
+// non logica — e perche' un `join(', ')` in mezzo a una frase si vede.
+function elenco(voci) {
+  if (voci.length <= 1) return voci.join('')
+  return `${voci.slice(0, -1).join(', ')} e ${voci.at(-1)}`
+}
+
+/**
+ * L'avviso sul periodo parziale: compare **solo** se il rapporto non copre l'anno intero, e
+ * dice la cosa che nessun conto a mente prevede — che il netto di mezzo anno non e' mezzo
+ * netto annuo, e perche'.
+ *
+ * La seconda parte non e' scritta a mano: le voci che si accendono e si spengono le decide
+ * il motore confrontando due cascate (`cambiDiStatoDelPeriodo`, src/cascata.js). E' la
+ * differenza fra un importo che cambia e una voce che compare, ed e' esattamente cio' che un
+ * calcolatore serve a mostrare. null quando il rapporto copre tutto l'anno.
+ */
+export function avvisoPeriodo(cascata) {
+  if (cascata.annoIntero) return null
+
+  const { accese, spente } = cambiDiStatoDelPeriodo(cascata)
+  const testi = testiCascata(cascata)
+  // Minuscola perche' i nomi delle voci cadono in mezzo a una frase. Le voci con soglia sono
+  // tutte nominali («trattamento integrativo», «addizionale comunale»): nessuna sigla da
+  // rovinare, a differenza di «IRPEF netta», che non e' fra quelle censite.
+  const nomi = (voci) => elenco(voci.map((voce) => testi[voce].etichetta.toLowerCase()))
+
+  // Le due clausole si legano con «mentre» e non con «e»: con entrambe piene, un «e» finirebbe
+  // accanto a quelli che uniscono i nomi delle voci — «somma integrativa e si spengono» —
+  // e la frase perderebbe il confine fra cio' che compare e cio' che sparisce.
+  const cambi = []
+  if (accese.length > 0) cambi.push(`si accendono ${nomi(accese)}`)
+  if (spente.length > 0) cambi.push(`si spengono ${nomi(spente)}`)
+
+  return (
+    `Il tuo rapporto copre ${descriviGiorniDelRapporto(cascata)}: quello che vedi è il netto di ` +
+    'quel periodo, e non è la stessa frazione del netto di un anno intero. La retribuzione ' +
+    'scende con i giorni, ma le soglie che decidono sconti ed erogazioni guardano il reddito ' +
+    'che percepisci davvero: a periodo ridotto non cambia solo l’importo delle voci, cambia ' +
+    'la fascia in cui ti trovi.' +
+    (cambi.length > 0
+      ? ` Rispetto alla stessa RAL su tutto l’anno, ${cambi.join(', mentre ')}: non sono ` +
+        'importi che cambiano, sono voci che compaiono o spariscono.'
+      : '')
+  )
+}
+
+/**
  * L'avviso da mostrare quando la RAL cade in una zona in cui il netto scende al crescere
  * del lordo. Versione in lingua di `avvisoNonMonotonia` (src/discontinuita.js), che resta
  * la formulazione tecnica usata dalla suite di proprieta'. null fuori dalle zone.
@@ -412,7 +533,9 @@ export function avvisoScalino(cascata) {
   const c = COSTANTI_PER_ANNO[cascata.anno]
   if (!c) throw new RangeError(`anno d’imposta non supportato: ${cascata.anno}`)
 
-  const zona = zoneNonMonotonia(c).find(({ da, a }) => cascata.ral > da && cascata.ral < a)
+  const zona = zoneNonMonotonia(c, periodoDellaCascata(cascata)).find(
+    ({ da, a }) => cascata.ral > da && cascata.ral < a,
+  )
   if (!zona) return null
 
   return (
