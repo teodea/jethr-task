@@ -109,9 +109,12 @@ function mostraAvvisi(elenco) {
   avvisi.hidden = elenco.length === 0
 }
 
-function creaEroe({ etichetta, valore, spiegazione, incidenza, nota }) {
+function creaEroe({ etichetta, valore, spiegazione, incidenza, nota, primario }) {
   const eroe = document.createElement('article')
-  eroe.className = 'eroe'
+  // Il primo dei tre e' la risposta alla domanda che ha portato l'utente qui: prende la riga
+  // intera e il fondo pieno d'accento. Gerarchia di lettura, non di dominio — quale voce
+  // venga per prima lo decide EROI, qui sopra.
+  eroe.className = primario ? 'eroe eroe-primario' : 'eroe'
 
   const titolo = document.createElement('h2')
   titolo.className = 'eroe-etichetta'
@@ -226,12 +229,13 @@ function mostraRisultato(cascata) {
   scalino.hidden = scalinoDaMostrare === null
 
   eroi.replaceChildren(
-    ...EROI.map((voce) =>
+    ...EROI.map((voce, posizione) =>
       creaEroe({
         etichetta: testi[voce].etichetta,
         valore: formattaEuro(voci[voce]),
         spiegazione: testi[voce].spiegazione,
         nota: testi[voce].nota,
+        primario: posizione === 0,
         incidenza:
           voce === 'trattenuteTotali'
             ? `${formattaPercentuale(voci.incidenzaTrattenute)} della RAL`

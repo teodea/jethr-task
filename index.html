@@ -8,6 +8,22 @@
       name="description"
       content="Data una retribuzione annua lorda, il netto annuale e mensile e tutte le voci trattenute."
     />
+    <!-- La consegna e' un link: chi lo riceve vede prima l'anteprima e poi la pagina. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="it_IT" />
+    <meta property="og:url" content="https://teodea.github.io/jethr-task/" />
+    <meta property="og:title" content="RAL → netto" />
+    <meta
+      property="og:description"
+      content="Quanto della tua retribuzione lorda arriva davvero in banca, e dove finisce il resto. Anno d'imposta 2026, ogni voce con la sua fonte."
+    />
+    <meta name="theme-color" content="#1f5f4f" />
+    <!-- Favicon inline: la regola del repo e' zero dipendenze e zero build, e vale anche per
+         un file binario in piu' da servire. Stesso verde d'accento del foglio di stile. -->
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%231f5f4f'/><path d='M8 16h13m-5-5 5 5-5 5' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/></svg>"
+    />
     <link rel="stylesheet" href="web/stile.css" />
   </head>
   <body>
@@ -23,10 +39,11 @@
           <!-- Su GitHub Pages un .md viene servito come text/markdown e il browser lo scarica
                invece di mostrarlo: il registro si linka dove viene renderizzato davvero. -->
           <a
+            class="registro"
             href="https://github.com/teodea/jethr-task/blob/main/docs/ASSUNZIONI.md"
             target="_blank"
             rel="noopener"
-            >Cosa resta fuori</a
+            >Cosa resta fuori, e cosa cambierebbe &rarr;</a
           >
         </p>
       </header>

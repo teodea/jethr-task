@@ -16,8 +16,10 @@
 //    senza aggettivo.
 //
 // 3. Le stringhe rivolte all'utente usano accenti e apostrofi veri (e', piu', perche' si
-//    scrivono con l'accento). I commenti restano in ASCII come nel resto del repo: sono
-//    due pubblici diversi, e "mensilita'" stampato a schermo e' un difetto visibile.
+//    scrivono con l'accento) e l'apostrofo e' sempre quello tipografico U+2019, mai l'apice
+//    dritto: nella stessa frase i due si vedono, e la pagina li mette in fila. I commenti
+//    restano in ASCII come nel resto del repo: sono due pubblici diversi, e "mensilita'"
+//    stampato a schermo e' un difetto visibile.
 //
 // Le spiegazioni sono in seconda persona e non usano termini di dominio non spiegati: il
 // destinatario e' un dipendente, non un sostituto d'imposta. Il termine tecnico vive
@@ -128,7 +130,7 @@ const FONTE_DELLA_VOCE = {
  */
 export function testiCascata(cascata) {
   const c = COSTANTI_PER_ANNO[cascata.anno]
-  if (!c) throw new RangeError(`anno d'imposta non supportato: ${cascata.anno}`)
+  if (!c) throw new RangeError(`anno d’imposta non supportato: ${cascata.anno}`)
 
   const noteContributi = []
   if (cascata.contributoAggiuntivo > 0) {
@@ -160,7 +162,7 @@ export function testiCascata(cascata) {
     ral: {
       etichetta: 'Retribuzione annua lorda (RAL)',
       spiegazione:
-        "Quello che c'è scritto sul contratto. Comprende già tredicesima ed eventuale " +
+        'Quello che c’è scritto sul contratto. Comprende già tredicesima ed eventuale ' +
         'quattordicesima: non si sommano a parte.',
       nota: null,
     },
@@ -170,7 +172,7 @@ export function testiCascata(cascata) {
       spiegazione:
         `La tua quota di contributi previdenziali, il ${PERCENTUALE.format(c.contributi.aliquotaIvsDipendente)} ` +
         'della retribuzione. Finanziano la tua pensione futura, non lo Stato: è il motivo per cui non ' +
-        "sono tasse. La tua azienda ne versa un'altra quota, più grande della tua, che non entra " +
+        'sono tasse. La tua azienda ne versa un’altra quota, più grande della tua, che non entra ' +
         'in questo calcolo.',
       nota: noteContributi.length > 0 ? noteContributi.join(' ') : null,
     },
@@ -186,7 +188,7 @@ export function testiCascata(cascata) {
     irpefLorda: {
       etichetta: 'IRPEF lorda',
       spiegazione:
-        "L'imposta prima degli sconti. Ogni fascia di reddito paga la propria aliquota: " +
+        'L’imposta prima degli sconti. Ogni fascia di reddito paga la propria aliquota: ' +
         `${descriviScaglioni(c.irpef.scaglioni)}. Salire di fascia non ritassa quello che sta sotto.`,
       nota: null,
     },
@@ -220,15 +222,15 @@ export function testiCascata(cascata) {
         cascata.redditoComplessivo <= c.ulterioreDetrazione.sogliaInferiore
           ? `Non ti spetta: sotto ${EURO.format(c.ulterioreDetrazione.sogliaInferiore)} di reddito ` +
             'questo sconto non è previsto. A quei redditi intervengono le erogazioni, che si ' +
-            "aggiungono al netto invece di ridurre l'imposta."
+            'aggiungono al netto invece di ridurre l’imposta.'
           : null,
     },
 
     detrazioniEffettive: {
       etichetta: 'Detrazioni applicate',
       spiegazione:
-        "La somma degli sconti effettivamente sottratti all'imposta. Uno sconto vale solo fino a " +
-        "concorrenza dell'imposta: quello che avanza non diventa un credito.",
+        'La somma degli sconti effettivamente sottratti all’imposta. Uno sconto vale solo fino a ' +
+        'concorrenza dell’imposta: quello che avanza non diventa un credito.',
       nota:
         detrazionePersa > 0
           ? `Ti spettavano ${EURO_CENTESIMI.format(cascata.detrazioniSpettanti)} di sconti, ma la tua ` +
@@ -240,17 +242,17 @@ export function testiCascata(cascata) {
     irpefNetta: {
       etichetta: 'IRPEF netta',
       spiegazione:
-        "L'imposta davvero dovuta: la lorda meno gli sconti. Non scende mai sotto zero.",
+        'L’imposta davvero dovuta: la lorda meno gli sconti. Non scende mai sotto zero.',
       nota:
         cascata.irpefNetta === 0
-          ? "La tua imposta è zero: gli sconti coprono per intero l'imposta lorda."
+          ? 'La tua imposta è zero: gli sconti coprono per intero l’imposta lorda.'
           : null,
     },
 
     addizionaleRegionale: {
       etichetta: 'Addizionale regionale',
       spiegazione:
-        "Imposta della Regione sullo stesso imponibile dell'IRPEF, a fasce: " +
+        'Imposta della Regione sullo stesso imponibile dell’IRPEF, a fasce: ' +
         `${descriviScaglioni(c.addizionaleRegionale.scaglioni)}. Gli sconti IRPEF non la riducono.`,
       nota: gateAddizionali,
     },
@@ -264,16 +266,16 @@ export function testiCascata(cascata) {
         gateAddizionali ??
         (cascata.imponibileFiscale <= c.addizionaleComunale.esenzioneFinoA
           ? `Sei sotto la soglia di esenzione di ${EURO.format(c.addizionaleComunale.esenzioneFinoA)}: non è dovuta.`
-          : `Attenzione: sopra ${EURO.format(c.addizionaleComunale.esenzioneFinoA)} l'aliquota si applica ` +
-            "all'intero imponibile, non solo alla parte eccedente. È una soglia, non una franchigia."),
+          : `Attenzione: sopra ${EURO.format(c.addizionaleComunale.esenzioneFinoA)} l’aliquota si applica ` +
+            'all’intero imponibile, non solo alla parte eccedente. È una soglia, non una franchigia.'),
     },
 
     trattamentoIntegrativo: {
       etichetta: 'Trattamento integrativo',
       spiegazione:
-        "Somma che si aggiunge al tuo netto invece di ridurre l'imposta. Spetta sotto " +
+        'Somma che si aggiunge al tuo netto invece di ridurre l’imposta. Spetta sotto ' +
         `${EURO.format(c.trattamentoIntegrativo.sogliaRedditoComplessivo)} di reddito, ma solo se ` +
-        "l'imposta supera la detrazione: così proprio i redditi più bassi restano fuori.",
+        'l’imposta supera la detrazione: così proprio i redditi più bassi restano fuori.',
       nota:
         cascata.trattamentoIntegrativo === 0 &&
         cascata.redditoComplessivo <= c.trattamentoIntegrativo.sogliaRedditoComplessivo
@@ -337,14 +339,14 @@ export function testiCascata(cascata) {
 
     aliquotaMarginale: {
       etichetta: 'Aliquota marginale',
-      spiegazione: "L'aliquota sull'ultimo euro guadagnato: è il tasso a cui vale un aumento.",
+      spiegazione: 'L’aliquota sull’ultimo euro guadagnato: è il tasso a cui vale un aumento.',
       nota: null,
     },
 
     aliquotaMedia: {
       etichetta: 'Aliquota media',
       spiegazione:
-        "L'imposta rapportata al reddito. È sempre più bassa della marginale: la differenza " +
+        'L’imposta rapportata al reddito. È sempre più bassa della marginale: la differenza ' +
         'è quanto ti fanno risparmiare scaglioni e sconti.',
       nota: null,
     },
@@ -369,7 +371,7 @@ export function testiCascata(cascata) {
  */
 export function avvisoScalino(cascata) {
   const c = COSTANTI_PER_ANNO[cascata.anno]
-  if (!c) throw new RangeError(`anno d'imposta non supportato: ${cascata.anno}`)
+  if (!c) throw new RangeError(`anno d’imposta non supportato: ${cascata.anno}`)
 
   const zona = zoneNonMonotonia(c).find(({ da, a }) => cascata.ral > da && cascata.ral < a)
   if (!zona) return null
@@ -377,7 +379,7 @@ export function avvisoScalino(cascata) {
   return (
     `Sei appena sopra uno scalino. A ${EURO_CENTESIMI.format(zona.da)} di RAL il netto annuo era più ` +
     `alto di quello attuale, fino a ${EURO_CENTESIMI.format(zona.perdita)} in più. ` +
-    "Non è un errore del calcolo: la legge prevede soglie oltre le quali un'agevolazione si " +
+    'Non è un errore del calcolo: la legge prevede soglie oltre le quali un’agevolazione si ' +
     `perde per intero invece di ridursi. Torni sopra quel livello da ${EURO_CENTESIMI.format(zona.a)} di RAL.`
   )
 }

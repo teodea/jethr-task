@@ -35,7 +35,7 @@ Per una RAL di 30.000 € su 13 mensilità:
 Ogni riga porta con sé un testo in lingua comune. Ad esempio, sull'addizionale comunale:
 
 > *Imposta del Comune sullo stesso imponibile: 0,8%, con esenzione fino a 23.000 € di imponibile.*
-> ⚠️ *Attenzione: sopra 23.000 € l'aliquota si applica all'intero imponibile, non solo alla
+> ⚠️ *Attenzione: sopra 23.000 € l’aliquota si applica all’intero imponibile, non solo alla
 > parte eccedente. È una soglia, non una franchigia.*
 
 ---
@@ -143,7 +143,7 @@ Quando la RAL cade in una di queste zone, il prototipo lo dice con gli estremi e
 
 > ⚠️ *Sei appena sopra uno scalino. A 38.542,01 € di RAL il netto annuo era più alto di
 > quello attuale, fino a 65,00 € in più. Non è un errore del calcolo: la legge prevede
-> soglie oltre le quali un'agevolazione si perde per intero invece di ridursi. Torni sopra
+> soglie oltre le quali un’agevolazione si perde per intero invece di ridursi. Torni sopra
 > quel livello da 38.707,63 € di RAL.*
 
 ### Uno sconto più grande dell'imposta si perde

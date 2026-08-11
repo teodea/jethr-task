@@ -1,5 +1,10 @@
 /* Design neutro: una colonna, gerarchia netta, un solo colore d'accento.
-   Nessuna imitazione di brand. La finitura si completa con l'issue #16. */
+   Nessuna imitazione di brand.
+
+   Un colore d'accento solo, il verde: tutto cio' che e' interattivo o che porta il numero
+   principale lo indossa. Rosso e giallo non sono accenti, sono stati — errore e avviso — e
+   compaiono solo quando quello stato esiste. Le misure sono in rem perche' la pagina segua
+   la dimensione di carattere scelta nel browser: chi ingrandisce lo fa per leggere. */
 
 :root {
   --accento: #1f5f4f;
@@ -12,10 +17,39 @@
   --attenzione: #b3801a;
   --attenzione-tenue: #fdf4de;
   --raggio: 10px;
+
+  /* La pagina ha una sola veste. Dichiararlo evita che un browser mobile in tema scuro
+     inverta da solo campo e bottone, ottenendo l'unica combinazione che non abbiamo
+     verificato. */
+  color-scheme: light;
 }
 
 * {
   box-sizing: border-box;
+}
+
+/* Un solo anello di focus per tutta la pagina, nel colore d'accento: chi naviga da tastiera
+   vede sempre dov'e', e lo vede sempre allo stesso modo. `:focus-visible` e non `:focus`
+   perche' il click del mouse non deve lasciare l'anello acceso dietro di se'. */
+:focus-visible {
+  outline: 2px solid var(--accento);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* L'unica animazione della pagina e' la rotazione del chevron. Chi ha chiesto al sistema di
+   ridurre il movimento la perde e non perde niente: lo stato aperto si vede dal contenuto. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+::selection {
+  background: var(--accento-tenue);
 }
 
 body {
@@ -39,13 +73,17 @@ body {
 h1 {
   margin: 0;
   font-size: 2.25rem;
+  line-height: 1.15;
   letter-spacing: -0.02em;
+  text-wrap: balance;
 }
 
 .sottotitolo {
   margin: 0.4rem 0 0;
+  max-width: 34rem; /* ~70 caratteri: oltre, l'occhio perde la riga tornando a capo */
   color: var(--inchiostro-tenue);
   font-size: 1.05rem;
+  text-wrap: pretty;
 }
 
 .perimetro {
@@ -60,6 +98,18 @@ h1 {
 
 .perimetro strong {
   color: var(--inchiostro);
+}
+
+/* Il registro delle assunzioni sta dentro il perimetro perche' ne e' la continuazione: qui
+   sopra c'e' per chi vale questo numero, di la' perche'. Riga propria e non coda della
+   frase — attaccato al punto fermo si leggerebbe come l'ultima parola del perimetro invece
+   che come la porta per uscirne. */
+.perimetro .registro {
+  display: block;
+  margin-top: 0.35rem;
+  font-weight: 600;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
 }
 
 a {
@@ -187,6 +237,10 @@ a {
   filter: brightness(1.12);
 }
 
+.calcola:active {
+  filter: brightness(0.94);
+}
+
 .errore {
   margin: 0;
   color: var(--allarme);
@@ -234,10 +288,16 @@ a {
   border-top: 1px solid var(--bordo);
 }
 
+/* Gerarchia netta: i tre numeri non pesano uguale. Il netto annuo e' la risposta alla
+   domanda che ha portato qui — prende la riga intera e l'unico fondo pieno d'accento della
+   pagina. Netto mensile e trattenute totali stanno sotto, affiancati: sono la stessa
+   risposta vista da un'altra angolazione. Tre card identiche in fila direbbero che le tre
+   domande hanno lo stesso peso, e non ce l'hanno. */
+
 .eroi {
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  grid-template-columns: repeat(2, 1fr);
 }
 
 .eroe {
@@ -245,6 +305,29 @@ a {
   border: 1px solid var(--bordo);
   border-radius: var(--raggio);
   background: #fff;
+}
+
+.eroe-primario {
+  grid-column: 1 / -1;
+  border-color: var(--accento);
+  background: var(--accento);
+  color: #fff;
+}
+
+.eroe-primario .eroe-valore {
+  font-size: 2.6rem;
+}
+
+.eroe-primario .eroe-etichetta,
+.eroe-primario .eroe-glossa {
+  /* Bianco velato invece di un grigio: sul fondo d'accento un grigio virerebbe di tinta.
+     Il contrasto resta sopra 5:1, ben oltre il minimo per il testo piccolo. */
+  color: rgb(255 255 255 / 0.82);
+}
+
+.eroe-primario .eroe-nota {
+  color: #fff;
+  border-left-color: rgb(255 255 255 / 0.55);
 }
 
 .eroe-etichetta {
@@ -432,4 +515,71 @@ a {
 
 .chiusura p {
   margin: 0;
+}
+
+/* Schermo stretto
+   ---------------
+   La domanda «quanto mi arriva davvero» arriva quasi sempre lontano da una scrivania, e la
+   pagina e' gia' a una colonna: da telefono non cambia la struttura, cambiano tre cose che
+   a 375px non funzionerebbero piu'. Primo, i respiri — margini pensati per 768px mangiano
+   mezzo schermo. Secondo, il titolo, che a 2,25rem andrebbe a capo. Terzo, i bersagli:
+   bottone e segmenti si allargano a tutta riga, perche' un pollice non e' un puntatore. */
+
+@media (max-width: 34rem) {
+  body {
+    padding: 1.75rem 1rem 3rem;
+  }
+
+  h1 {
+    font-size: 1.9rem;
+  }
+
+  .sottotitolo {
+    font-size: 1rem;
+  }
+
+  /* Nessuna coppia affiancata: due numeri a 1,85rem in meta' schermo andrebbero a capo in
+     mezzo alle migliaia. */
+  .eroi {
+    grid-template-columns: 1fr;
+  }
+
+  .eroe-primario .eroe-valore {
+    font-size: 2.2rem;
+  }
+
+  .campo-valuta {
+    max-width: none;
+  }
+
+  .segmentato {
+    display: flex;
+    width: 100%;
+  }
+
+  .segmento {
+    flex: 1;
+    text-align: center;
+  }
+
+  .calcola {
+    justify-self: stretch;
+    width: 100%;
+    padding: 0.85rem 1.9rem;
+  }
+
+  .risultato {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+  }
+
+  .cascata {
+    margin-top: 2rem;
+  }
+
+  /* L'etichetta di una voce puo' essere lunga («Detrazione per lavoro dipendente») e
+     l'importo non deve mai spezzarsi per farle posto: e' il dato, il nome puo' andare a capo. */
+  .voce-importo {
+    white-space: nowrap;
+  }
 }
