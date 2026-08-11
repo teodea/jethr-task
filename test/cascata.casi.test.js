@@ -115,6 +115,52 @@ test('contributi: 1% aggiuntivo oltre la prima fascia e stop al massimale [issue
   vicino(c(122295).totale, 0.0919 * 122295 + 0.01 * (122295 - 56224))
 })
 
+test('sotto il massimale la deroga ante-1996 non sposta una cifra [issue #23]', () => {
+  // E' la premessa della decisione di non chiedere la data di prima iscrizione nel form:
+  // sotto il tetto qualunque risposta da' lo stesso identico risultato, quindi la domanda
+  // sarebbe un costo per tutti e un'informazione per nessuno. Se questo test cadesse, la
+  // domanda andrebbe rimessa nel form — non e' un dettaglio di interfaccia, e' dominio.
+  const massimale = COSTANTI_2026.contributi.massimaleAnnuo
+  for (const ral of [8500, 30000, 56224, 80000, massimale - 0.01, massimale]) {
+    const standard = calcolaCascata({ ral, anno: 2026 })
+    const conDeroga = calcolaCascata({ ral, anno: 2026, iscrittoAnte1996: true })
+    for (const [voce, valore] of Object.entries(standard)) {
+      if (typeof valore !== 'number') continue
+      assert.equal(conDeroga[voce], valore, `la deroga sposta ${voce} a RAL ${ral}`)
+    }
+  }
+})
+
+test('sopra il massimale la deroga toglie il tetto: 9,19% e 1% su tutta la RAL [issue #23, Circ. INPS 6/2026 par. 6]', () => {
+  // "Per i lavoratori gia' iscritti al 31/12/1995 il massimale non esiste: 9,19% e 1% su
+  // tutta la retribuzione" (docs/ricerca/contributi-dipendente-...md, par. 3.3, che cita
+  // art. 2 c. 18 L. 335/1995 e la circolare dell'anno).
+  const c = COSTANTI_2026.contributi
+  const ral = 150000
+  const conDeroga = contributiDipendente(ral, COSTANTI_2026, { iscrittoAnte1996: true })
+
+  assert.equal(conDeroga.baseContributiva, ral) // niente tetto sulla base
+  vicino(
+    conDeroga.totale,
+    c.aliquotaIvsDipendente * ral + c.aliquotaAggiuntiva * (ral - c.primaFasciaAnnua),
+  )
+  // e i contributi continuano a crescere dove per l'iscritto post-1995 si fermavano
+  const oltre = contributiDipendente(ral + 1000, COSTANTI_2026, { iscrittoAnte1996: true })
+  vicino(oltre.totale - conDeroga.totale, 1000 * (c.aliquotaIvsDipendente + c.aliquotaAggiuntiva))
+})
+
+test('quanto vale davvero la deroga: ~1.537,76 EUR di netto in meno su RAL 150.000 [derivazione, issue #23]', () => {
+  // La cifra che giustifica l'offerta, e insieme la sua misura: la issue la stimava
+  // "~1.500 EUR". Derivazione: 2.823,14 di contributi in piu' (9,19% + 1% sui 27.705 EUR
+  // sopra il massimale), di cui il fisco restituisce il 43% di IRPEF marginale, l'1,73%
+  // di addizionale regionale (ultimo scaglione Lombardia) e lo 0,8% comunale.
+  const standard = calcolaCascata({ ral: 150000, anno: 2026 })
+  const conDeroga = calcolaCascata({ ral: 150000, anno: 2026, iscrittoAnte1996: true })
+
+  vicino(conDeroga.contributiDipendente - standard.contributiDipendente, 2823.14, 0.01)
+  vicino(conDeroga.nettoAnnuo - standard.nettoAnnuo, -1537.76, 0.01)
+})
+
 test('caso end-to-end di incapienza: RAL 8.500 [derivazione, issue #4, par. 6]', () => {
   const c = calcolaCascata({ ral: 8500, anno: 2026 })
   vicino(c.contributiDipendente, 781.15)

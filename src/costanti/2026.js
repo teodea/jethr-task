@@ -12,6 +12,7 @@ export const COSTANTI_2026 = {
     aliquotaAggiuntiva: 0.01, // sulla quota oltre la prima fascia - fonte: art. 3-ter D.L. 19/09/1992 n. 384 conv. L. 438/1992, https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.legge:1992-09-19;384~art3ter, anno 1992
     primaFasciaAnnua: 56224, // EUR - fonte: Circolare INPS n. 6 del 30/01/2026, par. 5, https://www.inps.it/it/it/inps-comunica/atti/circolari-messaggi-e-normativa/dettaglio.circolari-e-messaggi.2026.01.circolare-numero-6-del-30-01-2026_15151.html, anno 2026
     massimaleAnnuo: 122295, // EUR, solo iscritti post 31/12/1995 (122.295,40 arrotondato all'unita) - fonte: Circolare INPS n. 6 del 30/01/2026, par. 6 (art. 2 c. 18 L. 335/1995), URL sopra, anno 2026
+    massimaleSoloIscrittiDopo: 1995, // il massimale opera per i soli iscritti dopo il 31/12/1995: e' la condizione della platea, non un valore d'anno (non si rivaluta) - fonte: art. 2 c. 18 L. 335/1995, https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:legge:1995-08-08;335~art2, anno 1995
     minimaleGiornaliero: 58.13, // EUR (9,5% del trattamento minimo mensile 611,85) - fonte: Circolare INPS n. 6 del 30/01/2026, par. 1, URL sopra, anno 2026
     giornateAnnoMinimale: 312, // 52 settimane x 6 giornate: convenzione usata in docs/ricerca/contributi-dipendente-aliquote-minimale-massimale.md, par. 3.1, per annualizzare il minimale giornaliero
   },

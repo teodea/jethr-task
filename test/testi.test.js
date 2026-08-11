@@ -114,6 +114,47 @@ test('anche le soglie contributive seguono l’anno: prima fascia 56.224 nel 202
   assert.match(nota2025, /55\.448/)
 })
 
+test('l’offerta di ricalcolo senza massimale compare solo dove cambia qualcosa [issue #23]', () => {
+  // La regola della issue: una domanda si mostra solo quando la risposta cambia qualcosa.
+  // Sotto il tetto la data di prima iscrizione non sposta un centesimo (test/cascata.casi)
+  // e quindi non si chiede; sopra vale ~1.500 EUR e l'offerta compare attaccata alla nota
+  // sul massimale, che e' esattamente il punto in cui il tetto viene nominato.
+  const massimale = COSTANTI_2026.contributi.massimaleAnnuo
+
+  assert.equal(testiCascata(cascata2026(30000)).contributiDipendente.deroga, null)
+  assert.equal(testiCascata(cascata2026(massimale)).contributiDipendente.deroga, null)
+
+  const sopra = testiCascata(cascata2026(massimale + 1)).contributiDipendente
+  assert.match(sopra.nota, /i contributi si fermano/)
+  assert.equal(sopra.deroga.attiva, false)
+  assert.match(sopra.deroga.testo, /1995/)
+  assert.ok(sopra.deroga.comando.length > 0, 'l’offerta senza comando non e’ un’offerta')
+})
+
+test('con la deroga attiva sparisce la nota sul tetto e resta la strada di ritorno [issue #23]', () => {
+  // Il verso di ritorno non e' una cortesia: attivata la deroga il tetto non c'e' piu' e
+  // la nota che lo annunciava tace: senza un comando che dica sotto quale ipotesi si sta
+  // calcolando, l'utente resterebbe dentro una scelta che la pagina non nomina piu'.
+  const conDeroga = testiCascata(
+    calcolaCascata({ ral: 150000, anno: 2026, iscrittoAnte1996: true }),
+  ).contributiDipendente
+
+  assert.doesNotMatch(conDeroga.nota, /i contributi si fermano/)
+  assert.match(conDeroga.nota, /aggiuntivo/) // l'1% oltre la prima fascia resta, e si dice
+  assert.equal(conDeroga.deroga.attiva, true)
+  assert.notEqual(conDeroga.deroga.comando, testiCascata(cascata2026(150000)).contributiDipendente.deroga.comando)
+})
+
+test('anche la soglia dell’offerta segue l’anno: 121.000 e’ sopra il massimale 2025, sotto quello 2026', () => {
+  // Massimali: 120.607 nel 2025, 122.295 nel 2026 (circolari INPS 26/2025 e 6/2026, par. 6).
+  // Stessa RAL, stessa pagina, due anni: l'offerta compare in uno e tace nell'altro.
+  const deroga = (anno) =>
+    testiCascata(calcolaCascata({ ral: 121000, anno })).contributiDipendente.deroga
+
+  assert.ok(deroga(2025), 'l’offerta deve comparire sopra il massimale 2025')
+  assert.equal(deroga(2026), null)
+})
+
 test('sopra la soglia comunale il testo avverte che non e’ una franchigia', () => {
   // imponibile 27.243 su RAL 30.000: sopra i 23.000 di Milano
   const testi = testiCascata(cascata2026(30000))

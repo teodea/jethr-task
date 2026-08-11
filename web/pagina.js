@@ -34,6 +34,17 @@ const elencoVoci = document.querySelector('#voci')
 // in un anno, quanto al mese, quanto non mi arriva.
 const EROI = ['nettoAnnuo', 'nettoMensile', 'trattenuteTotali']
 
+// L'unico pezzo di input che non sta nel form (issue #23): la data di prima iscrizione a
+// forme pensionistiche non si chiede, si assume — e la deroga si offre solo dentro il
+// risultato, a chi ha una RAL sopra il massimale, che e' l'unico caso in cui la risposta
+// cambia una cifra. Vive qui e non nel form perche' un campo che spunta mentre l'utente
+// scrive gli farebbe muovere il layout sotto le dita.
+//
+// Sopravvive ai calcoli successivi: e' un fatto della persona, non di questa RAL. Chi
+// scende sotto il massimale smette di vedere l'offerta ma non cambia risposta, e infatti
+// il netto e' lo stesso in entrambi i casi.
+let iscrittoAnte1996 = false
+
 // L'anno d'imposta e' dichiarato, non chiesto (docs/ASSUNZIONI.md): la pagina lo scrive
 // leggendolo dalle costanti, cosi' non puo' divergere dai numeri che mostra.
 for (const nodo of document.querySelectorAll('[data-anno]')) {
@@ -154,11 +165,14 @@ function creaEroe({ etichetta, valore, spiegazione, incidenza, nota, primario })
 // Una riga della cascata. <details> invece di un bottone e un pannello: apertura e chiusura
 // da tastiera, stato iniziale chiuso e semantica di divulgazione arrivano dal browser, senza
 // una riga di JavaScript che possa sbagliarli.
-function creaVoce({ etichetta, valore, spiegazione, nota, fonte }) {
+function creaVoce({ voce, etichetta, valore, spiegazione, nota, fonte, deroga, aperta }) {
   const riga = document.createElement('li')
   riga.className = 'voce'
 
   const dettaglio = document.createElement('details')
+  // La chiave serve a ritrovare questa riga dopo un ricalcolo: vedi vociAperte().
+  dettaglio.dataset.voce = voce
+  dettaglio.open = aperta
 
   const intestazione = document.createElement('summary')
   intestazione.className = 'voce-riga'
@@ -191,6 +205,25 @@ function creaVoce({ etichetta, valore, spiegazione, nota, fonte }) {
     avvertenza.className = 'voce-nota'
     avvertenza.append(creaSegno(), document.createTextNode(nota))
     corpo.append(avvertenza)
+  }
+
+  if (deroga) {
+    // L'offerta di precisione: un bottone dentro una nota, non un campo nel form. E'
+    // <button> e non <a> perche' non porta da nessuna parte — ricalcola questa stessa
+    // pagina sotto l'altra ipotesi. `aria-pressed` dice a chi non vede il testo quale
+    // delle due sia attiva in questo momento.
+    const offerta = document.createElement('p')
+    offerta.className = 'voce-deroga'
+
+    const comando = document.createElement('button')
+    comando.type = 'button'
+    comando.className = 'deroga-comando'
+    comando.textContent = deroga.comando
+    comando.setAttribute('aria-pressed', String(deroga.attiva))
+    comando.addEventListener('click', alternaDeroga)
+
+    offerta.append(document.createTextNode(`${deroga.testo} `), comando)
+    corpo.append(offerta)
   }
 
   if (fonte) {
@@ -326,7 +359,34 @@ function creaGrafico({ zona, tuSeiQui, punti }) {
   return disegno
 }
 
-function mostraRisultato(cascata) {
+// L'ultima cascata mostrata. Serve alla sola deroga, che ricalcola gli stessi input sotto
+// l'altra ipotesi: sono quelli del risultato che l'utente ha davanti, non quelli scritti
+// nel campo in questo momento — che potrebbe aver riscritto senza premere «Calcola».
+let ultimaCascata = null
+
+// Quali righe della cascata sono aperte adesso. Solo la deroga se ne serve: quel click
+// parte da dentro una riga aperta, e richiuderla porterebbe via lo stesso testo che ha
+// appena offerto il ricalcolo. Un click su «Calcola» riparte invece da tutte chiuse — e'
+// un calcolo nuovo, non lo stesso visto sotto un'altra ipotesi.
+function vociAperte() {
+  return new Set([...elencoVoci.querySelectorAll('details[open]')].map((riga) => riga.dataset.voce))
+}
+
+function alternaDeroga() {
+  iscrittoAnte1996 = !iscrittoAnte1996
+
+  const { ral, mensilita, anno } = ultimaCascata
+  const apertura = vociAperte()
+  mostraRisultato(calcolaCascata({ ral, mensilita, anno, iscrittoAnte1996 }), apertura)
+
+  // Il bottone appena premuto e' stato distrutto dal ridisegno: il fuoco va sul suo
+  // sostituto, che dice ora il verso opposto. Senza, chi naviga da tastiera si ritrova
+  // in cima al documento dopo aver chiesto una precisione in fondo a una riga.
+  elencoVoci.querySelector('.deroga-comando')?.focus()
+}
+
+function mostraRisultato(cascata, apertura = new Set()) {
+  ultimaCascata = cascata
   const voci = presentaCascata(cascata)
   const testi = testiCascata(cascata)
 
@@ -364,15 +424,19 @@ function mostraRisultato(cascata) {
 
   // La cascata si renderizza come mappa su ORDINE_VOCI: l'ordine e' dominio (ogni passo
   // parte da dove e' arrivato il precedente) e la pagina non lo ricostruisce. Le righe sono
-  // ricreate a ogni calcolo, quindi nascono tutte chiuse anche dopo il secondo click.
+  // ricreate a ogni calcolo, quindi nascono tutte chiuse anche dopo il secondo click —
+  // tranne quelle che `apertura` chiede di riaprire, cioe' solo dopo una deroga.
   elencoVoci.replaceChildren(
     ...ORDINE_VOCI.map((voce) =>
       creaVoce({
+        voce,
         etichetta: testi[voce].etichetta,
         valore: voci[voce],
         spiegazione: testi[voce].spiegazione,
         nota: testi[voce].nota,
         fonte: testi[voce].fonte,
+        deroga: testi[voce].deroga ?? null,
+        aperta: apertura.has(voce),
       }),
     ),
   )
@@ -405,7 +469,14 @@ form.addEventListener('submit', (evento) => {
 
   try {
     mostraRisultato(
-      calcolaCascata({ ral: importo.valore, mensilita: leggiMensilita(), anno: ANNO_CORRENTE }),
+      calcolaCascata({
+        ral: importo.valore,
+        mensilita: leggiMensilita(),
+        anno: ANNO_CORRENTE,
+        // La deroga eventualmente attivata resta: e' una risposta su di se', non su questa
+        // RAL. Sotto il massimale non cambia nulla, quindi non ha modo di sorprendere.
+        iscrittoAnte1996,
+      }),
     )
     nascondiErrore()
   } catch (problema) {

@@ -126,6 +126,8 @@ const FONTE_DELLA_VOCE = {
  * I testi di ogni voce per una cascata gia' calcolata.
  * Ogni voce: { etichetta, spiegazione, nota, fonte }. `nota` e' gia' risolta (stringa o
  * null) e `fonte` e' gia' risolta ({ citazione, url } o null): la UI renderizza, non decide.
+ * La sola voce dei contributi porta in piu' `deroga` ({ testo, comando, attiva } o null):
+ * l'offerta di ricalcolo senza massimale, che compare solo dove cambia qualcosa.
  *
  * `fonte` e' null sugli aggregati fuori da ORDINE_VOCI (trattenute totali, aliquote): non
  * sono voci di una norma ma somme e rapporti fra voci, e attaccargli un articolo scelto fra
@@ -149,6 +151,35 @@ export function testiCascata(cascata) {
         'la parte eccedente non ne genera altri.',
     )
   }
+
+  // L'offerta di precisione sulla data di prima iscrizione (issue #23). Non e' un campo del
+  // form: sotto il massimale la risposta non sposta un centesimo — qualunque data, il netto
+  // e' identico — e un input che non cambia niente lo pagano tutti per servire quasi
+  // nessuno. Compare qui, alla stessa condizione della nota sul massimale (RAL oltre il
+  // tetto), che e' l'unica in cui la risposta vale qualcosa: ~1.500 EUR su RAL 150.000.
+  //
+  // Nei due versi, e non solo in andata: chi ha attivato la deroga vede sparire la nota sul
+  // tetto — giustamente, per lui il tetto non c'e' piu' — e senza una strada di ritorno
+  // resterebbe dentro un'ipotesi che la pagina non nomina piu'.
+  const oltreIlMassimale = cascata.ral > c.contributi.massimaleAnnuo
+  const anteIscrizione = c.contributi.massimaleSoloIscrittiDopo
+  const deroga = !oltreIlMassimale
+    ? null
+    : cascata.iscrittoAnte1996
+      ? {
+          testo:
+            `Stai calcolando come chi versava contributi già entro il ${anteIscrizione}: per ` +
+            'te il tetto non esiste e i contributi corrono su tutta la RAL.',
+          comando: 'torna al calcolo standard',
+          attiva: true,
+        }
+      : {
+          testo:
+            `Questo calcolo assume che tu abbia iniziato a versare contributi dopo il ${anteIscrizione}. ` +
+            'Se hai iniziato prima, il tetto non ti riguarda —',
+          comando: 'ricalcola senza',
+          attiva: false,
+        }
 
   // Incapienza: le detrazioni spettanti superano l'imposta lorda e l'eccedenza si perde.
   // Dirlo esplicitamente e' l'unico modo perche' l'utente capisca perche' due sconti da
@@ -179,6 +210,10 @@ export function testiCascata(cascata) {
         'sono tasse. La tua azienda ne versa un’altra quota, più grande della tua, che non entra ' +
         'in questo calcolo.',
       nota: noteContributi.length > 0 ? noteContributi.join(' ') : null,
+      // L'unica voce con un comando dentro: `{ testo, comando, attiva }` sopra il massimale,
+      // null altrove. La pagina lo renderizza come bottone e richiama il motore con il flag
+      // ribaltato — quale sia il verso lo dice `attiva`, non la pagina.
+      deroga,
     },
 
     imponibileFiscale: {

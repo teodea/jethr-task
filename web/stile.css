@@ -588,6 +588,36 @@ a {
   padding-left: 0.6rem;
 }
 
+/* L'offerta di ricalcolo senza massimale (issue #23): sta attaccata alla nota che la
+   motiva, senza il filetto d'accento e senza il segno di attenzione. Non e' un avviso —
+   non c'e' niente di storto nel risultato — ma una precisione in piu' offerta a chi puo'
+   usarla, e si legge come una coda della nota, non come un secondo allarme. */
+.voce-deroga {
+  margin: 0.45rem 0 0;
+  padding-left: 0.6rem;
+  font-size: 0.87rem;
+  color: var(--inchiostro-tenue);
+}
+
+/* Il comando e' un <button> travestito da link: l'azione e' un ricalcolo di questa stessa
+   pagina, quindi non puo' essere un <a> — ma resta una parola dentro una frase, e un
+   bottone pieno la spezzerebbe come se aprisse chissa' che. La sottolineatura e il colore
+   d'accento sono l'unica cosa che promette un click; l'anello di focus e' quello di tutta
+   la pagina. `text-align: left` perche' Chrome centra il testo dei bottoni anche quando
+   vanno a capo su due righe. */
+.deroga-comando {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  color: var(--accento);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
 /* La fonte chiude la riga espansa. Piu' piccola e tenue della spiegazione: e' l'apparato
    critico della voce, non il suo contenuto — chi vuole verificare la trova, chi vuole solo
    capire non ci inciampa. La citazione puo' essere lunga (estremi + data + delibera):

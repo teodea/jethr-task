@@ -12,6 +12,7 @@ export const COSTANTI_2025 = {
     aliquotaAggiuntiva: 0.01, // art. 3-ter D.L. 384/1992 conv. L. 438/1992 - fonte: Circolare INPS n. 26 del 30/01/2025, par. 5, https://www.inps.it/content/dam/inps-site/it/scorporati/circolari-e-messaggi/2025/01/Circolare_14806/Allegati/15874_Circolare-numero-26-del-30-01-2025.pdf, anno 2025
     primaFasciaAnnua: 55448, // EUR - fonte: Circolare INPS n. 26 del 30/01/2025, par. 5, pag. 6, URL sopra, anno 2025
     massimaleAnnuo: 120607, // EUR (120.606,90 arrotondato all'unita) - fonte: Circolare INPS n. 26 del 30/01/2025, par. 6, pag. 6, URL sopra, anno 2025
+    massimaleSoloIscrittiDopo: 1995, // stessa platea del set 2026: la condizione non si rivaluta - fonte: art. 2 c. 18 L. 335/1995, https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:legge:1995-08-08;335~art2, anno 1995
     minimaleGiornaliero: 57.32, // EUR (9,5% del trattamento minimo mensile 603,40) - fonte: Circolare INPS n. 26 del 30/01/2025, par. 1, pag. 3, URL sopra, anno 2025
     giornateAnnoMinimale: 312, // stessa convenzione del set 2026
   },

@@ -73,6 +73,11 @@ const cascata = calcolaCascata({ ral: 30000, mensilita: 13, anno: 2026 })
 const voci = presentaCascata(cascata) // importi arrotondati e quadrati
 const testi = testiCascata(cascata) // etichetta, spiegazione e nota di ogni voce
 const avviso = avvisoScalino(cascata) // null fuori dalle zone critiche
+
+// Il massimale contributivo vale per i soli iscritti dopo il 1995: chi ha iniziato prima
+// paga contributi su tutta la RAL. È un flag opzionale, non un input — sotto il massimale
+// non cambia nessuna cifra, e per questo la pagina lo chiede solo sopra il tetto.
+const senzaTetto = calcolaCascata({ ral: 150000, iscrittoAnte1996: true })
 ```
 
 ---

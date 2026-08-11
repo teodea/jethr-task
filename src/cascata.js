@@ -25,9 +25,14 @@ function perScaglioni(base, scaglioni) {
   return totale
 }
 
-export function contributiDipendente(ral, costanti) {
+// Il massimale opera solo per chi si e' iscritto a forme pensionistiche dopo il 31/12/1995
+// (art. 2 c. 18 L. 335/1995; Circ. INPS 6/2026 par. 6, che lo estende all'1% aggiuntivo):
+// per chi era gia' iscritto non esiste, e 9,19% e 1% corrono su tutta la retribuzione.
+// `iscrittoAnte1996` e' una deroga, non un input: sotto il massimale non cambia una cifra
+// (test/cascata.casi.test.js), e per questo la pagina la offre solo sopra (issue #23).
+export function contributiDipendente(ral, costanti, { iscrittoAnte1996 = false } = {}) {
   const c = costanti.contributi
-  const baseContributiva = Math.min(ral, c.massimaleAnnuo)
+  const baseContributiva = iscrittoAnte1996 ? ral : Math.min(ral, c.massimaleAnnuo)
   const ivs = c.aliquotaIvsDipendente * baseContributiva
   const aggiuntivo = c.aliquotaAggiuntiva * Math.max(0, baseContributiva - c.primaFasciaAnnua)
   return { baseContributiva, ivs, aggiuntivo, totale: ivs + aggiuntivo }
@@ -109,7 +114,12 @@ export function addizionaleComunale(imponibileFiscale, costanti) {
 // La cascata completa. Le addizionali sono calcolate DOPO l'IRPEF netta perche' la loro
 // debenza dipende da essa (gate "IRPEF netta > 0", D.Lgs. 446/1997 art. 50 c. 2 e
 // D.Lgs. 360/1998 art. 1 c. 4 - scelta registrata in docs/ASSUNZIONI.md).
-export function calcolaCascata({ ral, mensilita = MENSILITA_DEFAULT, anno = ANNO_CORRENTE }) {
+export function calcolaCascata({
+  ral,
+  mensilita = MENSILITA_DEFAULT,
+  anno = ANNO_CORRENTE,
+  iscrittoAnte1996 = false,
+}) {
   const costanti = COSTANTI_PER_ANNO[anno]
   if (!costanti) throw new RangeError(`anno d'imposta non supportato: ${anno}`)
 
@@ -118,7 +128,7 @@ export function calcolaCascata({ ral, mensilita = MENSILITA_DEFAULT, anno = ANNO
     throw new RangeError(validazione.errori.join('; '))
   }
 
-  const contributi = contributiDipendente(ral, costanti)
+  const contributi = contributiDipendente(ral, costanti, { iscrittoAnte1996 })
   const imponibileFiscale = ral - contributi.totale
   const redditoComplessivo = imponibileFiscale // un solo rapporto, nessun altro reddito (docs/ASSUNZIONI.md)
 
@@ -143,6 +153,9 @@ export function calcolaCascata({ ral, mensilita = MENSILITA_DEFAULT, anno = ANNO
     anno,
     ral,
     mensilita,
+    // Rimandata indietro perche' i testi sappiano sotto quale ipotesi e' stato calcolato
+    // questo risultato: e' la stessa cascata a dire se la deroga era attiva (src/testi.js).
+    iscrittoAnte1996,
     baseContributiva: contributi.baseContributiva,
     contributiDipendente: contributi.totale,
     contributiIvs: contributi.ivs,
