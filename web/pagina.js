@@ -16,14 +16,23 @@ import {
   ETICHETTA_FONTE,
   ETICHETTA_TU_SEI_QUI,
   etichettaEnte,
+  etichettaProvincia,
   etichettaComune,
+  voceEnte,
   aiutoComune,
 } from '../src/testi.js'
 import { MENSILITA_AMMESSE, MENSILITA_DEFAULT, validaPeriodo } from '../src/validazione.js'
 import { interpretaImporto, formattaImporto } from '../src/formato.js'
 import { inizioAnno, fineAnno, giorniDelRapporto } from '../src/periodo.js'
 import { ANNO_CORRENTE, COSTANTI_PER_ANNO } from '../src/costanti/index.js'
-import { caricaIndice, caricaEnte, comuniDellEnte, luogoDefault } from '../src/luoghi.js'
+import {
+  caricaIndice,
+  caricaEnte,
+  provinceDellEnte,
+  comuniDellaProvincia,
+  provinciaDelComune,
+  luogoDefault,
+} from '../src/luoghi.js'
 
 const form = document.querySelector('#calcolatore')
 const campoRal = document.querySelector('#ral')
@@ -43,6 +52,7 @@ const scalinoGrafico = document.querySelector('#scalino-grafico')
 const eroi = document.querySelector('#eroi')
 const elencoVoci = document.querySelector('#voci')
 const menuEnte = document.querySelector('#ente')
+const menuProvincia = document.querySelector('#provincia')
 const menuComune = document.querySelector('#comune')
 const aiutoDelComune = document.querySelector('#aiuto-comune')
 
@@ -108,11 +118,21 @@ function leggiPeriodo() {
 // Il selettore del luogo
 // ---------------------------------------------------------------------------
 
-// I due menu' a cascata. Il primo elenca i ventuno enti impositori — diciannove regioni piu'
+// I tre menu' a cascata. Il primo elenca i ventuno enti impositori — diciannove regioni piu'
 // le due province autonome, che hanno leggi proprie e nella norma stanno al posto della
-// regione: elencarne venti lascerebbe fuori Trento o Bolzano. Il secondo elenca i comuni del
-// solo ente scelto, ed e' anche la ragione per cui i dati sono divisi per ente: la pagina
-// scarica una regione, non l'Italia.
+// regione: elencarne venti lascerebbe fuori Trento o Bolzano. Il secondo elenca le province
+// del solo ente scelto, il terzo i comuni della sola provincia scelta.
+//
+// Il passo intermedio non serve al calcolo — la provincia non e' un'entita' fiscale
+// (CONTEXT.md) — serve a chi guarda: senza, il menu' dei comuni della Lombardia e' una lista
+// di millecinquecento voci, e sceglierci dentro vuol dire gia' sapere come si scrive il nome.
+// Con la provincia in mezzo il piu' lungo scende a 312 (Torino). Il primo menu' resta anche
+// la strategia di caricamento: e' lui a decidere quale file la pagina scarica.
+//
+// Il luogo predefinito resta la coppia `{ ente, comune }`: la provincia su cui il menu' di
+// mezzo si posiziona si DERIVA dal comune, qui come a ogni cambio di ente. E' la stessa
+// regola che il glossario da' per l'ente impositore, ed e' il motivo per cui l'aggiunta di un
+// gradino non aggiunge un input al dominio.
 const { ente: ENTE_DEFAULT, comune: COMUNE_DEFAULT } = luogoDefault(ANNO_CORRENTE)
 
 // Finche' i dati non sono arrivati il calcolo usa il luogo predefinito, curato nelle
@@ -121,7 +141,8 @@ const { ente: ENTE_DEFAULT, comune: COMUNE_DEFAULT } = luogoDefault(ANNO_CORRENT
 let luogoScelto = null
 
 document.querySelector('label[for="ente"]').textContent = etichettaEnte()
-document.querySelector('label[for="comune"]').textContent = etichettaComune(ANNO_CORRENTE)
+document.querySelector('label[for="provincia"]').textContent = etichettaProvincia()
+document.querySelector('label[for="comune"]').textContent = etichettaComune()
 aiutoDelComune.textContent = aiutoComune(ANNO_CORRENTE)
 
 function riempiMenu(menu, voci, selezionato) {
@@ -136,37 +157,62 @@ function riempiMenu(menu, voci, selezionato) {
   )
 }
 
-async function mostraComuniDi(slug, comuneDaSelezionare) {
-  const { capoluogo } = await caricaEnte(ANNO_CORRENTE, slug)
-  const comuni = comuniDellEnte(ANNO_CORRENTE, slug)
+// L'ultimo gradino: i comuni di una provincia. Il nome e basta, senza la sigla che il menu'
+// sopra dichiara gia' — ripeterla su ogni riga sarebbe il rumore che questo passo esiste per
+// togliere. Gli omonimi che la sigla distingueva stanno in province diverse, quindi qui non
+// si incontrano piu'.
+function mostraComuniDi(slug, provincia, comuneDaSelezionare) {
+  const comuni = comuniDellaProvincia(ANNO_CORRENTE, slug, provincia)
   riempiMenu(
     menuComune,
-    // La provincia compare solo come etichetta, per distinguere i comuni omonimi — e sono
-    // molti. Nel calcolo non entra mai: non e' un'entita' fiscale (CONTEXT.md).
-    comuni.map(({ codice, nome, provincia }) => ({ valore: codice, testo: `${nome} (${provincia})` })),
-    comuneDaSelezionare ?? capoluogo,
+    comuni.map(({ codice, nome }) => ({ valore: codice, testo: nome })),
+    // Il comune chiesto se c'e', altrimenti il primo in ordine alfabetico: cambiando
+    // provincia non esiste un comune «giusto» su cui atterrare, ed e' l'unico gradino in cui
+    // manca un default di dominio.
+    comuneDaSelezionare ?? comuni[0].codice,
   )
   menuComune.disabled = false
   luogoScelto = menuComune.value
+}
+
+// Il gradino di mezzo, e con lui quello sotto. Il comune a `null` vuol dire «scegli tu»: e'
+// il caso del cambio di ente, in cui si atterra sul capoluogo e sulla sua provincia.
+async function mostraProvinceDi(slug, comuneDaSelezionare) {
+  const { capoluogo } = await caricaEnte(ANNO_CORRENTE, slug)
+  const comune = comuneDaSelezionare ?? capoluogo
+  riempiMenu(
+    menuProvincia,
+    provinceDellEnte(ANNO_CORRENTE, slug).map(({ sigla, nome }) => ({ valore: sigla, testo: nome })),
+    provinciaDelComune(ANNO_CORRENTE, comune),
+  )
+  menuProvincia.disabled = false
+  mostraComuniDi(slug, menuProvincia.value, comune)
 }
 
 async function preparaSelettore() {
   const { enti } = await caricaIndice(ANNO_CORRENTE)
   riempiMenu(
     menuEnte,
-    enti.map(({ slug, denominazione }) => ({ valore: slug, testo: denominazione })),
+    enti.map((ente) => ({ valore: ente.slug, testo: voceEnte(ente) })),
     ENTE_DEFAULT,
   )
   menuEnte.disabled = false
-  await mostraComuniDi(ENTE_DEFAULT, COMUNE_DEFAULT)
+  await mostraProvinceDi(ENTE_DEFAULT, COMUNE_DEFAULT)
 }
 
-// Cambiando ente il comune salta al capoluogo di quell'ente: cosi' lo stato «Lombardia +
-// comune del Lazio» non e' rappresentabile dall'interfaccia, che e' il modo piu' solido di
-// impedirlo — piu' di una validazione che lo scopre dopo.
+// Ogni menu' rifa' quelli sotto di se'. E' il modo piu' solido di impedire gli stati
+// incoerenti — «Lombardia + provincia di Roma», «Milano + comune bergamasco»: non li si
+// scopre validando dopo, non sono proprio esprimibili. Cambiando ente si atterra sul suo
+// capoluogo, che e' anche la ragione per cui il dato del capoluogo esiste.
 menuEnte.addEventListener('change', async () => {
+  menuProvincia.disabled = true
   menuComune.disabled = true
-  await mostraComuniDi(menuEnte.value, null)
+  await mostraProvinceDi(menuEnte.value, null)
+})
+
+menuProvincia.addEventListener('change', () => {
+  menuComune.disabled = true
+  mostraComuniDi(menuEnte.value, menuProvincia.value, null)
 })
 
 menuComune.addEventListener('change', () => {
@@ -178,6 +224,7 @@ preparaSelettore().catch(() => {
   // predefinito, quindi la pagina non si blocca: si dice che il selettore non e'
   // disponibile e si va avanti, invece di negare un numero che sappiamo dare.
   menuEnte.disabled = true
+  menuProvincia.disabled = true
   menuComune.disabled = true
   aiutoDelComune.textContent =
     'Non riesco a caricare l’elenco dei comuni: il calcolo usa il comune predefinito.'
@@ -188,7 +235,7 @@ preparaSelettore().catch(() => {
 // essere maggiore di zero») arrivano da moduli diversi ma rispondono alla stessa domanda
 // dell'utente: perche' non vedo un numero. Due posti pero', uno per gruppo di campi: un
 // messaggio sulle date scritto sotto la RAL manderebbe a correggere il campo sbagliato.
-// Ne' le mensilita' ne' i due menu' del luogo hanno uno slot: non hanno errori possibili,
+// Ne' le mensilita' ne' i tre menu' del luogo hanno uno slot: non hanno errori possibili,
 // perche' un valore fuori dominio non e' rappresentabile da un segmented control ne' da
 // una tendina.
 const SLOT_RAL = { messaggio: errore, campi: [campoRal] }

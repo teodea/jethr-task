@@ -20,6 +20,13 @@
     }
   },
   "capoluogo": "C352",
+  "province": {
+    "CZ": "Catanzaro",
+    "CS": "Cosenza",
+    "KR": "Crotone",
+    "RC": "Reggio Calabria",
+    "VV": "Vibo Valentia"
+  },
   "fonteComune": "https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/nuova_addcomirpef/risultato.htm?anno={anno}&pr={provincia}&cc={codice}&r=1",
   "comuni": {
     "A033": {"nome":"Acquaformosa","provincia":"CS","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"18","dataDelibera":"26/10/2020","pubblicata":"20/12/2025","annoRegola":2025},

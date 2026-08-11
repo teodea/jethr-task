@@ -30,6 +30,12 @@
     }
   },
   "capoluogo": "L424",
+  "province": {
+    "GO": "Gorizia",
+    "PN": "Pordenone",
+    "TS": "Trieste",
+    "UD": "Udine"
+  },
   "fonteComune": "https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/nuova_addcomirpef/risultato.htm?anno={anno}&pr={provincia}&cc={codice}&r=1",
   "comuni": {
     "A103": {"nome":"Aiello del Friuli","provincia":"UD","scaglioni":[{"fino":15000,"aliquota":0.002},{"fino":28000,"aliquota":0.0035},{"fino":50000,"aliquota":0.0045},{"fino":null,"aliquota":0.0065}],"esenzioneFinoA":15000,"nota":null,"anomalia":null,"delibera":"48","dataDelibera":"29/12/2022","pubblicata":"20/12/2025","annoRegola":2025},

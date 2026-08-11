@@ -20,6 +20,17 @@
     }
   },
   "capoluogo": "G273",
+  "province": {
+    "AG": "Agrigento",
+    "CL": "Caltanissetta",
+    "CT": "Catania",
+    "EN": "Enna",
+    "ME": "Messina",
+    "PA": "Palermo",
+    "RG": "Ragusa",
+    "SR": "Siracusa",
+    "TP": "Trapani"
+  },
   "fonteComune": "https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/nuova_addcomirpef/risultato.htm?anno={anno}&pr={provincia}&cc={codice}&r=1",
   "comuni": {
     "A014": {"nome":"Acate","provincia":"RG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"2","dataDelibera":"28/01/2026","pubblicata":"04/02/2026","annoRegola":2026},

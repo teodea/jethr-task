@@ -257,8 +257,10 @@ con la data di scarico dentro:
 node strumenti/importa-addizionali.mjs
 ```
 
-Un file per ente perché la pagina scarica solo la regione scelta: i due menù a cascata sono
-anche la strategia di caricamento. Lo script **si ferma invece di indovinare** — se cambia
+Un file per ente perché la pagina scarica solo la regione scelta: il primo dei tre menù a
+cascata è anche la strategia di caricamento. Il secondo — la provincia — non tocca il
+calcolo: serve a spezzare gli elenchi, perché i comuni della sola Lombardia sono 1.502 e col
+filtro il più lungo scende a 312. Lo script **si ferma invece di indovinare** — se cambia
 il tracciato di un CSV, se il join perde comuni, se compare un ente nuovo, o se cambia il
 testo di un'agevolazione regionale curata a mano. E quello che non sa leggere lo dichiara:
 i 108 comuni con esenzioni descrittive e i 2 con fasce non progressive nell'elenco MEF

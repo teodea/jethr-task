@@ -32,6 +32,13 @@
     }
   },
   "capoluogo": "F839",
+  "province": {
+    "AV": "Avellino",
+    "BN": "Benevento",
+    "CE": "Caserta",
+    "NA": "Napoli",
+    "SA": "Salerno"
+  },
   "fonteComune": "https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/nuova_addcomirpef/risultato.htm?anno={anno}&pr={provincia}&cc={codice}&r=1",
   "comuni": {
     "A023": {"nome":"Acerno","provincia":"SA","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":7500,"nota":null,"anomalia":null,"delibera":"4","dataDelibera":"20/03/2025","pubblicata":"02/07/2025","annoRegola":2025},

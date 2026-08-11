@@ -102,14 +102,21 @@
           <p class="errore" id="errore-periodo" role="alert" hidden></p>
         </fieldset>
 
-        <!-- Due menu' a cascata: cambiando ente il comune salta al capoluogo, cosi' lo
-             stato «Lombardia + comune del Lazio» non e' esprimibile dall'interfaccia. Le
-             voci, le etichette e il testo di aiuto arrivano tutti da src/: qui non c'e'
-             nessuna stringa di dominio. -->
+        <!-- Tre menu' a cascata, la scala geografica per intero: ognuno restringe il
+             successivo, e ogni stato incoerente — «Lombardia + comune del Lazio», «Milano +
+             comune bergamasco» — resta inesprimibile perche' cambiando un menu' quelli sotto
+             ripartono. Il passo della provincia esiste per gli occhi: senza, il terzo menu'
+             della Lombardia sarebbe una lista di millecinquecento voci. Nel calcolo la
+             provincia non entra mai (CONTEXT.md). Le voci, le etichette e il testo di aiuto
+             arrivano tutti da src/: qui non c'e' nessuna stringa di dominio. -->
         <div class="campo campo-luogo">
           <div class="sotto-campo">
             <label class="etichetta-campo" for="ente"></label>
             <select id="ente" name="ente" disabled></select>
+          </div>
+          <div class="sotto-campo">
+            <label class="etichetta-campo" for="provincia"></label>
+            <select id="provincia" name="provincia" disabled></select>
           </div>
           <div class="sotto-campo">
             <label class="etichetta-campo" for="comune"></label>
@@ -117,7 +124,8 @@
           </div>
           <!-- Non e' un vezzo: le addizionali seguono il domicilio fiscale al 1° gennaio,
                non la residenza attuale, e senza questa riga chi ha traslocato di recente
-               sceglierebbe il comune sbagliato (ricerca issue #19). -->
+               sceglierebbe il comune sbagliato (ricerca issue #19). E' anche il posto in cui
+               vive la data esatta, che il titolo del menu' non porta piu'. -->
           <p class="aiuto" id="aiuto-comune"></p>
         </div>
 

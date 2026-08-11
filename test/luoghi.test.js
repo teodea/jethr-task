@@ -15,7 +15,14 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync, readdirSync } from 'node:fs'
 import { calcolaCascata, addizionale } from '../src/cascata.js'
-import { registraEnte, costantiPerLuogo, luogoDefault } from '../src/luoghi.js'
+import {
+  registraEnte,
+  costantiPerLuogo,
+  luogoDefault,
+  provinceDellEnte,
+  comuniDellaProvincia,
+  provinciaDelComune,
+} from '../src/luoghi.js'
 import { censimentoSalti } from '../src/discontinuita.js'
 import { testiCascata } from '../src/testi.js'
 import { COSTANTI_2026 } from '../src/costanti/index.js'
@@ -97,11 +104,101 @@ test('i dati coprono i 21 enti impositori, con la data di scarico', () => {
 })
 
 test('ogni ente dichiara un capoluogo che sta davvero fra i suoi comuni', () => {
-  // E' il default del secondo menu': un capoluogo che non appartiene all'ente renderebbe
-  // esprimibile proprio lo stato che la cascata dei due menu' esiste per impedire.
+  // E' il punto su cui atterrano gli ultimi due menu' quando si sceglie un ente: un
+  // capoluogo che non gli appartiene renderebbe esprimibile proprio lo stato che la cascata
+  // esiste per impedire.
   for (const dati of ENTI) {
     assert.ok(dati.capoluogo in dati.comuni, `${dati.ente.slug}: capoluogo fuori dall'ente`)
   }
+})
+
+// Il selettore ha tre gradini — ente, provincia, comune — e la provincia non e' un'entita'
+// fiscale: e' solo il filtro che spezza gli elenchi lunghi (CONTEXT.md). Proprio perche' non
+// tocca il calcolo, il modo in cui puo' rompersi non e' un numero sbagliato ma un comune
+// diventato irraggiungibile: nessuno se ne accorgerebbe guardando i netti.
+test('i tre gradini del selettore raggiungono ogni comune, una volta sola', () => {
+  // La proprieta' e' una partizione: l'unione dei comuni delle province di un ente e'
+  // esattamente l'insieme dei suoi comuni, senza doppioni. Se una sigla sparisse dall'elenco
+  // delle province, i suoi comuni resterebbero nel calcolo ma nessuna sequenza di tre scelte
+  // ci arriverebbe piu'.
+  let raggiunti = 0
+  for (const dati of ENTI) {
+    const attesi = new Set(Object.keys(dati.comuni))
+    const visti = new Set()
+    for (const { sigla, nome } of provinceDellEnte(ANNO, dati.ente.slug)) {
+      const comuni = comuniDellaProvincia(ANNO, dati.ente.slug, sigla)
+      assert.ok(nome.length > 0, `${dati.ente.slug}/${sigla}: provincia senza nome`)
+      // Una voce di menu' che apre su un menu' vuoto non e' una scelta, e' un vicolo cieco.
+      assert.ok(comuni.length > 0, `${dati.ente.slug}/${sigla}: provincia senza comuni`)
+      // Dentro una provincia i nomi bastano a se stessi, e per questo il menu' mostra il
+      // solo nome: la sigla che prima distingueva i cinque omonimi d'Italia («Peglio»,
+      // «Samone»...) e' diventata il titolo del menu' sopra. Se domani una fusione creasse
+      // due comuni omonimi nella stessa provincia, il terzo menu' avrebbe due righe
+      // identiche e questo test lo direbbe prima dell'utente.
+      const nomi = comuni.map(({ nome }) => nome)
+      assert.equal(new Set(nomi).size, nomi.length, `${dati.ente.slug}/${sigla}: due comuni omonimi`)
+      for (const { codice } of comuni) {
+        assert.ok(!visti.has(codice), `${codice}: raggiungibile da due province`)
+        visti.add(codice)
+      }
+    }
+    assert.deepEqual(visti, attesi, `${dati.ente.slug}: comuni fuori da ogni provincia`)
+    raggiunti += visti.size
+  }
+  assert.equal(raggiunti, 7896)
+})
+
+test('le province sono le 107 dell’anagrafica ISTAT, in ordine alfabetico', () => {
+  // Centosette e non centodieci: dal 2016 le quattro province sarde soppresse non ci sono
+  // piu' e c'e' il Sud Sardegna. Fonte: ISTAT, «Codici statistici delle unita' amministrative
+  // territoriali», colonna «Unita' territoriale sovracomunale» (il conteggio tiene insieme
+  // province, citta' metropolitane e liberi consorzi siciliani).
+  const tutte = ENTI.flatMap((dati) => provinceDellEnte(ANNO, dati.ente.slug))
+  assert.equal(tutte.length, 107)
+  assert.equal(new Set(tutte.map(({ sigla }) => sigla)).size, 107, 'una sigla su due enti')
+
+  for (const dati of ENTI) {
+    // L'ordine e' quello in cui il menu' le mostra: alfabetico, non l'ordine del file.
+    const nomi = provinceDellEnte(ANNO, dati.ente.slug).map(({ nome }) => nome)
+    assert.deepEqual(nomi, [...nomi].sort((a, b) => a.localeCompare(b, 'it')), dati.ente.slug)
+  }
+
+  // Le due bilingui portano il solo nome italiano, come le regioni: «Bolzano/Bozen» in una
+  // tendina italiana sarebbe il nome due volte.
+  assert.deepEqual(provinceDellEnte(ANNO, 'bolzano'), [{ sigla: 'BZ', nome: 'Bolzano' }])
+  assert.deepEqual(provinceDellEnte(ANNO, 'valle-d-aosta'), [{ sigla: 'AO', nome: "Valle d'Aosta" }])
+})
+
+test('la provincia su cui il menu’ di mezzo atterra si deriva dal comune, non si chiede', () => {
+  // E' la stessa regola dell'ente impositore (CONTEXT.md): il gradino in piu' e' un filtro
+  // per gli occhi, non un input del dominio. Vale per il luogo predefinito e per ogni
+  // capoluogo, che sono i due casi in cui e' la pagina a scegliere il comune.
+  assert.equal(provinciaDelComune(ANNO, luogoDefault(ANNO).comune), 'MI')
+  assert.equal(provinciaDelComune(ANNO, 'ZZZZ'), null)
+
+  for (const dati of ENTI) {
+    const provincia = provinciaDelComune(ANNO, dati.capoluogo)
+    assert.ok(
+      provinceDellEnte(ANNO, dati.ente.slug).some(({ sigla }) => sigla === provincia),
+      `${dati.ente.slug}: la provincia del capoluogo non e' fra quelle dell'ente`,
+    )
+  }
+})
+
+test('nessun elenco di comuni resta lungo come prima del filtro per provincia', () => {
+  // La ragione per cui il gradino esiste. Senza, la Lombardia da sola apre su 1.502 voci: un
+  // elenco cosi' si scorre solo sapendo gia' come si scrive il nome che si cerca. Col filtro
+  // il piu' lungo e' Torino, 312.
+  const piuLungo = Math.max(
+    ...ENTI.flatMap((dati) =>
+      provinceDellEnte(ANNO, dati.ente.slug).map(
+        ({ sigla }) => comuniDellaProvincia(ANNO, dati.ente.slug, sigla).length,
+      ),
+    ),
+  )
+  const senzaFiltro = Math.max(...ENTI.map((dati) => Object.keys(dati.comuni).length))
+  assert.ok(senzaFiltro > 1000, `atteso un ente oltre i mille comuni, il massimo e' ${senzaFiltro}`)
+  assert.ok(piuLungo < 400, `la provincia piu' popolosa ha ancora ${piuLungo} comuni`)
 })
 
 test('ogni regola importata ha la forma che il motore sa calcolare', () => {

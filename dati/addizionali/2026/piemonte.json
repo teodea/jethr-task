@@ -32,6 +32,16 @@
     }
   },
   "capoluogo": "L219",
+  "province": {
+    "AL": "Alessandria",
+    "AT": "Asti",
+    "BI": "Biella",
+    "CN": "Cuneo",
+    "NO": "Novara",
+    "TO": "Torino",
+    "VB": "Verbano-Cusio-Ossola",
+    "VC": "Vercelli"
+  },
   "fonteComune": "https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/nuova_addcomirpef/risultato.htm?anno={anno}&pr={provincia}&cc={codice}&r=1",
   "comuni": {
     "A016": {"nome":"Acceglio","provincia":"CN","scaglioni":[{"fino":null,"aliquota":0}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"8","dataDelibera":"31/03/2007","pubblicata":"20/12/2025","annoRegola":2025},

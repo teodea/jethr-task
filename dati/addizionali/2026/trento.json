@@ -32,6 +32,9 @@
     }
   },
   "capoluogo": "L378",
+  "province": {
+    "TN": "Trento"
+  },
   "fonteComune": "https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/nuova_addcomirpef/risultato.htm?anno={anno}&pr={provincia}&cc={codice}&r=1",
   "comuni": {
     "A116": {"nome":"Ala","provincia":"TN","scaglioni":[{"fino":null,"aliquota":0}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"10","dataDelibera":"29/03/2011","pubblicata":"20/12/2025","annoRegola":2025},

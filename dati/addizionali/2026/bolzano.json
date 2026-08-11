@@ -43,6 +43,9 @@
     }
   },
   "capoluogo": "A952",
+  "province": {
+    "BZ": "Bolzano"
+  },
   "fonteComune": "https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/nuova_addcomirpef/risultato.htm?anno={anno}&pr={provincia}&cc={codice}&r=1",
   "comuni": {
     "A022": {"nome":"Cermes","provincia":"BZ","scaglioni":[{"fino":null,"aliquota":0}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":null,"dataDelibera":null,"pubblicata":null,"annoRegola":2026},

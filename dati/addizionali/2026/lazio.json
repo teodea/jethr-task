@@ -48,6 +48,13 @@
     }
   },
   "capoluogo": "H501",
+  "province": {
+    "FR": "Frosinone",
+    "LT": "Latina",
+    "RI": "Rieti",
+    "RM": "Roma",
+    "VT": "Viterbo"
+  },
   "fonteComune": "https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/nuova_addcomirpef/risultato.htm?anno={anno}&pr={provincia}&cc={codice}&r=1",
   "comuni": {
     "A019": {"nome":"Accumoli","provincia":"RI","scaglioni":[{"fino":null,"aliquota":0.005}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"8","dataDelibera":"10/04/2025","pubblicata":"14/10/2025","annoRegola":2025},

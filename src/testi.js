@@ -179,11 +179,34 @@ export const ORDINE_VOCI = [
 // regola dei sessanta giorni a una frase nelle istruzioni. Testi e ragionamento vengono
 // dalla ricerca della issue #19, docs/ricerca/luogo-delle-addizionali-domicilio-fiscale.md,
 // par. 5. L'anno si interpola come ovunque, che e' anche il motivo per cui sono funzioni.
-export const etichettaEnte = () => 'Regione o provincia autonoma'
-export const etichettaComune = (anno) => `Comune di domicilio fiscale al 1° gennaio ${anno}`
+//
+// Perche' i tre titoli sono una parola secca. Il selettore e' una scala geografica —
+// regione, provincia, comune — e una scala si legge se ogni gradino si chiama col suo nome.
+// Il titolo del primo menu' era «Regione o provincia autonoma»: corretto, ma accanto a un
+// menu' intitolato «Provincia» faceva sembrare che si stesse chiedendo due volte la stessa
+// cosa. L'eccezione delle due province autonome si dichiara adesso dentro la voce che la
+// riguarda (vedi `voceEnte`), che e' dove serve, invece che nel titolo di tutte e ventuno.
+//
+// La sola frase lunga resta quella del comune, ed e' la sola che paga il suo costo: e' il
+// campo in cui il traslocato sbaglia. La data esatta la ripete l'aiuto qui sotto.
+export const etichettaEnte = () => 'Regione'
+export const etichettaProvincia = () => 'Provincia'
+export const etichettaComune = () => 'Comune di domicilio fiscale'
 export const aiutoComune = (anno) =>
   `Di norma è il comune dove risultavi all’anagrafe il 1° gennaio ${anno}. Se hai cambiato ` +
   `residenza dopo il 2 novembre ${anno - 1}, vale ancora il comune precedente.`
+
+/**
+ * Come si scrive un ente impositore dentro il menu' delle regioni. Il nome nudo, non la
+ * denominazione: «Regione Lombardia» sotto un titolo che dice gia' «Regione» e' la stessa
+ * parola due volte, ventuno righe di seguito.
+ *
+ * Le due province autonome se lo portano dietro il chiarimento, perche' per loro non e' una
+ * ripetizione ma l'informazione che spiega cosa ci fanno in un elenco di regioni — e che
+ * distingue la voce «Trento» di qui da quella, omonima, del menu' delle province.
+ */
+export const voceEnte = ({ nome, denominazione }) =>
+  denominazione.startsWith('Provincia autonoma') ? `${nome} (provincia autonoma)` : nome
 
 // L'etichetta che introduce il link alla fonte. Sta qui e non nella pagina per la stessa
 // ragione di tutte le altre: la UI non contiene stringhe (vedi l'intestazione del file).

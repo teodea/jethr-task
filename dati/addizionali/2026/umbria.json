@@ -48,6 +48,10 @@
     }
   },
   "capoluogo": "G478",
+  "province": {
+    "PG": "Perugia",
+    "TR": "Terni"
+  },
   "fonteComune": "https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/nuova_addcomirpef/risultato.htm?anno={anno}&pr={provincia}&cc={codice}&r=1",
   "comuni": {
     "A045": {"nome":"Acquasparta","provincia":"TR","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"12","dataDelibera":"07/02/2007","pubblicata":"20/12/2025","annoRegola":2025},

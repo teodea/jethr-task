@@ -9,9 +9,14 @@
 // Perche' i dati si REGISTRANO invece di essere importati. I comuni italiani sono 7.896:
 // caricarli tutti per mostrarne uno sarebbe qualche megabyte a ogni apertura di pagina. I
 // JSON sono divisi per ente impositore (dati/addizionali/<anno>/<ente>.json) e la pagina
-// scarica solo quello scelto — cosi' i due menu' a cascata sono anche la strategia di
-// caricamento. `registraEnte` e' sincrona e pura; `caricaEnte` e' la sottile adattatrice
+// scarica solo quello scelto — cosi' il primo dei tre menu' a cascata e' anche la strategia
+// di caricamento. `registraEnte` e' sincrona e pura; `caricaEnte` e' la sottile adattatrice
 // che va a prendere il file. Il motore resta sincrono.
+//
+// Perche' esiste la provincia qui dentro. Non e' un'entita' fiscale e non entra in nessuna
+// formula (CONTEXT.md): e' il passo intermedio del selettore, che spezza gli elenchi lunghi
+// — la Lombardia da sola ha 1.500 comuni — in liste che si scorrono con gli occhi. Il dato
+// arriva dall'anagrafica ISTAT insieme al comune, quindi non e' un'invenzione della pagina.
 //
 // Perche' `costantiPerLuogo` memoizza. `zoneNonMonotonia` (src/discontinuita.js) tiene le
 // sue zone in una WeakMap indicizzata per IDENTITA' dell'oggetto costanti: se questo
@@ -84,7 +89,12 @@ export function registraEnte(dati) {
     )
   }
 
-  const registrato = Object.freeze({ ente, capoluogo: dati.capoluogo, scaricatoIl: dati.scaricatoIl })
+  const registrato = Object.freeze({
+    ente,
+    capoluogo: dati.capoluogo,
+    province: Object.freeze({ ...dati.province }),
+    scaricatoIl: dati.scaricatoIl,
+  })
   entiRegistrati.set(chiaveEnte, registrato)
   return registrato
 }
@@ -150,6 +160,15 @@ export function luogoDefault(anno) {
   return { ente: base.addizionaleRegionale.ente, comune: base.addizionaleComunale.codice }
 }
 
+/**
+ * La provincia di un comune registrato: serve a posizionare il menu' intermedio quando il
+ * comune e' scelto da qualcun altro — il capoluogo dopo un cambio di ente, il luogo
+ * predefinito all'apertura. `null` se il comune non e' fra quelli caricati.
+ */
+export function provinciaDelComune(anno, codice) {
+  return luoghi.get(`${anno}:${codice}`)?.comune.provincia ?? null
+}
+
 // ---------------------------------------------------------------------------
 // Caricamento (solo pagina)
 // ---------------------------------------------------------------------------
@@ -176,12 +195,29 @@ export async function caricaEnte(anno, slug) {
   return registraEnte(await leggiJson(new URL(`${slug}.json`, cartellaDati(anno))))
 }
 
-/** I comuni di un ente gia' registrato, in ordine alfabetico: quel che riempie il secondo menu'. */
-export function comuniDellEnte(anno, slug) {
+/**
+ * Le province di un ente gia' registrato, in ordine alfabetico: quel che riempie il secondo
+ * menu'. Sono solo quelle che hanno davvero un comune nell'elenco — una voce che apre su un
+ * menu' vuoto non e' una scelta.
+ */
+export function provinceDellEnte(anno, slug) {
+  const registrato = entiRegistrati.get(`${anno}:${slug}`)
+  if (!registrato) throw new RangeError(`ente non caricato: ${slug} (anno d’imposta ${anno})`)
+  return Object.entries(registrato.province).map(([sigla, nome]) => ({ sigla, nome }))
+}
+
+/**
+ * I comuni di una provincia dell'ente indicato, in ordine alfabetico: quel che riempie il
+ * terzo menu'. La provincia si chiede insieme all'ente e non da sola perche' e' cosi' che il
+ * selettore la usa — restringere una scelta gia' fatta, non aprirne una nuova.
+ */
+export function comuniDellaProvincia(anno, slug, provincia) {
   const prefisso = `${anno}:`
   const comuni = []
   for (const [chiave, luogo] of luoghi) {
-    if (chiave.startsWith(prefisso) && luogo.ente.slug === slug) comuni.push(luogo.comune)
+    if (chiave.startsWith(prefisso) && luogo.ente.slug === slug && luogo.comune.provincia === provincia) {
+      comuni.push(luogo.comune)
+    }
   }
   return comuni.sort((a, b) => a.nome.localeCompare(b.nome, 'it'))
 }

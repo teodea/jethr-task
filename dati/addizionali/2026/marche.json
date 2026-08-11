@@ -32,6 +32,13 @@
     }
   },
   "capoluogo": "A271",
+  "province": {
+    "AN": "Ancona",
+    "AP": "Ascoli Piceno",
+    "FM": "Fermo",
+    "MC": "Macerata",
+    "PU": "Pesaro e Urbino"
+  },
   "fonteComune": "https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/nuova_addcomirpef/risultato.htm?anno={anno}&pr={provincia}&cc={codice}&r=1",
   "comuni": {
     "A035": {"nome":"Acqualagna","provincia":"PU","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"44","dataDelibera":"16/12/2025","pubblicata":"08/01/2026","annoRegola":2026},

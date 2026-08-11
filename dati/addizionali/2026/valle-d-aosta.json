@@ -20,6 +20,9 @@
     }
   },
   "capoluogo": "A326",
+  "province": {
+    "AO": "Valle d'Aosta"
+  },
   "fonteComune": "https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/nuova_addcomirpef/risultato.htm?anno={anno}&pr={provincia}&cc={codice}&r=1",
   "comuni": {
     "A094": {"nome":"Ayas","provincia":"AO","scaglioni":[{"fino":null,"aliquota":0}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":null,"dataDelibera":null,"pubblicata":null,"annoRegola":2026},

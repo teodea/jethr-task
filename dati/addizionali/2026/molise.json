@@ -32,6 +32,10 @@
     }
   },
   "capoluogo": "B519",
+  "province": {
+    "CB": "Campobasso",
+    "IS": "Isernia"
+  },
   "fonteComune": "https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/nuova_addcomirpef/risultato.htm?anno={anno}&pr={provincia}&cc={codice}&r=1",
   "comuni": {
     "A050": {"nome":"Acquaviva Collecroce","provincia":"CB","scaglioni":[{"fino":null,"aliquota":0.006}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"9","dataDelibera":"25/02/2025","pubblicata":"07/10/2025","annoRegola":2025},

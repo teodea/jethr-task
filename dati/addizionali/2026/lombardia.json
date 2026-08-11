@@ -32,6 +32,20 @@
     }
   },
   "capoluogo": "F205",
+  "province": {
+    "BG": "Bergamo",
+    "BS": "Brescia",
+    "CO": "Como",
+    "CR": "Cremona",
+    "LC": "Lecco",
+    "LO": "Lodi",
+    "MN": "Mantova",
+    "MI": "Milano",
+    "MB": "Monza e della Brianza",
+    "PV": "Pavia",
+    "SO": "Sondrio",
+    "VA": "Varese"
+  },
   "fonteComune": "https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/nuova_addcomirpef/risultato.htm?anno={anno}&pr={provincia}&cc={codice}&r=1",
   "comuni": {
     "A004": {"nome":"Abbadia Cerreto","provincia":"LO","scaglioni":[{"fino":null,"aliquota":0.007}],"esenzioneFinoA":10000,"nota":null,"anomalia":null,"delibera":"29","dataDelibera":"29/11/2023","pubblicata":"20/12/2025","annoRegola":2025},

@@ -20,6 +20,15 @@
     }
   },
   "capoluogo": "L736",
+  "province": {
+    "BL": "Belluno",
+    "PD": "Padova",
+    "RO": "Rovigo",
+    "TV": "Treviso",
+    "VE": "Venezia",
+    "VR": "Verona",
+    "VI": "Vicenza"
+  },
   "fonteComune": "https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/nuova_addcomirpef/risultato.htm?anno={anno}&pr={provincia}&cc={codice}&r=1",
   "comuni": {
     "A001": {"nome":"Abano Terme","provincia":"PD","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":12000,"nota":null,"anomalia":null,"delibera":"12","dataDelibera":"26/02/2018","pubblicata":"20/12/2025","annoRegola":2025},

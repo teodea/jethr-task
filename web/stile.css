@@ -183,11 +183,24 @@ a {
   color: var(--inchiostro-tenue);
 }
 
-/* I due menu' del luogo stanno affiancati finche' c'e' spazio: sono un input solo diviso in
-   due passi, non due domande indipendenti. */
+/* I tre menu' del luogo sono un input solo diviso in tre passi, non tre domande
+   indipendenti: incolonnati sullo schermo stretto, disposti come la scelta si restringe su
+   quello largo — i due che filtrano affiancati, il comune sotto e per intero. La riga tutta
+   sua non e' simmetria: e' il menu' che porta i nomi lunghi (Castelnuovo di Val di Cecina),
+   ed e' l'unico dei tre la cui risposta entra nel calcolo. */
 .campo-luogo {
-  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
-  gap: 0.45rem 1rem;
+  grid-template-columns: 1fr;
+  gap: 0.7rem 1rem;
+}
+
+@media (min-width: 34rem) {
+  .campo-luogo {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .campo-luogo .sotto-campo:nth-of-type(3) {
+    grid-column: 1 / -1;
+  }
 }
 
 .sotto-campo {
@@ -196,7 +209,7 @@ a {
   min-width: 0;
 }
 
-/* Il testo di aiuto vale per entrambi i menu' e va a capo sotto di loro. */
+/* Il testo di aiuto vale per tutti e tre i menu' e va a capo sotto di loro. */
 .campo-luogo .aiuto {
   grid-column: 1 / -1;
 }
@@ -210,9 +223,10 @@ a {
   background: #fff;
   font: inherit;
   color: inherit;
-  /* L'elenco dei comuni arriva a millecinquecento voci: il menu' nativo si cerca da
-     tastiera scrivendo le prime lettere, cosa che nessun sostituto costruito a mano fa
-     altrettanto bene — e il repo non ha dipendenze. */
+  /* Il passo della provincia ha tolto gli elenchi da millecinquecento voci, ma il piu' lungo
+     ne ha ancora oltre trecento: il menu' nativo si cerca da tastiera scrivendo le prime
+     lettere, cosa che nessun sostituto costruito a mano fa altrettanto bene — e il repo non
+     ha dipendenze. */
   cursor: pointer;
 }
 

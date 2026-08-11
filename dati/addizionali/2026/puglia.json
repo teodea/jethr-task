@@ -32,6 +32,14 @@
     }
   },
   "capoluogo": "A662",
+  "province": {
+    "BA": "Bari",
+    "BT": "Barletta-Andria-Trani",
+    "BR": "Brindisi",
+    "FG": "Foggia",
+    "LE": "Lecce",
+    "TA": "Taranto"
+  },
   "fonteComune": "https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/nuova_addcomirpef/risultato.htm?anno={anno}&pr={provincia}&cc={codice}&r=1",
   "comuni": {
     "A015": {"nome":"Accadia","provincia":"FG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"23","dataDelibera":"24/10/2025","pubblicata":"29/01/2026","annoRegola":2026},

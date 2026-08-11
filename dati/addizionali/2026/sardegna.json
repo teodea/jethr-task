@@ -20,6 +20,13 @@
     }
   },
   "capoluogo": "B354",
+  "province": {
+    "CA": "Cagliari",
+    "NU": "Nuoro",
+    "OR": "Oristano",
+    "SS": "Sassari",
+    "SU": "Sud Sardegna"
+  },
   "fonteComune": "https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/nuova_addcomirpef/risultato.htm?anno={anno}&pr={provincia}&cc={codice}&r=1",
   "comuni": {
     "A007": {"nome":"Abbasanta","provincia":"OR","scaglioni":[{"fino":null,"aliquota":0.0025}],"esenzioneFinoA":15000,"nota":null,"anomalia":null,"delibera":"29","dataDelibera":"12/11/2024","pubblicata":"21/01/2025","annoRegola":2025},

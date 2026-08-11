@@ -32,6 +32,18 @@
     }
   },
   "capoluogo": "D612",
+  "province": {
+    "AR": "Arezzo",
+    "FI": "Firenze",
+    "GR": "Grosseto",
+    "LI": "Livorno",
+    "LU": "Lucca",
+    "MS": "Massa-Carrara",
+    "PI": "Pisa",
+    "PT": "Pistoia",
+    "PO": "Prato",
+    "SI": "Siena"
+  },
   "fonteComune": "https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/nuova_addcomirpef/risultato.htm?anno={anno}&pr={provincia}&cc={codice}&r=1",
   "comuni": {
     "A006": {"nome":"Abbadia San Salvatore","provincia":"SI","scaglioni":[{"fino":null,"aliquota":0.006}],"esenzioneFinoA":12000,"nota":null,"anomalia":null,"delibera":"94","dataDelibera":"29/12/2025","pubblicata":"22/01/2026","annoRegola":2026},

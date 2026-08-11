@@ -12,8 +12,9 @@
 // «tabelle importate da una macchina... sono dati, non costanti curate»).
 //
 // Perche' un file per ente e non un file solo: la pagina scarica la sola regione scelta,
-// quindi i due menu' a cascata sono anche la strategia di caricamento. Il file intero
-// varrebbe qualche megabyte per mostrare un comune.
+// quindi il primo dei tre menu' a cascata e' anche la strategia di caricamento. Il file
+// intero varrebbe qualche megabyte per mostrare un comune. Gli altri due gradini — provincia
+// e comune — si servono da quel che il file gia' contiene, senza altre richieste.
 //
 // FONTI (tutte primarie, MEF e ISTAT: vedi COSTANTI qui sotto per gli URL esatti)
 //  - elenchi MEF delle aliquote comunali, per anno d'imposta
@@ -170,7 +171,7 @@ const FUORI_PERIMETRO = {
   campania: 'a466705eeff1', // detrazioni di 30/40 EUR per figlio a carico
 }
 
-// Il comune su cui il secondo menu' si posiziona quando si sceglie un ente. Non e' un
+// Il comune su cui gli ultimi due menu' si posizionano quando si sceglie un ente. Non e' un
 // valore fiscale — e' il default dell'interfaccia — ma va scritto da qualche parte: i
 // capoluoghi di regione non stanno nell'anagrafica ISTAT, che marca i capoluoghi di
 // provincia (109) e non quelli di regione (21). Sono i capoluoghi fissati dagli statuti
@@ -211,6 +212,12 @@ const DENOMINAZIONI = {
 }
 
 const ENTI_ATTESI = 21 // 19 regioni + 2 province autonome (ricerca issue #18, par. 4)
+
+// Le province italiane censite da ISTAT come «unita' territoriali sovracomunali»: province,
+// citta' metropolitane e liberi consorzi siciliani. Il conteggio e' il presidio che dice che
+// l'anagrafica e' stata letta tutta — la provincia non e' un'entita' fiscale (CONTEXT.md),
+// e' il livello intermedio del selettore.
+const PROVINCE_ATTESE = 107
 
 // ---------------------------------------------------------------------------
 // Utilita'
@@ -339,6 +346,12 @@ async function scopriCodiciMef(slugAttesi) {
 // L'anagrafica ISTAT
 // ---------------------------------------------------------------------------
 
+// Il nome per esteso della provincia sta in una colonna sola, ma non si chiama «provincia»:
+// dal 2015 ISTAT le raccoglie sotto «unita' territoriale sovracomunale», che tiene insieme
+// province, citta' metropolitane e liberi consorzi siciliani.
+const COLONNA_PROVINCIA =
+  "Denominazione dell'Unità territoriale sovracomunale (valida a fini statistici)"
+
 function leggiAnagrafica(testo) {
   const record = leggiCsv(testo, SORGENTI.istat.separatore)
   pretendiColonne(
@@ -347,6 +360,7 @@ function leggiAnagrafica(testo) {
       'Codice Catastale del comune',
       'Denominazione in italiano',
       'Denominazione Regione',
+      COLONNA_PROVINCIA,
       'Sigla automobilistica',
     ],
     'ISTAT',
@@ -354,13 +368,17 @@ function leggiAnagrafica(testo) {
 
   const comuni = new Map()
   const denominazioni = new Map()
+  // ente -> { sigla -> nome per esteso }: quel che riempie il menu' delle province, che e'
+  // il secondo dei tre passi del selettore. Sta dentro il file dell'ente e non in un file a
+  // parte perche' e' esattamente l'insieme che serve a chi ha gia' scelto quell'ente.
+  const province = new Map()
   for (const riga of record) {
     const codice = riga['Codice Catastale del comune']
     if (!codice) continue
     const sigla = riga['Sigla automobilistica']
     // L'ente impositore, non la regione: il Trentino-Alto Adige non esiste come ente
-    // (ricerca issue #18, par. 4). La sigla provinciale serve solo a derivarlo e a
-    // distinguere gli omonimi nel menu': nel calcolo la provincia non entra mai.
+    // (ricerca issue #18, par. 4). La sigla provinciale serve a derivarlo e a restringere il
+    // menu' dei comuni: nel calcolo la provincia non entra mai.
     const ente = sigla === 'TN' ? 'trento' : sigla === 'BZ' ? 'bolzano' : slug(riga['Denominazione Regione'])
     comuni.set(codice, { nome: riga['Denominazione in italiano'], provincia: sigla, ente })
     // Il nome della regione si prende da qui e non dal CSV MEF, che lo scrive tutto
@@ -368,9 +386,20 @@ function leggiAnagrafica(testo) {
     // trattino di «Friuli-Venezia Giulia». La parte prima dello slash toglie il secondo
     // nome delle regioni bilingui.
     if (!denominazioni.has(ente)) denominazioni.set(ente, riga['Denominazione Regione'].split('/')[0].trim())
+    if (!province.has(ente)) province.set(ente, new Map())
+    // Stesso taglio allo slash, per la stessa ragione: «Bolzano/Bozen» e «Valle
+    // d'Aosta/Vallée d'Aoste» sono le due province bilingui.
+    if (!province.get(ente).has(sigla)) {
+      province.get(ente).set(sigla, riga[COLONNA_PROVINCIA].split('/')[0].trim())
+    }
   }
   pretendi(comuni.size > 7000, `anagrafica ISTAT troppo corta: ${comuni.size} comuni`)
-  return { comuni, denominazioni }
+  const sigle = [...province.values()].reduce((totale, perEnte) => totale + perEnte.size, 0)
+  pretendi(
+    sigle === PROVINCE_ATTESE,
+    `attese ${PROVINCE_ATTESE} province nell'anagrafica ISTAT, trovate ${sigle}`,
+  )
+  return { comuni, denominazioni, province }
 }
 
 // ---------------------------------------------------------------------------
@@ -635,7 +664,7 @@ function componiEnte(chiave, regolaCsv, codiceMef, denominazioneIstat) {
 }
 
 async function importa({ anno, sorgenti, cartellaSorgenti }) {
-  const { comuni: anagrafica, denominazioni } = leggiAnagrafica(sorgenti.istat)
+  const { comuni: anagrafica, denominazioni, province } = leggiAnagrafica(sorgenti.istat)
   const regoleRegionali = leggiRegoleRegionali(sorgenti.regionale, anno)
   const comunaleCorrente = leggiElencoComunale(sorgenti.comunaleCorrente, anno)
   const comunalePrecedente = leggiElencoComunale(sorgenti.comunalePrecedente, anno - 1)
@@ -719,6 +748,19 @@ async function importa({ anno, sorgenti, cartellaSorgenti }) {
     )
     dati.capoluogo = capoluogo
     pretendi(Object.keys(dati.comuni).length > 0, `l'ente «${chiave}» e' rimasto senza comuni`)
+
+    // Solo le province che hanno davvero un comune in questo elenco: una sigla senza comuni
+    // sarebbe una voce di menu' che apre su un menu' vuoto. In ordine alfabetico, che e'
+    // l'ordine in cui il menu' le mostra.
+    const usate = new Set(Object.values(dati.comuni).map(({ provincia }) => provincia))
+    dati.province = Object.fromEntries(
+      [...province.get(chiave)]
+        .filter(([sigla]) => usate.has(sigla))
+        .sort(([, a], [, b]) => a.localeCompare(b, 'it')),
+    )
+    for (const sigla of usate) {
+      pretendi(sigla in dati.province, `la sigla «${sigla}» di «${chiave}» non ha un nome ISTAT`)
+    }
   }
 
   return { enti, conteggi }
@@ -752,6 +794,7 @@ async function scrivi(cartella, { enti, conteggi }, { anno, scaricatoIl }) {
         scaricatoIl,
         ente: dati.ente,
         capoluogo: dati.capoluogo,
+        province: dati.province,
         // Il link alla fonte di ogni comune si costruisce da qui invece di ripetere un URL
         // per riga: il codice catastale parametrizza la scheda MEF, e con lui la fonte.
         fonteComune: URL_SCHEDA_COMUNALE('{anno}', '{provincia}', '{codice}'),

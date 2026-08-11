@@ -20,6 +20,10 @@
     }
   },
   "capoluogo": "G942",
+  "province": {
+    "MT": "Matera",
+    "PZ": "Potenza"
+  },
   "fonteComune": "https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/nuova_addcomirpef/risultato.htm?anno={anno}&pr={provincia}&cc={codice}&r=1",
   "comuni": {
     "A013": {"nome":"Abriola","provincia":"PZ","scaglioni":[{"fino":null,"aliquota":0}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"16","dataDelibera":"24/07/2015","pubblicata":"20/12/2025","annoRegola":2025},

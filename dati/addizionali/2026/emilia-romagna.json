@@ -32,6 +32,17 @@
     }
   },
   "capoluogo": "A944",
+  "province": {
+    "BO": "Bologna",
+    "FE": "Ferrara",
+    "FC": "Forlì-Cesena",
+    "MO": "Modena",
+    "PR": "Parma",
+    "PC": "Piacenza",
+    "RA": "Ravenna",
+    "RE": "Reggio nell'Emilia",
+    "RN": "Rimini"
+  },
   "fonteComune": "https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/nuova_addcomirpef/risultato.htm?anno={anno}&pr={provincia}&cc={codice}&r=1",
   "comuni": {
     "A067": {"nome":"Agazzano","provincia":"PC","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":10000,"nota":null,"anomalia":null,"delibera":"33","dataDelibera":"29/12/2025","pubblicata":"04/06/2026","annoRegola":2026},

@@ -166,19 +166,29 @@ _Avoid_: imposta dovuta — ambiguo fra lorda e netta.
 Imposte locali sull'imponibile fiscale, dovute all'ente impositore e al comune
 del domicilio fiscale. Non sono ridotte dalle detrazioni IRPEF.
 _Avoid_: trattarle come un'unica "addizionale". Attenzione anche alla provincia:
-non è un'entità fiscale e non deve comparire nel calcolo — compare solo come
-etichetta nel menù, per distinguere i comuni omonimi.
+non è un'entità fiscale e non deve comparire nel calcolo — vedi la voce sotto.
 
 **Ente impositore**:
 Chi delibera l'addizionale che la legge chiama "regionale". Sono **ventuno**, non
 venti: le province autonome di Trento e Bolzano hanno leggi proprie e stanno al
 posto della regione, mentre il Trentino-Alto Adige come ente impositore non
-esiste. È la chiave del modello dati e la prima delle due tendine. Si deriva dal
+esiste. È la chiave del modello dati e la prima delle tre tendine. Si deriva dal
 comune (sigla TN → Trento, BZ → Bolzano, ogni altra → la regione ISTAT), quindi
 non introduce la provincia come input: è l'unico punto in cui il livello
 provinciale tocca il calcolo, e lo tocca come identità di un ente, non come
 territorio.
 _Avoid_: "regione" quando il discorso include Trento e Bolzano.
+
+**Provincia**:
+Il gradino di mezzo del selettore, e **solo** quello: non delibera niente, non
+entra in nessuna formula, non compare in nessuna voce del risultato. Esiste
+perché la scelta del comune, senza, sarebbe un elenco da millecinquecento voci —
+col filtro il più lungo è Torino, 312. Come l'ente impositore si **deriva** dal
+comune (`provinciaDelComune`), non si chiede: aggiungere una tendina non ha
+aggiunto un input al dominio. Nomi e sigle vengono dall'anagrafica ISTAT, dove si
+chiamano "unità territoriali sovracomunali" e tengono insieme province, città
+metropolitane e liberi consorzi siciliani: sono **107**.
+_Avoid_: trattarla come un'entità fiscale; farne un parametro del motore.
 
 **Domicilio fiscale**:
 Il comune nella cui anagrafe il contribuente è iscritto, che determina entrambe

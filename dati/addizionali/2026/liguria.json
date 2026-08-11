@@ -28,6 +28,12 @@
     }
   },
   "capoluogo": "D969",
+  "province": {
+    "GE": "Genova",
+    "IM": "Imperia",
+    "SP": "La Spezia",
+    "SV": "Savona"
+  },
   "fonteComune": "https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/nuova_addcomirpef/risultato.htm?anno={anno}&pr={provincia}&cc={codice}&r=1",
   "comuni": {
     "A111": {"nome":"Airole","provincia":"IM","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":10000,"nota":null,"anomalia":null,"delibera":"22","dataDelibera":"17/12/2025","pubblicata":"09/01/2026","annoRegola":2026},
