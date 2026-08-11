@@ -204,13 +204,16 @@ Dalle fonti primarie (tutti da Circolare INPS n. 6 del 30/01/2026, URL sopra):
 
 ## Lacune
 
-- **Contenuto della "Rettifica" alla circolare 6/2026**: la pagina INPS della
-  circolare segnala una rettifica ai dati, ma il portale (single-page app) non
-  espone il testo della rettifica a un fetch diretto e nessuna ricerca ne ha
-  restituito il dettaglio da dominio primario. I valori qui riportati coincidono
-  tra il testo integrale della circolare (copia conforme del 02/02/2026) e i
-  riassunti pubblicati dall'INPS successivamente; restano da verificare contro
-  la sezione "Rettifica" alla prima occasione (apertura manuale della pagina).
+- ~~Contenuto della "Rettifica" alla circolare 6/2026~~ **Chiusa l'11/08/2026**
+  con la lettura della pagina INPS renderizzata in browser (la SPA che il fetch
+  non leggeva): sulla pagina della circolare **non esiste alcuna sezione
+  "Rettifica"** (zero occorrenze del termine nel testo reso) e i tre valori del
+  perimetro sono confermati testualmente — par. 1: minimale 58,13 EUR (9,5% di
+  611,85); par. 5: prima fascia 56.224,00 EUR, mensilizzato 4.685,00, criterio
+  della mensilizzazione con conguaglio; par. 6: massimale 122.295,40 EUR
+  arrotondato a 122.295,00, platea post 31/12/1995. Il segnale "Rettifica" visto
+  in fase di ricerca era con ogni probabilita' un elemento di navigazione del
+  portale, non un contenuto della circolare.
 - **Aliquota complessiva a carico del datore per settore**: non reperita una
   tabella primaria unica e vigente delle aliquote datoriali totali (IVS +
   contribuzioni minori) per settore/CSC; la pagina INPS storica "Aliquote
