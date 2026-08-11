@@ -219,8 +219,16 @@ a {
   font-weight: 600;
 }
 
+/* Il radio vero e' invisibile (opacity: 0) e con lui il suo anello di focus: l'anello va
+   ridisegnato sul segmento che lo contiene, altrimenti chi naviga da tastiera non vede dove
+   si trova. Il colore cambia con il fondo — accento sul bianco, bianco sull'accento — perche'
+   un anello dello stesso colore di cio' su cui poggia non e' un anello. */
 .segmento:has(input:focus-visible) {
-  box-shadow: inset 0 0 0 2px var(--accento-tenue);
+  box-shadow: inset 0 0 0 2px var(--accento);
+}
+
+.segmento:has(input:checked:focus-visible) {
+  box-shadow: inset 0 0 0 2px #fff;
 }
 
 .calcola {
