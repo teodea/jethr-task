@@ -62,9 +62,18 @@
         <button class="calcola" type="submit">Calcola</button>
       </form>
 
+      <!-- Il secondo dei tre livelli di messaggio: sopra i risultati, che comunque si
+           mostrano. Non e' un errore dell'input, e' un dubbio sull'input — quindi vive
+           fra il form e i risultati, e non impedisce a nessuno dei due di esserci. -->
+      <div class="avvisi" id="avvisi" role="status" hidden></div>
+
       <!-- Nessun risultato prima del click: il numero arriva da un gesto dell'utente -->
       <section class="risultato" id="risultato" aria-live="polite" hidden>
         <div class="eroi" id="eroi"></div>
+
+        <!-- Il terzo livello: dentro l'area risultati, sotto i numeri hero, perche' parla
+             del numero appena letto — non dell'input. -->
+        <p class="scalino" id="scalino" hidden></p>
 
         <section class="cascata" aria-labelledby="titolo-cascata">
           <h2 class="titolo-sezione" id="titolo-cascata">Voce per voce</h2>

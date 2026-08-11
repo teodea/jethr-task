@@ -7,6 +7,7 @@ import { calcolaCascata } from '../src/cascata.js'
 import { presentaCascata } from '../src/presentazione.js'
 import {
   testiCascata,
+  avvisoScalino,
   formattaEuro,
   formattaPercentuale,
   ORDINE_VOCI,
@@ -20,7 +21,9 @@ const form = document.querySelector('#calcolatore')
 const campoRal = document.querySelector('#ral')
 const gruppoMensilita = document.querySelector('#mensilita')
 const errore = document.querySelector('#errore')
+const avvisi = document.querySelector('#avvisi')
 const risultato = document.querySelector('#risultato')
+const scalino = document.querySelector('#scalino')
 const eroi = document.querySelector('#eroi')
 const elencoVoci = document.querySelector('#voci')
 
@@ -66,14 +69,44 @@ function mostraErrore(messaggio) {
   // rappresentabili dal segmented control.
   campoRal.setAttribute('aria-invalid', 'true')
   // Il risultato precedente sparisce: un numero accanto a un input invalido verrebbe
-  // letto come vero.
+  // letto come vero. Lo scalino se ne va con lui perche' ci vive dentro; gli avvisi
+  // stanno fuori dall'area risultati e vanno tolti a mano, altrimenti resterebbero in
+  // pagina a commentare una RAL che non e' piu' quella scritta nel campo.
   risultato.hidden = true
+  mostraAvvisi([])
 }
 
 function nascondiErrore() {
   errore.hidden = true
   errore.textContent = ''
   campoRal.removeAttribute('aria-invalid')
+}
+
+// Il segno di attenzione: decorativo, fuori dall'albero di accessibilita'. Il testo che
+// accompagna dice gia' tutto, e sentirsi annunciare «emoji triangolo di avvertimento»
+// prima di ogni avviso sarebbe rumore, non informazione.
+function creaSegno() {
+  const segno = document.createElement('span')
+  segno.className = 'segno'
+  segno.textContent = '⚠️'
+  segno.setAttribute('aria-hidden', 'true')
+  return segno
+}
+
+// Gli avvisi non bloccanti del motore (src/validazione.js): l'input e' calcolabile ma
+// sospetto — una RAL sotto il minimale contributivo non e' un tempo pieno per l'anno
+// intero. Il calcolo si mostra comunque: negarlo tratterebbe come errore quello che il
+// dominio classifica come dubbio.
+function mostraAvvisi(elenco) {
+  avvisi.replaceChildren(
+    ...elenco.map((testo) => {
+      const banner = document.createElement('p')
+      banner.className = 'avviso'
+      banner.append(creaSegno(), document.createTextNode(testo))
+      return banner
+    }),
+  )
+  avvisi.hidden = elenco.length === 0
 }
 
 function creaEroe({ etichetta, valore, spiegazione, incidenza, nota }) {
@@ -147,17 +180,10 @@ function creaVoce({ etichetta, valore, spiegazione, nota, fonte }) {
   if (nota) {
     // Il motore emette una nota solo dove il caso devia da quello liscio — massimale,
     // incapienza, gate delle addizionali, soglia secca: e' il motore a decidere che c'e'
-    // qualcosa da segnalare, la pagina si limita a segnalarlo. Il segno e' decorativo e
-    // resta fuori dall'albero di accessibilita': il testo della nota si spiega da solo.
+    // qualcosa da segnalare, la pagina si limita a segnalarlo.
     const avvertenza = document.createElement('p')
     avvertenza.className = 'voce-nota'
-
-    const segno = document.createElement('span')
-    segno.className = 'voce-segno'
-    segno.textContent = '⚠️'
-    segno.setAttribute('aria-hidden', 'true')
-
-    avvertenza.append(segno, document.createTextNode(nota))
+    avvertenza.append(creaSegno(), document.createTextNode(nota))
     corpo.append(avvertenza)
   }
 
@@ -188,6 +214,16 @@ function creaVoce({ etichetta, valore, spiegazione, nota, fonte }) {
 function mostraRisultato(cascata) {
   const voci = presentaCascata(cascata)
   const testi = testiCascata(cascata)
+
+  mostraAvvisi(cascata.avvisi)
+
+  // Lo scalino e' l'unico contenuto della pagina che spiega un numero *piu' basso* di
+  // quello che l'utente avrebbe visto con una RAL minore: senza gli estremi espliciti
+  // sembrerebbe un errore del calcolo. Sta sotto i numeri hero perche' commenta quelli.
+  // Fuori dalle zone di non-monotonia il motore restituisce null e il banner sparisce.
+  const scalinoDaMostrare = avvisoScalino(cascata)
+  scalino.textContent = scalinoDaMostrare ?? ''
+  scalino.hidden = scalinoDaMostrare === null
 
   eroi.replaceChildren(
     ...EROI.map((voce) =>

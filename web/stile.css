@@ -9,6 +9,8 @@
   --carta: #fbfbfa;
   --bordo: #dcdedb;
   --allarme: #a3241c;
+  --attenzione: #b3801a;
+  --attenzione-tenue: #fdf4de;
   --raggio: 10px;
 }
 
@@ -191,6 +193,39 @@ a {
   font-size: 0.9rem;
 }
 
+/* I tre livelli di messaggio si distinguono per colore *e* per posizione, mai per colore
+   soltanto: l'errore e' rosso e sotto il campo, l'avviso e' giallo e sopra i risultati,
+   lo scalino e' nel colore d'accento e dentro i risultati. Chi non distingue i colori
+   legge comunque tre messaggi in tre posti diversi. */
+
+.avvisi {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 1.6rem;
+}
+
+/* `display: grid` batte la regola `[hidden] { display: none }` del browser, che ha
+   specificita' zero: senza questa riga il contenitore vuoto resterebbe in pagina a
+   lasciare il suo margine fra il form e i risultati. */
+.avvisi[hidden] {
+  display: none;
+}
+
+.avviso {
+  margin: 0;
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem 0.9rem;
+  border-left: 3px solid var(--attenzione);
+  background: var(--attenzione-tenue);
+  border-radius: 0 var(--raggio) var(--raggio) 0;
+  font-size: 0.9rem;
+}
+
+.segno {
+  flex: none;
+}
+
 /* Risultati */
 
 .risultato {
@@ -252,6 +287,21 @@ a {
   color: var(--inchiostro);
   border-left: 3px solid var(--accento);
   padding-left: 0.6rem;
+}
+
+/* Lo scalino: evidenziato, non decorativo. E' il contenuto che nessun calcolatore online
+   da' — l'unico posto in cui la pagina spiega perche' il numero appena letto e' piu' basso
+   di quello che si otterrebbe guadagnando meno — e sta attaccato ai numeri hero perche'
+   commenta quelli. Fondo pieno d'accento: si vede prima di leggerlo. */
+
+.scalino {
+  margin: 1rem 0 0;
+  padding: 0.9rem 1.05rem;
+  border: 1px solid var(--accento);
+  border-left-width: 4px;
+  border-radius: var(--raggio);
+  background: var(--accento-tenue);
+  font-size: 0.92rem;
 }
 
 /* La cascata, voce per voce */
@@ -357,10 +407,6 @@ a {
   font-size: 0.9rem;
   border-left: 3px solid var(--accento);
   padding-left: 0.6rem;
-}
-
-.voce-segno {
-  flex: none;
 }
 
 /* La fonte chiude la riga espansa. Piu' piccola e tenue della spiegazione: e' l'apparato
