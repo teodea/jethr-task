@@ -1,0 +1,10 @@
+{
+  "name": "jethr-ral-netto",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Prototipo RAL -> netto annuale e mensile con tutte le voci della cascata",
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/"
+  }
+}

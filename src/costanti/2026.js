@@ -1,0 +1,94 @@
+// Costanti fiscali e contributive per l'anno d'imposta 2026.
+// Ogni valore porta accanto la fonte primaria e l'anno (regola del repo).
+// Ricerche di provenienza: docs/ricerca/irpef-scaglioni-e-detrazione-lavoro-dipendente.md,
+// contributi-dipendente-aliquote-minimale-massimale.md, addizionali-regionale-comunale.md,
+// trattamento-integrativo-somma-integrativa-ulteriore-detrazione.md
+
+export const COSTANTI_2026 = {
+  anno: 2026,
+
+  contributi: {
+    aliquotaIvsDipendente: 0.0919, // FPLD, quota lavoratore (8,89% + 0,30 dal 1/1/2007) - fonte: Circolare INPS n. 23 del 24/01/2007 (art. 1 c. 769 L. 296/2006), https://servizi2.inps.it/servizi/Bussola/visualizzadoc.aspx?sVirtuaLURL=%2Fcircolari%2FCircolare+numero+23+del+24-1-2007.htm, vigente 2026
+    aliquotaAggiuntiva: 0.01, // sulla quota oltre la prima fascia - fonte: art. 3-ter D.L. 19/09/1992 n. 384 conv. L. 438/1992, https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.legge:1992-09-19;384~art3ter, anno 1992
+    primaFasciaAnnua: 56224, // EUR - fonte: Circolare INPS n. 6 del 30/01/2026, par. 5, https://www.inps.it/it/it/inps-comunica/atti/circolari-messaggi-e-normativa/dettaglio.circolari-e-messaggi.2026.01.circolare-numero-6-del-30-01-2026_15151.html, anno 2026
+    massimaleAnnuo: 122295, // EUR, solo iscritti post 31/12/1995 (122.295,40 arrotondato all'unita) - fonte: Circolare INPS n. 6 del 30/01/2026, par. 6 (art. 2 c. 18 L. 335/1995), URL sopra, anno 2026
+    minimaleGiornaliero: 58.13, // EUR (9,5% del trattamento minimo mensile 611,85) - fonte: Circolare INPS n. 6 del 30/01/2026, par. 1, URL sopra, anno 2026
+    giornateAnnoMinimale: 312, // 52 settimane x 6 giornate: convenzione usata in docs/ricerca/contributi-dipendente-aliquote-minimale-massimale.md, par. 3.1, per annualizzare il minimale giornaliero
+  },
+
+  irpef: {
+    // art. 11 c. 1 TUIR (DPR 917/1986), testo vigente 2026 - fonte: https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art11!vig=, anno 2026
+    scaglioni: [
+      { fino: 28000, aliquota: 0.23 },
+      { fino: 50000, aliquota: 0.33 }, // 33% (era 35% nel 2025): L. 199/2025 art. 1 c. 3, GU S.O. n. 42/L alla GU SG n. 301 del 30/12/2025, https://www.gazzettaufficiale.it/eli/gu/2025/12/30/301/so/42/sg/pdf, dal 1/1/2026
+      { fino: Infinity, aliquota: 0.43 },
+    ],
+  },
+
+  // art. 13 TUIR, testo vigente 2026 (importi a regime da L. 207/2024 art. 1 c. 2) - fonte:
+  // https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art13!vig=, anno 2026
+  detrazioneLavoroDipendente: {
+    importoFascia1: 1955, // se RC <= 15.000 (c. 1 lett. a)
+    minimo: 690, // minimo effettivo per tempo indeterminato (c. 1 lett. a)
+    sogliaFascia1: 15000,
+    baseFascia2: 1910, // c. 1 lett. b: 1.910 + 1.190 x (28.000 - RC) / 13.000
+    incrementoFascia2: 1190,
+    sogliaFascia2: 28000,
+    ampiezzaFascia2: 13000,
+    baseFascia3: 1910, // c. 1 lett. c: 1.910 x (50.000 - RC) / 22.000
+    sogliaFascia3: 50000,
+    ampiezzaFascia3: 22000,
+    maggiorazione: 65, // c. 1.1: +65 se 25.000 < RC <= 35.000
+    maggiorazioneDa: 25000,
+    maggiorazioneFinoA: 35000,
+    // c. 6: il quoziente "si assume nelle prime quattro cifre decimali" (troncamento) -
+    // regola sostanziale recepita nel calcolo (docs/ricerca/arrotondamenti-e-quadratura.md, par. 5)
+  },
+
+  // L. 207/2024 art. 1 c. 6, vigente per il 2026 (abrogazione D.Lgs. 117/2026 dal 1/1/2027) - fonte:
+  // https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:legge:2024-12-30;207~art1, anno 2026
+  ulterioreDetrazione: {
+    importo: 1000, // se 20.000 < RC <= 32.000
+    sogliaInferiore: 20000,
+    inizioDecalage: 32000, // 1.000 x (40.000 - RC) / 8.000 fra 32.000 e 40.000
+    azzeramento: 40000,
+  },
+
+  // DL 3/2020 art. 1 conv. L. 21/2020, come modificato da L. 207/2024 art. 1 c. 3 - fonte:
+  // https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.legge:2020-02-05;3~art1, anno 2026
+  trattamentoIntegrativo: {
+    importo: 1200, // EUR/anno, rapportato al periodo (anno intero nel prototipo)
+    sogliaRedditoComplessivo: 15000, // spetta se RC <= 15.000 (la fascia 15-28k richiede detrazioni extra art. 13 c. 1, mai presenti nel perimetro del prototipo)
+    riduzioneDetrazione: 75, // capienza: imposta lorda > detrazione art. 13 c. 1 - 75 (L. 207/2024 art. 1 c. 3)
+  },
+
+  // L. 207/2024 art. 1 cc. 4-5 - fonte: https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:legge:2024-12-30;207~art1, anno 2026
+  sommaIntegrativa: {
+    sogliaRedditoComplessivo: 20000, // soglia secca sul reddito complessivo
+    fasce: [
+      { fino: 8500, percentuale: 0.071 }, // percentuale sul reddito di lavoro dipendente
+      { fino: 15000, percentuale: 0.053 },
+      { fino: Infinity, percentuale: 0.048 },
+    ],
+  },
+
+  // Lombardia: art. 72 c. 1 L.R. 10/2003 (mod. L.R. 5/2022), scaglioni progressivi - fonte:
+  // MEF, aliquote addizionale regionale Lombardia anno d'imposta 2026,
+  // https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/addregirpef/addregirpef.php?reg=10, anno 2026
+  addizionaleRegionale: {
+    scaglioni: [
+      { fino: 15000, aliquota: 0.0123 },
+      { fino: 28000, aliquota: 0.0158 },
+      { fino: 50000, aliquota: 0.0172 },
+      { fino: Infinity, aliquota: 0.0173 },
+    ],
+  },
+
+  // Milano: delibera C.C. n. 46 del 28/09/2020, prorogata per il 2026 (nessuna delibera 2026 al 11/08/2026,
+  // art. 1 c. 169 L. 296/2006) - fonte: MEF, addizionale comunale Milano (cod. F205),
+  // https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/nuova_addcomirpef/risultato.htm?anno=9999&lista=1&pagina=lombardia.htm&cm=&pr=MI&cc=F205&r=1, anno 2026 (proroga)
+  addizionaleComunale: {
+    aliquota: 0.008,
+    esenzioneFinoA: 23000, // soglia secca: sopra, l'aliquota si applica all'INTERO imponibile (D.Lgs. 360/1998 art. 1 c. 3-bis)
+  },
+}
