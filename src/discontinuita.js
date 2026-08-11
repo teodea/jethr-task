@@ -16,6 +16,15 @@ import { calcolaCascata } from './cascata.js'
 // date lasciate ai default del motore.
 const ANNO_INTERO = { dataInizio: undefined, dataFine: undefined, quota: 1 }
 
+// Da un set di costanti al contesto che lo ha prodotto. Serve perche' il censimento delle
+// zone ricalcola la cascata a passi di un centesimo: senza il comune, la ricalcolerebbe
+// sulle aliquote del luogo predefinito e troverebbe gli estremi di uno scalino diverso da
+// quello che l'utente sta guardando. `comune` e' assente sulle costanti curate, che sono
+// gia' il luogo predefinito.
+function contestoDi(costanti) {
+  return { anno: costanti.anno, comune: costanti.comune ?? null }
+}
+
 /**
  * L'inversione esatta di `reddito complessivo -> retribuzione effettiva`, cioe' della
  * catena `retribuzione - contributi` di src/cascata.js. E' una spezzata a tre tratti,
@@ -137,12 +146,38 @@ export function censimentoSalti(costanti, quota = 1) {
     })
   }
 
-  // Scalino comunale: la soglia e' definita sull'imponibile fiscale (= RC nel perimetro).
-  salti.push({
-    nome: 'esenzione addizionale comunale',
-    rc: costanti.addizionaleComunale.esenzioneFinoA,
-    descrizione: `sopra ${costanti.addizionaleComunale.esenzioneFinoA} di imponibile l'addizionale comunale si paga sull'INTERO imponibile (D.Lgs. 360/1998 art. 1 c. 3-bis; delibera C.C. Milano 46/2020)`,
-  })
+  // Gli scalini che dipendono dal LUOGO, non dall'anno: la soglia di esenzione dell'ente
+  // impositore e quella del comune. Si derivano dalle costanti come tutti gli altri, quindi
+  // lo scalino si sposta da solo quando cambia il comune — mini-grafico compreso. E' il
+  // motivo per cui il selettore rende personale l'intuizione migliore del prototipo invece
+  // di lasciarla milanese: a Trento lo scalino sta a 30.000 di imponibile, a Milano a
+  // 23.000, e in un comune senza esenzione non c'e' proprio.
+  //
+  // Le soglie di esenzione non si rapportano al periodo: sono scritte sull'imponibile
+  // effettivo, come tutte le altre soglie della cascata (si rapportano gli importi, mai le
+  // soglie). Un rapporto breve quindi non le sposta — ci cade sotto, e basta.
+  const addizionaliDelLuogo = [
+    {
+      regola: costanti.addizionaleComunale,
+      quale: 'comunale',
+      chi: costanti.addizionaleComunale.nome,
+    },
+    {
+      regola: costanti.addizionaleRegionale,
+      quale: 'regionale',
+      chi: costanti.addizionaleRegionale.denominazione,
+    },
+  ]
+  for (const { regola, quale, chi } of addizionaliDelLuogo) {
+    if (regola.esenzioneFinoA == null) continue
+    salti.push({
+      nome: `esenzione addizionale ${quale}`,
+      rc: regola.esenzioneFinoA,
+      descrizione:
+        `sopra ${regola.esenzioneFinoA} di imponibile l'addizionale ${quale} si paga sull'INTERO ` +
+        `imponibile (D.Lgs. 360/1998 art. 1 c. 3-bis; ${chi})`,
+    })
+  }
 
   // Gia' ordinati per reddito dal raggruppamento, e il reddito e' monotono nella RAL:
   // l'ordine per RAL viene da se'.
@@ -170,12 +205,16 @@ const zonePerCostanti = new WeakMap()
 
 export function zoneNonMonotonia(costanti, periodo = ANNO_INTERO) {
   const { dataInizio, dataFine, quota } = periodo
+  // Due chiavi, e ognuna ha la sua ragione. L'identita' dell'oggetto costanti porta il
+  // LUOGO — `costantiPerLuogo` restituisce lo stesso oggetto per la stessa selezione, e
+  // basta quella per non ricostruire il censimento a ogni render. La quota porta il
+  // PERIODO, che sposta le soglie ma non le costanti.
   if (!zonePerCostanti.has(costanti)) zonePerCostanti.set(costanti, new Map())
   const perQuota = zonePerCostanti.get(costanti)
   if (perQuota.has(quota)) return perQuota.get(quota)
 
   const netto = (retribuzione) =>
-    calcolaCascata({ ral: retribuzione / quota, anno: costanti.anno, dataInizio, dataFine })
+    calcolaCascata({ ral: retribuzione / quota, ...contestoDi(costanti), dataInizio, dataFine })
       .nettoAnnuo
 
   const zone = []
@@ -222,7 +261,7 @@ export function profiloScalino(ral, costanti, periodo = ANNO_INTERO) {
   if (!zona) return null
 
   const netto = (r) =>
-    calcolaCascata({ ral: r, anno: costanti.anno, dataInizio, dataFine }).nettoAnnuo
+    calcolaCascata({ ral: r, ...contestoDi(costanti), dataInizio, dataFine }).nettoAnnuo
   const margine = (zona.a - zona.da) * MARGINE_FINESTRA
   const inizio = zona.da - margine
   const passo = (zona.a - zona.da + 2 * margine) / CAMPIONI_FINESTRA

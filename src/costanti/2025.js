@@ -76,19 +76,36 @@ export const COSTANTI_2025 = {
   // Lombardia anno d'imposta 2025 (art. 72 c. 1 L.R. 10/2003),
   // https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/addregirpef/addregirpef.php?reg=10, anno 2025
   addizionaleRegionale: {
+    ente: 'lombardia',
+    denominazione: 'Regione Lombardia',
     scaglioni: [
       { fino: 15000, aliquota: 0.0123 },
       { fino: 28000, aliquota: 0.0158 },
       { fino: 50000, aliquota: 0.0172 },
       { fino: Infinity, aliquota: 0.0173 },
     ],
+    esenzioneFinoA: null,
+    fonte: {
+      citazione:
+        'MEF, addizionale regionale IRPEF della Lombardia, anno d’imposta 2025 (art. 72 c. 1 L.R. 10/2003)',
+      url: 'https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/addregirpef/addregirpef.php?reg=10',
+    },
   },
 
   // Milano 2025: delibera C.C. n. 46 del 28/09/2020 (conferma d'ufficio MEF, pubbl. 20/12/2025) - fonte:
   // MEF, https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/nuova_addcomirpef/risultato.htm?anno=2025&pr=MI&cc=F205&r=1, anno 2025
   addizionaleComunale: {
-    aliquota: 0.008,
+    codice: 'F205',
+    nome: 'Milano',
+    provincia: 'MI',
+    scaglioni: [{ fino: Infinity, aliquota: 0.008 }],
     esenzioneFinoA: 23000,
+    nota: null,
+    fonte: {
+      citazione:
+        'MEF, addizionale comunale IRPEF di Milano (cod. F205), anno d’imposta 2025: delibera C.C. n. 46 del 28/09/2020',
+      url: 'https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/nuova_addcomirpef/risultato.htm?anno=2025&pr=MI&cc=F205&r=1',
+    },
   },
 }
 
@@ -144,17 +161,9 @@ export const FONTI_2025 = {
     url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:legge:2024-12-30;207~art1',
   },
 
-  addizionaleRegionale: {
-    citazione:
-      'MEF, addizionale regionale IRPEF della Lombardia, anno d’imposta 2025 (art. 72 c. 1 L.R. 10/2003)',
-    url: 'https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/addregirpef/addregirpef.php?reg=10',
-  },
-
-  addizionaleComunale: {
-    citazione:
-      'MEF, addizionale comunale IRPEF di Milano (cod. F205), anno d’imposta 2025: delibera C.C. n. 46 del 28/09/2020',
-    url: 'https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/nuova_addcomirpef/risultato.htm?anno=2025&pr=MI&cc=F205&r=1',
-  },
+  // Le due addizionali non stanno in questa mappa: la loro fonte dipende dal luogo, non
+  // dall'anno, e viaggia dentro la regola stessa (vedi la nota omonima in
+  // src/costanti/2026.js).
 
   ritenutaEConguaglio: {
     citazione:

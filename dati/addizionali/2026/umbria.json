@@ -1,0 +1,146 @@
+{
+  "anno": 2026,
+  "scaricatoIl": "2026-08-12",
+  "ente": {
+    "slug": "umbria",
+    "denominazione": "Regione Umbria",
+    "nome": "Umbria",
+    "scaglioni": [
+      {
+        "fino": 15000,
+        "aliquota": 0.0173
+      },
+      {
+        "fino": 28000,
+        "aliquota": 0.0302
+      },
+      {
+        "fino": 50000,
+        "aliquota": 0.0312
+      },
+      {
+        "fino": null,
+        "aliquota": 0.0333
+      }
+    ],
+    "esenzioneFinoA": null,
+    "varianti": [
+      {
+        "seImponibileFinoA": 28000,
+        "scaglioni": [
+          {
+            "fino": null,
+            "aliquota": 0.0123
+          }
+        ]
+      }
+    ],
+    "detrazioni": [
+      {
+        "da": 28000.01,
+        "finoA": 50000,
+        "importo": 150
+      }
+    ],
+    "fonte": {
+      "citazione": "MEF, addizionale regionale IRPEF — Regione Umbria, anno d’imposta 2026 (delibera 2168 del 19-GEN-26)",
+      "url": "https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/addregirpef/addregirpef.php?reg=19"
+    }
+  },
+  "capoluogo": "G478",
+  "fonteComune": "https://www1.finanze.gov.it/finanze2/dipartimentopolitichefiscali/fiscalitalocale/nuova_addcomirpef/risultato.htm?anno={anno}&pr={provincia}&cc={codice}&r=1",
+  "comuni": {
+    "A045": {"nome":"Acquasparta","provincia":"TR","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"12","dataDelibera":"07/02/2007","pubblicata":"20/12/2025","annoRegola":2025},
+    "A207": {"nome":"Allerona","provincia":"TR","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"40","dataDelibera":"30/12/2024","pubblicata":"04/09/2025","annoRegola":2025},
+    "A242": {"nome":"Alviano","provincia":"TR","scaglioni":[{"fino":null,"aliquota":0.006}],"esenzioneFinoA":null,"nota":"Esenzione per redditi derivanti da lavoro dipendente e assimilato, o pensioni, fino a complessivi euro 10.000,00 (art. 4 del regolamento approvato con delibera n. 19 del 29/7/2015)","anomalia":null,"delibera":"38","dataDelibera":"23/12/2024","pubblicata":"19/08/2025","annoRegola":2025},
+    "A262": {"nome":"Amelia","provincia":"TR","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":11000,"nota":null,"anomalia":null,"delibera":"2","dataDelibera":"27/02/2025","pubblicata":"28/02/2025","annoRegola":2025},
+    "A439": {"nome":"Arrone","provincia":"TR","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":12000,"nota":null,"anomalia":null,"delibera":"48","dataDelibera":"27/11/2024","pubblicata":"07/01/2025","annoRegola":2025},
+    "A475": {"nome":"Assisi","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":null,"dataDelibera":null,"pubblicata":null,"annoRegola":2026},
+    "A490": {"nome":"Attigliano","provincia":"TR","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"17","dataDelibera":"31/05/2023","pubblicata":"20/12/2025","annoRegola":2025},
+    "A691": {"nome":"Baschi","provincia":"TR","scaglioni":[{"fino":28000,"aliquota":0.0065},{"fino":50000,"aliquota":0.0075},{"fino":null,"aliquota":0.008}],"esenzioneFinoA":8500,"nota":null,"anomalia":null,"delibera":"35","dataDelibera":"22/11/2025","pubblicata":"16/06/2026","annoRegola":2026},
+    "A710": {"nome":"Bastia Umbra","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":12000,"nota":null,"anomalia":null,"delibera":"80","dataDelibera":"23/12/2025","pubblicata":"12/02/2026","annoRegola":2026},
+    "A832": {"nome":"Bettona","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"41","dataDelibera":"23/12/2025","pubblicata":"24/04/2026","annoRegola":2026},
+    "A835": {"nome":"Bevagna","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"56","dataDelibera":"18/12/2024","pubblicata":"20/02/2025","annoRegola":2025},
+    "B446": {"nome":"Calvi dell'Umbria","provincia":"TR","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"28","dataDelibera":"18/12/2025","pubblicata":"20/01/2026","annoRegola":2026},
+    "B504": {"nome":"Campello sul Clitunno","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.007}],"esenzioneFinoA":8000,"nota":null,"anomalia":null,"delibera":"15","dataDelibera":"14/04/2023","pubblicata":"20/12/2025","annoRegola":2025},
+    "B609": {"nome":"Cannara","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":10000,"nota":null,"anomalia":null,"delibera":"19","dataDelibera":"29/12/2025","pubblicata":"16/04/2026","annoRegola":2026},
+    "B948": {"nome":"Cascia","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"56","dataDelibera":"22/12/2025","pubblicata":"12/01/2026","annoRegola":2026},
+    "C117": {"nome":"Castel Giorgio","provincia":"TR","scaglioni":[{"fino":28000,"aliquota":0.006},{"fino":50000,"aliquota":0.007},{"fino":null,"aliquota":0.008}],"esenzioneFinoA":15000,"nota":null,"anomalia":null,"delibera":"26","dataDelibera":"19/12/2024","pubblicata":"10/09/2025","annoRegola":2025},
+    "C252": {"nome":"Castel Ritaldi","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.0075}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"61","dataDelibera":"30/12/2025","pubblicata":"03/02/2026","annoRegola":2026},
+    "C289": {"nome":"Castel Viscardo","provincia":"TR","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"49","dataDelibera":"30/12/2024","pubblicata":"29/07/2025","annoRegola":2025},
+    "C309": {"nome":"Castiglione del Lago","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":13000,"nota":null,"anomalia":null,"delibera":"50","dataDelibera":"29/12/2025","pubblicata":"20/01/2026","annoRegola":2026},
+    "C527": {"nome":"Cerreto di Spoleto","provincia":"PG","scaglioni":[{"fino":28000,"aliquota":0.0065},{"fino":50000,"aliquota":0.0075},{"fino":null,"aliquota":0.008}],"esenzioneFinoA":15000,"nota":null,"anomalia":null,"delibera":"40","dataDelibera":"26/11/2025","pubblicata":"29/01/2026","annoRegola":2026},
+    "C742": {"nome":"Citerna","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":12000,"nota":null,"anomalia":null,"delibera":"9","dataDelibera":"29/05/2023","pubblicata":"20/12/2025","annoRegola":2025},
+    "C744": {"nome":"Città della Pieve","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":10999.99,"nota":null,"anomalia":null,"delibera":"18","dataDelibera":"30/03/2019","pubblicata":"20/12/2025","annoRegola":2025},
+    "C745": {"nome":"Città di Castello","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":13800,"nota":null,"anomalia":null,"delibera":"74","dataDelibera":"19/12/2024","pubblicata":"14/03/2025","annoRegola":2025},
+    "C845": {"nome":"Collazzone","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"60","dataDelibera":"16/12/2024","pubblicata":"10/10/2025","annoRegola":2025},
+    "C990": {"nome":"Corciano","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":10000,"nota":null,"anomalia":null,"delibera":"72","dataDelibera":"28/12/2023","pubblicata":"20/12/2025","annoRegola":2025},
+    "D108": {"nome":"Costacciaro","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"43","dataDelibera":"11/12/2025","pubblicata":"14/04/2026","annoRegola":2026},
+    "D279": {"nome":"Deruta","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":10000,"nota":null,"anomalia":null,"delibera":"6","dataDelibera":"20/03/2025","pubblicata":"07/07/2025","annoRegola":2025},
+    "D454": {"nome":"Fabro","provincia":"TR","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":8500,"nota":null,"anomalia":null,"delibera":"2","dataDelibera":"31/01/2025","pubblicata":"28/02/2025","annoRegola":2025},
+    "D538": {"nome":"Ferentillo","provincia":"TR","scaglioni":[{"fino":null,"aliquota":0.006}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"35","dataDelibera":"30/12/2024","pubblicata":"07/05/2025","annoRegola":2025},
+    "D570": {"nome":"Ficulle","provincia":"TR","scaglioni":[{"fino":null,"aliquota":0.006}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"7","dataDelibera":"31/05/2023","pubblicata":"20/12/2025","annoRegola":2025},
+    "D653": {"nome":"Foligno","provincia":"PG","scaglioni":[{"fino":15000,"aliquota":0.0055},{"fino":28000,"aliquota":0.0065},{"fino":50000,"aliquota":0.007},{"fino":null,"aliquota":0.008}],"esenzioneFinoA":12000,"nota":null,"anomalia":null,"delibera":"68","dataDelibera":"29/12/2025","pubblicata":"19/01/2026","annoRegola":2026},
+    "D745": {"nome":"Fossato di Vico","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":null,"dataDelibera":null,"pubblicata":null,"annoRegola":2026},
+    "D786": {"nome":"Umbertide","provincia":"PG","scaglioni":[{"fino":28000,"aliquota":0.0075},{"fino":50000,"aliquota":0.0077},{"fino":null,"aliquota":0.0078}],"esenzioneFinoA":13000,"nota":null,"anomalia":null,"delibera":"42","dataDelibera":"18/12/2025","pubblicata":"07/01/2026","annoRegola":2026},
+    "D787": {"nome":"Fratta Todina","provincia":"PG","scaglioni":[{"fino":15000,"aliquota":0.0075},{"fino":28000,"aliquota":0.008},{"fino":50000,"aliquota":0.008},{"fino":null,"aliquota":0.008}],"esenzioneFinoA":10000,"nota":null,"anomalia":null,"delibera":"42","dataDelibera":"30/12/2024","pubblicata":"12/03/2025","annoRegola":2025},
+    "E012": {"nome":"Giano dell'Umbria","provincia":"PG","scaglioni":[{"fino":15000,"aliquota":0.0068},{"fino":28000,"aliquota":0.0074},{"fino":50000,"aliquota":0.0078},{"fino":null,"aliquota":0.008}],"esenzioneFinoA":10000,"nota":null,"anomalia":null,"delibera":"34","dataDelibera":"28/12/2023","pubblicata":"20/12/2025","annoRegola":2025},
+    "E045": {"nome":"Giove","provincia":"TR","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":10000,"nota":null,"anomalia":null,"delibera":"41","dataDelibera":"22/12/2023","pubblicata":"20/12/2025","annoRegola":2025},
+    "E229": {"nome":"Gualdo Cattaneo","provincia":"PG","scaglioni":[{"fino":28000,"aliquota":0.0073},{"fino":50000,"aliquota":0.0077},{"fino":null,"aliquota":0.008}],"esenzioneFinoA":10000,"nota":null,"anomalia":null,"delibera":"35","dataDelibera":"22/12/2025","pubblicata":"14/01/2026","annoRegola":2026},
+    "E230": {"nome":"Gualdo Tadino","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":13000,"nota":null,"anomalia":null,"delibera":"88","dataDelibera":"18/12/2025","pubblicata":"28/01/2026","annoRegola":2026},
+    "E241": {"nome":"Guardea","provincia":"TR","scaglioni":[{"fino":28000,"aliquota":0.0068},{"fino":50000,"aliquota":0.0078},{"fino":null,"aliquota":0.0079}],"esenzioneFinoA":10000,"nota":null,"anomalia":null,"delibera":"60","dataDelibera":"23/12/2024","pubblicata":"15/05/2025","annoRegola":2025},
+    "E256": {"nome":"Gubbio","provincia":"PG","scaglioni":[{"fino":28000,"aliquota":0.007},{"fino":50000,"aliquota":0.0075},{"fino":null,"aliquota":0.008}],"esenzioneFinoA":15000,"nota":null,"anomalia":null,"delibera":"12","dataDelibera":"01/04/2025","pubblicata":"20/05/2025","annoRegola":2025},
+    "E613": {"nome":"Lisciano Niccone","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":11999.99,"nota":null,"anomalia":null,"delibera":"46","dataDelibera":"22/12/2025","pubblicata":"29/01/2026","annoRegola":2026},
+    "E729": {"nome":"Lugnano in Teverina","provincia":"TR","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":3500,"nota":null,"anomalia":null,"delibera":"39","dataDelibera":"26/11/2024","pubblicata":"07/08/2025","annoRegola":2025},
+    "E805": {"nome":"Magione","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":11500,"nota":null,"anomalia":null,"delibera":"74","dataDelibera":"29/10/2025","pubblicata":"29/01/2026","annoRegola":2026},
+    "E975": {"nome":"Marsciano","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":12000,"nota":null,"anomalia":null,"delibera":"68","dataDelibera":"30/12/2024","pubblicata":"17/06/2025","annoRegola":2025},
+    "F024": {"nome":"Massa Martana","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":10000,"nota":null,"anomalia":null,"delibera":"41","dataDelibera":"23/12/2025","pubblicata":"30/01/2026","annoRegola":2026},
+    "F456": {"nome":"Monte Castello di Vibio","provincia":"PG","scaglioni":[{"fino":28000,"aliquota":0.007},{"fino":50000,"aliquota":0.007},{"fino":null,"aliquota":0.008}],"esenzioneFinoA":11000,"nota":null,"anomalia":null,"delibera":"49","dataDelibera":"29/12/2025","pubblicata":"12/06/2026","annoRegola":2026},
+    "F457": {"nome":"Montecastrilli","provincia":"TR","scaglioni":[{"fino":15000,"aliquota":0.007},{"fino":28000,"aliquota":0.0073},{"fino":50000,"aliquota":0.0077},{"fino":null,"aliquota":0.008}],"esenzioneFinoA":8500,"nota":null,"anomalia":null,"delibera":"7","dataDelibera":"20/03/2025","pubblicata":"01/10/2025","annoRegola":2025},
+    "F462": {"nome":"Montecchio","provincia":"TR","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"5","dataDelibera":"24/03/2023","pubblicata":"20/12/2025","annoRegola":2025},
+    "F492": {"nome":"Montefalco","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"53","dataDelibera":"30/12/2025","pubblicata":"28/01/2026","annoRegola":2026},
+    "F510": {"nome":"Montefranco","provincia":"TR","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"5","dataDelibera":"09/01/2025","pubblicata":"16/01/2025","annoRegola":2025},
+    "F513": {"nome":"Montegabbione","provincia":"TR","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":8000,"nota":null,"anomalia":null,"delibera":"56","dataDelibera":"29/12/2025","pubblicata":"13/01/2026","annoRegola":2026},
+    "F540": {"nome":"Monteleone di Spoleto","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"21","dataDelibera":"31/07/2023","pubblicata":"20/12/2025","annoRegola":2025},
+    "F543": {"nome":"Monteleone d'Orvieto","provincia":"TR","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":7500,"nota":null,"anomalia":null,"delibera":"49","dataDelibera":"27/12/2024","pubblicata":"06/03/2025","annoRegola":2025},
+    "F629": {"nome":"Monte Santa Maria Tiberina","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"2","dataDelibera":"15/01/2025","pubblicata":"28/01/2025","annoRegola":2025},
+    "F685": {"nome":"Montone","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":11999.99,"nota":null,"anomalia":null,"delibera":"47","dataDelibera":"19/12/2025","pubblicata":"28/01/2026","annoRegola":2026},
+    "F844": {"nome":"Narni","provincia":"TR","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":null,"nota":"Esenzione per i titolari di pensione, lavoro dipendente e lavoro autonomo con reddito inferiore a euro 11.000,00","anomalia":null,"delibera":"64","dataDelibera":"19/12/2024","pubblicata":"31/01/2025","annoRegola":2025},
+    "F911": {"nome":"Nocera Umbra","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":8000,"nota":null,"anomalia":null,"delibera":"5","dataDelibera":"19/02/2024","pubblicata":"20/12/2025","annoRegola":2025},
+    "F935": {"nome":"Norcia","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.004}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"75","dataDelibera":"18/12/2025","pubblicata":"08/01/2026","annoRegola":2026},
+    "G148": {"nome":"Orvieto","provincia":"TR","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"109","dataDelibera":"30/12/2025","pubblicata":"16/02/2026","annoRegola":2026},
+    "G189": {"nome":"Otricoli","provincia":"TR","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"30","dataDelibera":"29/12/2025","pubblicata":"08/01/2026","annoRegola":2026},
+    "G212": {"nome":"Paciano","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":10500,"nota":null,"anomalia":null,"delibera":"38","dataDelibera":"30/12/2025","pubblicata":"21/01/2026","annoRegola":2026},
+    "G308": {"nome":"Panicale","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":12000,"nota":null,"anomalia":null,"delibera":"37","dataDelibera":"22/12/2025","pubblicata":"13/01/2026","annoRegola":2026},
+    "G344": {"nome":"Parrano","provincia":"TR","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"29","dataDelibera":"20/12/2024","pubblicata":"17/10/2025","annoRegola":2025},
+    "G359": {"nome":"Passignano sul Trasimeno","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":12000,"nota":null,"anomalia":null,"delibera":"29","dataDelibera":"30/12/2024","pubblicata":"26/06/2025","annoRegola":2025},
+    "G432": {"nome":"Penna in Teverina","provincia":"TR","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":10000,"nota":null,"anomalia":null,"delibera":"30","dataDelibera":"28/12/2023","pubblicata":"20/12/2025","annoRegola":2025},
+    "G478": {"nome":"Perugia","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":null,"nota":"Esenzione per i contribuenti con reddito complessivo, ai sensi dell'art. 8 del D.P.R. n. 917/1986 (TUIR), inferiore/uguale ad euro 12.500,00","anomalia":null,"delibera":"110","dataDelibera":"25/11/2013","pubblicata":"20/12/2025","annoRegola":2025},
+    "G601": {"nome":"Piegaro","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":11000,"nota":null,"anomalia":null,"delibera":"38","dataDelibera":"30/12/2025","pubblicata":"28/05/2026","annoRegola":2026},
+    "G618": {"nome":"Pietralunga","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":12000,"nota":null,"anomalia":null,"delibera":"51","dataDelibera":"18/12/2025","pubblicata":"13/05/2026","annoRegola":2026},
+    "G758": {"nome":"Poggiodomo","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":null,"dataDelibera":null,"pubblicata":null,"annoRegola":2026},
+    "G790": {"nome":"Polino","provincia":"TR","scaglioni":[{"fino":null,"aliquota":0.005}],"esenzioneFinoA":9000,"nota":null,"anomalia":null,"delibera":"11","dataDelibera":"27/02/2025","pubblicata":"28/02/2025","annoRegola":2025},
+    "G881": {"nome":"Porano","provincia":"TR","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"48","dataDelibera":"20/12/2024","pubblicata":"18/08/2025","annoRegola":2025},
+    "H015": {"nome":"Preci","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.001}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"22","dataDelibera":"30/12/2025","pubblicata":"23/01/2026","annoRegola":2026},
+    "H857": {"nome":"San Gemini","provincia":"TR","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":10000,"nota":null,"anomalia":null,"delibera":"11","dataDelibera":"25/02/2026","pubblicata":"27/04/2026","annoRegola":2026},
+    "H935": {"nome":"San Giustino","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":13000,"nota":null,"anomalia":null,"delibera":"10","dataDelibera":"08/04/2021","pubblicata":"20/12/2025","annoRegola":2025},
+    "I263": {"nome":"Sant'Anatolia di Narco","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":null,"dataDelibera":null,"pubblicata":null,"annoRegola":2026},
+    "I381": {"nome":"San Venanzo","provincia":"TR","scaglioni":[{"fino":null,"aliquota":0.007}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"36","dataDelibera":"17/12/2025","pubblicata":"08/01/2026","annoRegola":2026},
+    "I522": {"nome":"Scheggia e Pascelupo","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"61","dataDelibera":"07/10/2013","pubblicata":"20/12/2025","annoRegola":2025},
+    "I523": {"nome":"Scheggino","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":null,"dataDelibera":null,"pubblicata":null,"annoRegola":2026},
+    "I585": {"nome":"Sellano","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"7","dataDelibera":"28/02/2025","pubblicata":"21/05/2025","annoRegola":2025},
+    "I727": {"nome":"Sigillo","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.007}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"26","dataDelibera":"18/12/2024","pubblicata":"10/02/2025","annoRegola":2025},
+    "I888": {"nome":"Spello","provincia":"PG","scaglioni":[{"fino":28000,"aliquota":0.0075},{"fino":50000,"aliquota":0.0078},{"fino":null,"aliquota":0.008}],"esenzioneFinoA":12000,"nota":null,"anomalia":null,"delibera":"80","dataDelibera":"27/11/2025","pubblicata":"17/04/2026","annoRegola":2026},
+    "I921": {"nome":"Spoleto","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.0078}],"esenzioneFinoA":13000,"nota":null,"anomalia":null,"delibera":"11","dataDelibera":"26/02/2026","pubblicata":"30/03/2026","annoRegola":2026},
+    "I981": {"nome":"Stroncone","provincia":"TR","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"34","dataDelibera":"23/12/2025","pubblicata":"12/01/2026","annoRegola":2026},
+    "L117": {"nome":"Terni","provincia":"TR","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":12500,"nota":null,"anomalia":null,"delibera":"236","dataDelibera":"10/12/2025","pubblicata":"03/06/2026","annoRegola":2026},
+    "L188": {"nome":"Todi","provincia":"PG","scaglioni":[{"fino":28000,"aliquota":0.0059},{"fino":50000,"aliquota":0.006},{"fino":null,"aliquota":0.0061}],"esenzioneFinoA":11000,"nota":null,"anomalia":null,"delibera":"64","dataDelibera":"30/12/2025","pubblicata":"22/05/2026","annoRegola":2026},
+    "L216": {"nome":"Torgiano","provincia":"PG","scaglioni":[{"fino":15000,"aliquota":0.0075},{"fino":28000,"aliquota":0.0078},{"fino":50000,"aliquota":0.0079},{"fino":null,"aliquota":0.008}],"esenzioneFinoA":12500,"nota":null,"anomalia":null,"delibera":"4","dataDelibera":"09/01/2025","pubblicata":"04/06/2025","annoRegola":2025},
+    "L397": {"nome":"Trevi","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.0079}],"esenzioneFinoA":9000,"nota":null,"anomalia":null,"delibera":"32","dataDelibera":"23/12/2025","pubblicata":"24/04/2026","annoRegola":2026},
+    "L466": {"nome":"Tuoro sul Trasimeno","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":12000,"nota":null,"anomalia":null,"delibera":"13","dataDelibera":"31/05/2022","pubblicata":"20/12/2025","annoRegola":2025},
+    "L573": {"nome":"Valfabbrica","provincia":"PG","scaglioni":[{"fino":15000,"aliquota":0.007},{"fino":28000,"aliquota":0.0075},{"fino":50000,"aliquota":0.0078},{"fino":null,"aliquota":0.008}],"esenzioneFinoA":12000,"nota":null,"anomalia":null,"delibera":"21","dataDelibera":"29/12/2025","pubblicata":"03/02/2026","annoRegola":2026},
+    "L627": {"nome":"Vallo di Nera","provincia":"PG","scaglioni":[{"fino":null,"aliquota":0}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":null,"dataDelibera":null,"pubblicata":null,"annoRegola":2026},
+    "L653": {"nome":"Valtopina","provincia":"PG","scaglioni":[{"fino":28000,"aliquota":0.0078},{"fino":50000,"aliquota":0.0079},{"fino":null,"aliquota":0.008}],"esenzioneFinoA":12000,"nota":null,"anomalia":null,"delibera":"42","dataDelibera":"27/11/2025","pubblicata":"17/04/2026","annoRegola":2026},
+    "M258": {"nome":"Avigliano Umbro","provincia":"TR","scaglioni":[{"fino":null,"aliquota":0.008}],"esenzioneFinoA":null,"nota":null,"anomalia":null,"delibera":"52","dataDelibera":"30/12/2024","pubblicata":"04/02/2025","annoRegola":2025}
+  }
+}

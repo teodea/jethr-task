@@ -25,7 +25,8 @@
 // destinatario e' un dipendente, non un sostituto d'imposta. Il termine tecnico vive
 // nell'etichetta, la lingua comune nella spiegazione.
 
-import { COSTANTI_PER_ANNO, FONTI_PER_ANNO } from './costanti/index.js'
+import { FONTI_PER_ANNO } from './costanti/index.js'
+import { costantiPerLuogo } from './luoghi.js'
 import { zoneNonMonotonia, periodoDellaCascata } from './discontinuita.js'
 import { cambiDiStatoDelPeriodo } from './cascata.js'
 import { GIORNI_ANNO_FISCALE } from './periodo.js'
@@ -79,6 +80,72 @@ function descriviScaglioni(scaglioni) {
     .join(', ')
 }
 
+// Come si racconta una regola di addizionale, la stessa frase per la regionale e per la
+// comunale: aliquota unica, scaglioni, e l'eventuale esenzione. Nasce dalla regola e non da
+// costanti fisse, quindi dice il vero per tutti i comuni e i ventuno enti impositori — non
+// solo per Milano e la Lombardia.
+function descriviAddizionale(regola) {
+  const unica = regola.scaglioni.length === 1
+  const scala = unica
+    ? PERCENTUALE.format(regola.scaglioni[0].aliquota)
+    : `a fasce, ${descriviScaglioni(regola.scaglioni)}`
+
+  const variante = (regola.varianti ?? [])[0]
+  const parti = [scala]
+  if (variante) {
+    // Alcuni enti sostituiscono l'intera scala sotto una soglia invece di esentare: senza
+    // dirlo, chi ci sta sotto legge un'aliquota che non e' la sua.
+    parti.push(
+      `ridotta al ${PERCENTUALE.format(variante.scaglioni[0].aliquota)} fino a ` +
+        `${EURO.format(variante.seImponibileFinoA)} di imponibile`,
+    )
+  }
+  if (regola.esenzioneFinoA != null) {
+    parti.push(`con esenzione fino a ${EURO.format(regola.esenzioneFinoA)} di imponibile`)
+  }
+  if (regola.scaglioni.every(({ aliquota }) => aliquota === 0)) {
+    return 'non istituita: questo Comune non ha deliberato alcuna aliquota'
+  }
+  return parti.join(', ')
+}
+
+// La soglia secca vista dai due lati: sotto si e' esenti, sopra si paga su tutto. E' la cosa
+// contro-intuitiva che il prototipo esiste per mostrare, e ora si sposta col comune.
+function notaEsenzione(cascata, regola) {
+  if (regola.esenzioneFinoA == null) return null
+  return cascata.imponibileFiscale <= regola.esenzioneFinoA
+    ? `Sei sotto la soglia di esenzione di ${EURO.format(regola.esenzioneFinoA)}: non è dovuta.`
+    : `Attenzione: sopra ${EURO.format(regola.esenzioneFinoA)} l’aliquota si applica ` +
+        'all’intero imponibile, non solo alla parte eccedente. È una soglia, non una franchigia.'
+}
+
+// Centotto comuni prevedono esenzioni non universali, descritte in testo libero per
+// categorie di reddito: il motore calcola sulla sola parte strutturata e puo' quindi
+// SOVRASTIMARE l'addizionale di chi rientra nella categoria. La degradazione si dichiara
+// qui, in pagina, accanto al numero che ne risente — non solo nel registro delle assunzioni.
+function notaDescrittiva(regola) {
+  if (!regola.nota) return null
+  return (
+    `Questo Comune prevede anche un’esenzione riservata a certi redditi, che il calcolo non ` +
+    `applica: se rientri nel caso descritto, l’importo vero è più basso. Testo della delibera: ` +
+    `«${regola.nota}».`
+  )
+}
+
+// Quando l'elenco del MEF pubblica per un comune fasce che non formano una scala
+// progressiva, il numero calcolato non e' affidabile. Non lo aggiustiamo indovinando il
+// confine giusto — inventare un dato fiscale e' peggio che dichiararlo incerto — ma non lo
+// mostriamo nemmeno come se fosse certo.
+function notaAnomalia(regola) {
+  if (!regola.anomalia) return null
+  return `Attenzione: ${regola.anomalia}. L’importo qui sopra è quindi indicativo: verificalo alla fonte.`
+}
+
+function unisciNote(...note) {
+  const presenti = note.filter(Boolean)
+  return presenti.length > 0 ? presenti.join(' ') : null
+}
+
 // L'ordine in cui le voci compongono la cascata. La UI non deve ricostruirlo da sola:
 // l'ordine e' dominio (ogni passo parte da dove e' arrivato il precedente), non layout.
 export const ORDINE_VOCI = [
@@ -98,6 +165,25 @@ export const ORDINE_VOCI = [
   'nettoAnnuo',
   'nettoMensile',
 ]
+
+// Le etichette del selettore del luogo. «Dove abiti» raccoglierebbe la risposta sbagliata
+// da chiunque abbia traslocato di recente: le addizionali seguono il DOMICILIO FISCALE AL
+// 1° GENNAIO dell'anno d'imposta (art. 50 c. 5 D.Lgs. 446/1997; art. 1 c. 4 D.Lgs.
+// 360/1998), non la residenza attuale, e un cambio di residenza diventa domicilio fiscale
+// solo dopo sessanta giorni (art. 58 d.P.R. 600/1973). Con un'interfaccia perfetta e
+// un'etichetta sbagliata il traslocato otterrebbe un netto sbagliato: l'etichetta giusta
+// rende l'errore un errore di input, non di calcolo.
+//
+// La data del trasferimento non e' un campo: non entra in nessuna formula, decide solo
+// QUALE comune indicare — e il 730 stesso chiede il comune, non la data, delegando la
+// regola dei sessanta giorni a una frase nelle istruzioni. Testi e ragionamento vengono
+// dalla ricerca della issue #19, docs/ricerca/luogo-delle-addizionali-domicilio-fiscale.md,
+// par. 5. L'anno si interpola come ovunque, che e' anche il motivo per cui sono funzioni.
+export const etichettaEnte = () => 'Regione o provincia autonoma'
+export const etichettaComune = (anno) => `Comune di domicilio fiscale al 1° gennaio ${anno}`
+export const aiutoComune = (anno) =>
+  `Di norma è il comune dove risultavi all’anagrafe il 1° gennaio ${anno}. Se hai cambiato ` +
+  `residenza dopo il 2 novembre ${anno - 1}, vale ancora il comune precedente.`
 
 // L'etichetta che introduce il link alla fonte. Sta qui e non nella pagina per la stessa
 // ragione di tutte le altre: la UI non contiene stringhe (vedi l'intestazione del file).
@@ -128,8 +214,8 @@ const FONTE_DELLA_VOCE = {
   ulterioreDetrazione: 'ulterioreDetrazione',
   detrazioniEffettive: 'impostaNetta',
   irpefNetta: 'impostaNetta',
-  addizionaleRegionale: 'addizionaleRegionale',
-  addizionaleComunale: 'addizionaleComunale',
+  // addizionaleRegionale e addizionaleComunale non compaiono qui: la loro fonte non sta in
+  // FONTI_PER_ANNO ma dentro la regola del luogo (vedi in fondo a testiCascata).
   trattamentoIntegrativo: 'trattamentoIntegrativo',
   sommaIntegrativa: 'sommaIntegrativa',
   nettoAnnuo: 'ritenutaEConguaglio',
@@ -149,8 +235,9 @@ const FONTE_DELLA_VOCE = {
  * la cascata, invece, la sua fonte ce l'ha - ed e' un test a dirlo (test/testi.test.js).
  */
 export function testiCascata(cascata) {
-  const c = COSTANTI_PER_ANNO[cascata.anno]
-  if (!c) throw new RangeError(`anno d’imposta non supportato: ${cascata.anno}`)
+  // Dalla coppia `{ anno, comune }`, non dal solo anno: due voci su quattordici — e i testi
+  // che le spiegano — dipendono dal luogo scelto.
+  const c = costantiPerLuogo(cascata.anno, cascata.comune)
 
   const noteContributi = []
   if (cascata.contributoAggiuntivo > 0) {
@@ -333,24 +420,32 @@ export function testiCascata(cascata) {
     },
 
     addizionaleRegionale: {
-      etichetta: 'Addizionale regionale',
+      // L'ente si nomina: con un selettore, «Addizionale regionale» da sola non dice piu'
+      // di quale regione si parli, e il numero mostrato dipende proprio da quella. Vale
+      // anche per Trento e Bolzano, che nella legge stanno al posto della regione:
+      // `denominazione` porta gia' la forma giusta («Provincia autonoma di Trento»).
+      etichetta: `Addizionale regionale (${c.addizionaleRegionale.denominazione.replace(/^Regione\s+/, '')})`,
       spiegazione:
-        'Imposta della Regione sullo stesso imponibile dell’IRPEF, a fasce: ' +
-        `${descriviScaglioni(c.addizionaleRegionale.scaglioni)}. Gli sconti IRPEF non la riducono.`,
-      nota: gateAddizionali,
+        `Imposta della ${c.addizionaleRegionale.denominazione} sullo stesso imponibile dell’IRPEF: ` +
+        `${descriviAddizionale(c.addizionaleRegionale)}. Gli sconti IRPEF non la riducono.`,
+      nota: gateAddizionali ?? notaEsenzione(cascata, c.addizionaleRegionale),
     },
 
     addizionaleComunale: {
-      etichetta: 'Addizionale comunale',
+      // Il comune nel testo della voce: cosi' il luogo si dichiara da solo dentro il
+      // risultato, come gia' fa l'anno d'imposta, invece di restare implicito in un menu'
+      // sopra la piega.
+      etichetta: `Addizionale comunale (${c.addizionaleComunale.nome})`,
       spiegazione:
-        `Imposta del Comune sullo stesso imponibile: ${PERCENTUALE.format(c.addizionaleComunale.aliquota)}, ` +
-        `con esenzione fino a ${EURO.format(c.addizionaleComunale.esenzioneFinoA)} di imponibile.`,
+        `Imposta del Comune di ${c.addizionaleComunale.nome} sullo stesso imponibile: ` +
+        `${descriviAddizionale(c.addizionaleComunale)}.`,
       nota:
         gateAddizionali ??
-        (cascata.imponibileFiscale <= c.addizionaleComunale.esenzioneFinoA
-          ? `Sei sotto la soglia di esenzione di ${EURO.format(c.addizionaleComunale.esenzioneFinoA)}: non è dovuta.`
-          : `Attenzione: sopra ${EURO.format(c.addizionaleComunale.esenzioneFinoA)} l’aliquota si applica ` +
-            'all’intero imponibile, non solo alla parte eccedente. È una soglia, non una franchigia.'),
+        unisciNote(
+          notaEsenzione(cascata, c.addizionaleComunale),
+          notaDescrittiva(c.addizionaleComunale),
+          notaAnomalia(c.addizionaleComunale),
+        ),
     },
 
     trattamentoIntegrativo: {
@@ -452,9 +547,17 @@ export function testiCascata(cascata) {
   // cosi' l'associazione voce -> documento si legge tutta insieme in FONTE_DELLA_VOCE, e
   // una voce nuova senza fonte si vede come un buco nella tabella invece che come una
   // proprieta' dimenticata in fondo a un letterale lungo.
+  // Le due addizionali prendono la fonte dalla REGOLA e non dalla mappa dell'anno: la loro
+  // delibera dipende dal luogo, e la scheda MEF e' indicizzata per codice catastale. Cosi'
+  // scegliere un comune cambia anche il documento che la riga espansa linka, senza una
+  // seconda tabella da tenere allineata a ottomila voci.
   const fonti = FONTI_PER_ANNO[cascata.anno]
+  const fontiDelLuogo = {
+    addizionaleRegionale: c.addizionaleRegionale.fonte,
+    addizionaleComunale: c.addizionaleComunale.fonte,
+  }
   for (const [voce, testo] of Object.entries(testi)) {
-    testo.fonte = fonti[FONTE_DELLA_VOCE[voce]] ?? null
+    testo.fonte = fontiDelLuogo[voce] ?? fonti[FONTE_DELLA_VOCE[voce]] ?? null
   }
 
   return testi
@@ -530,8 +633,7 @@ export function avvisoPeriodo(cascata) {
  * la formulazione tecnica usata dalla suite di proprieta'. null fuori dalle zone.
  */
 export function avvisoScalino(cascata) {
-  const c = COSTANTI_PER_ANNO[cascata.anno]
-  if (!c) throw new RangeError(`anno d’imposta non supportato: ${cascata.anno}`)
+  const c = costantiPerLuogo(cascata.anno, cascata.comune)
 
   const zona = zoneNonMonotonia(c, periodoDellaCascata(cascata)).find(
     ({ da, a }) => cascata.ral > da && cascata.ral < a,

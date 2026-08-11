@@ -1,0 +1,153 @@
+{
+  "anno": 2026,
+  "scaricatoIl": "2026-08-12",
+  "enti": [
+    {
+      "slug": "abruzzo",
+      "denominazione": "Regione Abruzzo",
+      "nome": "Abruzzo",
+      "capoluogo": "A345",
+      "comuni": 305
+    },
+    {
+      "slug": "basilicata",
+      "denominazione": "Regione Basilicata",
+      "nome": "Basilicata",
+      "capoluogo": "G942",
+      "comuni": 131
+    },
+    {
+      "slug": "bolzano",
+      "denominazione": "Provincia autonoma di Bolzano",
+      "nome": "Bolzano",
+      "capoluogo": "A952",
+      "comuni": 116
+    },
+    {
+      "slug": "calabria",
+      "denominazione": "Regione Calabria",
+      "nome": "Calabria",
+      "capoluogo": "C352",
+      "comuni": 404
+    },
+    {
+      "slug": "campania",
+      "denominazione": "Regione Campania",
+      "nome": "Campania",
+      "capoluogo": "F839",
+      "comuni": 550
+    },
+    {
+      "slug": "emilia-romagna",
+      "denominazione": "Regione Emilia-Romagna",
+      "nome": "Emilia-Romagna",
+      "capoluogo": "A944",
+      "comuni": 330
+    },
+    {
+      "slug": "friuli-venezia-giulia",
+      "denominazione": "Regione Friuli-Venezia Giulia",
+      "nome": "Friuli-Venezia Giulia",
+      "capoluogo": "L424",
+      "comuni": 215
+    },
+    {
+      "slug": "lazio",
+      "denominazione": "Regione Lazio",
+      "nome": "Lazio",
+      "capoluogo": "H501",
+      "comuni": 378
+    },
+    {
+      "slug": "liguria",
+      "denominazione": "Regione Liguria",
+      "nome": "Liguria",
+      "capoluogo": "D969",
+      "comuni": 234
+    },
+    {
+      "slug": "lombardia",
+      "denominazione": "Regione Lombardia",
+      "nome": "Lombardia",
+      "capoluogo": "F205",
+      "comuni": 1502
+    },
+    {
+      "slug": "marche",
+      "denominazione": "Regione Marche",
+      "nome": "Marche",
+      "capoluogo": "A271",
+      "comuni": 225
+    },
+    {
+      "slug": "molise",
+      "denominazione": "Regione Molise",
+      "nome": "Molise",
+      "capoluogo": "B519",
+      "comuni": 136
+    },
+    {
+      "slug": "piemonte",
+      "denominazione": "Regione Piemonte",
+      "nome": "Piemonte",
+      "capoluogo": "L219",
+      "comuni": 1180
+    },
+    {
+      "slug": "puglia",
+      "denominazione": "Regione Puglia",
+      "nome": "Puglia",
+      "capoluogo": "A662",
+      "comuni": 257
+    },
+    {
+      "slug": "sardegna",
+      "denominazione": "Regione Sardegna",
+      "nome": "Sardegna",
+      "capoluogo": "B354",
+      "comuni": 377
+    },
+    {
+      "slug": "sicilia",
+      "denominazione": "Regione Sicilia",
+      "nome": "Sicilia",
+      "capoluogo": "G273",
+      "comuni": 391
+    },
+    {
+      "slug": "toscana",
+      "denominazione": "Regione Toscana",
+      "nome": "Toscana",
+      "capoluogo": "D612",
+      "comuni": 273
+    },
+    {
+      "slug": "trento",
+      "denominazione": "Provincia autonoma di Trento",
+      "nome": "Trento",
+      "capoluogo": "L378",
+      "comuni": 166
+    },
+    {
+      "slug": "umbria",
+      "denominazione": "Regione Umbria",
+      "nome": "Umbria",
+      "capoluogo": "G478",
+      "comuni": 92
+    },
+    {
+      "slug": "valle-d-aosta",
+      "denominazione": "Regione Valle d'Aosta",
+      "nome": "Valle d'Aosta",
+      "capoluogo": "A326",
+      "comuni": 74
+    },
+    {
+      "slug": "veneto",
+      "denominazione": "Regione Veneto",
+      "nome": "Veneto",
+      "capoluogo": "L736",
+      "comuni": 560
+    }
+  ]
+}
