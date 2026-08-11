@@ -8,6 +8,7 @@ import assert from 'node:assert/strict'
 import { calcolaCascata } from '../src/cascata.js'
 import { zoneNonMonotonia } from '../src/discontinuita.js'
 import { COSTANTI_2026 } from '../src/costanti/index.js'
+import { presentaScalino } from '../src/presentazione.js'
 import { testiCascata, avvisoScalino, ORDINE_VOCI } from '../src/testi.js'
 
 const cascata2026 = (ral) => calcolaCascata({ ral, anno: 2026 })
@@ -208,4 +209,22 @@ test('l’avviso sullo scalino compare dentro una zona di non-monotonia e non fu
 
   // una RAL lontana da ogni soglia non deve produrre avvisi
   assert.equal(avvisoScalino(cascata2026(100000)), null)
+})
+
+test('il grafico dello scalino e il suo testo compaiono e tacciono insieme', () => {
+  // Il mini-grafico (issue #17) illustra l'avviso: un disegno senza il testo che lo spiega
+  // sarebbe una curva senza avvertenza, e un banner che si apre per il solo grafico non
+  // avrebbe niente da dire. La pagina li chiede a due seam diversi — avvisoScalino e
+  // presentaScalino — e questo test tiene ferma la condizione che li accende.
+  const zone = zoneNonMonotonia(COSTANTI_2026)
+  for (const zona of zone) {
+    const dentro = cascata2026((zona.da + zona.a) / 2)
+    assert.ok(avvisoScalino(dentro), `nessun avviso dentro la zona "${zona.salto}"`)
+    assert.ok(presentaScalino(dentro), `nessun profilo dentro la zona "${zona.salto}"`)
+  }
+
+  for (const ral of [20000, 100000]) {
+    assert.equal(avvisoScalino(cascata2026(ral)), null)
+    assert.equal(presentaScalino(cascata2026(ral)), null)
+  }
 })

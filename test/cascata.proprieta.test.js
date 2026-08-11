@@ -5,7 +5,12 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { calcolaCascata } from '../src/cascata.js'
-import { censimentoSalti, zoneNonMonotonia, avvisoNonMonotonia } from '../src/discontinuita.js'
+import {
+  censimentoSalti,
+  zoneNonMonotonia,
+  avvisoNonMonotonia,
+  profiloScalino,
+} from '../src/discontinuita.js'
 import { COSTANTI_PER_ANNO } from '../src/costanti/index.js'
 
 const PASSO = 100
@@ -124,5 +129,69 @@ test('[2026] ogni zona di non-monotonia si richiude: il netto recupera il livell
     const nettoFine = calcolaCascata({ ral: zona.a, anno: 2026 }).nettoAnnuo
     assert.ok(nettoDentro < nettoSoglia, `dentro la zona "${zona.salto}" il netto non e' sotto il livello di soglia`)
     assert.ok(nettoFine >= nettoSoglia - 0.01, `a fine zona "${zona.salto}" il netto non ha recuperato`)
+    assert.equal(zona.livello, nettoSoglia, `il livello esposto dalla zona "${zona.salto}" non e' quello di soglia`)
   }
+})
+
+// Il profilo e' quello che il mini-grafico dentro l'avviso disegna (issue #17). Qui si
+// verifica che contenga cio' che rende il salto visibile — la finestra stretta attorno alla
+// zona, il gradino verticale, il punto della RAL inserita — non come venga disegnato.
+test('[2026] il profilo dello scalino guarda una finestra stretta attorno alla zona', () => {
+  const costanti = COSTANTI_PER_ANNO[2026]
+  for (const zona of zoneNonMonotonia(costanti)) {
+    const ral = (zona.da + zona.a) / 2
+    const { punti } = profiloScalino(ral, costanti)
+
+    const ascisse = punti.map((punto) => punto.ral)
+    assert.deepEqual(ascisse, [...ascisse].sort((x, y) => x - y), 'punti non ordinati per RAL')
+    assert.ok(ascisse[0] < zona.da, `la finestra della zona "${zona.salto}" non apre prima del salto`)
+    assert.ok(ascisse.at(-1) > zona.a, `la finestra della zona "${zona.salto}" non chiude dopo il recupero`)
+
+    // Derivazione, non fonte: margine del 35% della zona per lato (src/discontinuita.js),
+    // quindi la finestra vale 1,7 volte la zona. E' la scala il punto del grafico: piu'
+    // larga, e la perdita — che qui vale meno di 260 EUR — sparisce nello spessore del tratto.
+    const larghezza = ascisse.at(-1) - ascisse[0]
+    assert.ok(
+      Math.abs(larghezza - (zona.a - zona.da) * 1.7) < 0.01,
+      `finestra ${larghezza.toFixed(2)} EUR per una zona di ${(zona.a - zona.da).toFixed(2)} EUR`,
+    )
+  }
+})
+
+test('[2026] il profilo dello scalino contiene il gradino verticale e il punto «tu sei qui»', () => {
+  const costanti = COSTANTI_PER_ANNO[2026]
+  for (const zona of zoneNonMonotonia(costanti)) {
+    const ral = zona.da + (zona.a - zona.da) / 3
+    const { punti, tuSeiQui, zona: zonaEsposta } = profiloScalino(ral, costanti)
+
+    assert.equal(zonaEsposta, zona, 'il profilo non espone la zona in cui la RAL e\' caduta')
+    assert.equal(tuSeiQui.ral, ral)
+    assert.equal(tuSeiQui.netto, calcolaCascata({ ral, anno: 2026 }).nettoAnnuo)
+    assert.ok(
+      punti.some((punto) => punto.ral === ral && punto.netto === tuSeiQui.netto),
+      'il punto della RAL inserita non sta sulla curva disegnata',
+    )
+
+    // Due campioni a cavallo della soglia, distanti un centesimo, che scendono di tutta la
+    // perdita: senza, la spezzata renderebbe il salto come una discesa obliqua, cioe' come
+    // una cosa che il netto non fa.
+    const gradino = punti.findIndex(
+      (punto, i) => i > 0 && punti[i - 1].netto - punto.netto > zona.perdita - 0.01,
+    )
+    assert.ok(gradino > 0, `nessun gradino nel profilo della zona "${zona.salto}"`)
+    assert.ok(
+      punti[gradino - 1].ral < zona.da && punti[gradino].ral > zona.da,
+      `il gradino della zona "${zona.salto}" non e' a cavallo della soglia`,
+    )
+    assert.ok(
+      punti[gradino].ral - punti[gradino - 1].ral < 0.02,
+      `il gradino della zona "${zona.salto}" e' spalmato su piu' di un centesimo di RAL`,
+    )
+  }
+})
+
+test("[2026] nessun profilo fuori dalle zone: dove non c'e' uno scalino non c'e' niente da disegnare", () => {
+  const costanti = COSTANTI_PER_ANNO[2026]
+  assert.equal(profiloScalino(20000, costanti), null)
+  assert.equal(profiloScalino(100000, costanti), null)
 })

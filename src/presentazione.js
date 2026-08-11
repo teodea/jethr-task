@@ -4,6 +4,9 @@
 // carico del dipendente, l'unica sempre strettamente positiva (RAL > 0 => contributi > 0),
 // quindi mai portata sotto zero dai pochi centesimi di scarto.
 
+import { profiloScalino } from './discontinuita.js'
+import { COSTANTI_PER_ANNO } from './costanti/index.js'
+
 function arrotondaCentesimi(valore) {
   return Math.round(valore * 100) / 100
 }
@@ -62,4 +65,20 @@ export function presentaCascata(cascata) {
   voci.incidenzaTrattenute = voci.trattenuteTotali / voci.ral // RAL > 0 garantita da validaInput
 
   return voci
+}
+
+/**
+ * Il profilo da disegnare dentro l'avviso sullo scalino, o null se la RAL non e' in una zona
+ * di non-monotonia — stessa condizione di `avvisoScalino` (src/testi.js), che e' il testo
+ * che questo grafico illustra: o compaiono insieme o non compare nessuno dei due.
+ *
+ * Sta qui e non in src/discontinuita.js per la stessa ragione di `presentaCascata`: e' la
+ * forma che prende una cascata gia' calcolata quando deve essere mostrata. La curva non si
+ * arrotonda ai centesimi come le voci — l'arrotondamento serve a far quadrare le somme che
+ * l'utente legge, e qui non c'e' niente da sommare.
+ */
+export function presentaScalino(cascata) {
+  const costanti = COSTANTI_PER_ANNO[cascata.anno]
+  if (!costanti) throw new RangeError(`anno d’imposta non supportato: ${cascata.anno}`)
+  return profiloScalino(cascata.ral, costanti)
 }

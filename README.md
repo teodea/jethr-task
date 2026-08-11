@@ -146,6 +146,11 @@ Quando la RAL cade in una di queste zone, il prototipo lo dice con gli estremi e
 > soglie oltre le quali un’agevolazione si perde per intero invece di ridursi. Torni sopra
 > quel livello da 38.707,63 € di RAL.*
 
+Dentro l'avviso, e solo lì, un mini-grafico del netto a scala ristretta attorno a quella
+zona, con il punto sulla RAL inserita. La scala è il punto: un gradino da 65 € su una RAL di
+38.000 € è invisibile su un grafico intero, e visibile a colpo d'occhio su una finestra di
+poche centinaia di euro.
+
 ### Uno sconto più grande dell'imposta si perde
 
 Le detrazioni valgono solo **fino a concorrenza** dell'imposta: l'eccedenza non diventa un

@@ -90,7 +90,13 @@
 
         <!-- Il terzo livello: dentro l'area risultati, sotto i numeri hero, perche' parla
              del numero appena letto — non dell'input. -->
-        <p class="scalino" id="scalino" hidden></p>
+        <div class="scalino" id="scalino" hidden>
+          <p class="scalino-testo" id="scalino-testo"></p>
+          <!-- Il mini-grafico e' un'illustrazione del testo qui sopra, non un suo pezzo: se
+               questo contenitore resta vuoto il banner dice gia' tutto. Nasce dal profilo
+               del netto: vedi web/pagina.js -->
+          <div class="scalino-grafico" id="scalino-grafico"></div>
+        </div>
 
         <section class="cascata" aria-labelledby="titolo-cascata">
           <h2 class="titolo-sezione" id="titolo-cascata">Voce per voce</h2>

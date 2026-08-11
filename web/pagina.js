@@ -4,7 +4,7 @@
 // ordine o una stringa di dominio, e' nel posto sbagliato.
 
 import { calcolaCascata } from '../src/cascata.js'
-import { presentaCascata } from '../src/presentazione.js'
+import { presentaCascata, presentaScalino } from '../src/presentazione.js'
 import {
   testiCascata,
   avvisoScalino,
@@ -12,6 +12,7 @@ import {
   formattaPercentuale,
   ORDINE_VOCI,
   ETICHETTA_FONTE,
+  ETICHETTA_TU_SEI_QUI,
 } from '../src/testi.js'
 import { MENSILITA_AMMESSE, MENSILITA_DEFAULT } from '../src/validazione.js'
 import { interpretaImporto, formattaImporto } from '../src/formato.js'
@@ -24,6 +25,8 @@ const errore = document.querySelector('#errore')
 const avvisi = document.querySelector('#avvisi')
 const risultato = document.querySelector('#risultato')
 const scalino = document.querySelector('#scalino')
+const scalinoTesto = document.querySelector('#scalino-testo')
+const scalinoGrafico = document.querySelector('#scalino-grafico')
 const eroi = document.querySelector('#eroi')
 const elencoVoci = document.querySelector('#voci')
 
@@ -214,6 +217,115 @@ function creaVoce({ etichetta, valore, spiegazione, nota, fonte }) {
   return riga
 }
 
+// Il mini-grafico dello scalino. La curva, la finestra e i punti arrivano gia' decisi da
+// presentaScalino (src/presentazione.js): qui si scelgono solo le coordinate. Tutto quello
+// che segue e' geometria — nessuna soglia, nessuna regola, nessun numero di dominio.
+const SVG = 'http://www.w3.org/2000/svg'
+
+// Una tela piccola e proporzioni fisse: l'SVG scala con la colonna, quindi le misure qui
+// dentro sono rapporti, non pixel. I margini fanno posto alle scritte — sopra l'etichetta
+// del punto, sotto i due estremi della zona.
+const TELA = { larghezza: 340, altezza: 150, sopra: 22, sotto: 26, lato: 14 }
+
+function creaNodo(nome, attributi) {
+  const nodo = document.createElementNS(SVG, nome)
+  for (const [chiave, valore] of Object.entries(attributi)) nodo.setAttribute(chiave, valore)
+  return nodo
+}
+
+function creaGrafico({ zona, tuSeiQui, punti }) {
+  const { larghezza, altezza, sopra, sotto, lato } = TELA
+  const netti = punti.map((punto) => punto.netto)
+  const ralMin = punti[0].ral
+  const ralMax = punti.at(-1).ral
+  const nettoMin = Math.min(...netti)
+  const nettoMax = Math.max(...netti)
+
+  const x = (ral) => lato + ((ral - ralMin) / (ralMax - ralMin)) * (larghezza - 2 * lato)
+  const y = (netto) =>
+    sopra + ((nettoMax - netto) / (nettoMax - nettoMin)) * (altezza - sopra - sotto)
+  const coppia = (punto) => `${x(punto.ral)},${y(punto.netto)}`
+
+  const disegno = creaNodo('svg', {
+    viewBox: `0 0 ${larghezza} ${altezza}`,
+    // Decorativo, fuori dall'albero di accessibilita': ogni cifra che il grafico mostra e'
+    // gia' scritta nel testo del banner, e ripeterla come etichetta alternativa sarebbe un
+    // doppione. Chi non lo vede non perde un dato — perde un colpo d'occhio.
+    'aria-hidden': 'true',
+  })
+
+  disegno.append(
+    creaNodo('rect', {
+      class: 'grafico-fondo',
+      x: 0,
+      y: 0,
+      width: larghezza,
+      height: altezza,
+      rx: 8,
+    }),
+  )
+
+  // L'area fra il livello perduto e la curva: e' letteralmente il buco di cui parla il
+  // testo. Si chiude sui due estremi della zona, dove la curva tocca di nuovo il livello.
+  const dentroLaZona = punti.filter((punto) => punto.ral > zona.da && punto.ral <= zona.a)
+  disegno.append(
+    creaNodo('polygon', {
+      class: 'grafico-perdita',
+      points: [
+        `${x(zona.da)},${y(zona.livello)}`,
+        ...dentroLaZona.map(coppia),
+        `${x(zona.a)},${y(zona.livello)}`,
+      ].join(' '),
+    }),
+    creaNodo('line', {
+      class: 'grafico-livello',
+      x1: x(zona.da),
+      y1: y(zona.livello),
+      x2: x(zona.a),
+      y2: y(zona.livello),
+    }),
+    creaNodo('polyline', { class: 'grafico-curva', points: punti.map(coppia).join(' ') }),
+  )
+
+  // I due estremi sull'asse: sono la prova che la scala e' ristretta — poche centinaia di
+  // euro fra un capo e l'altro del disegno. Stessa formattazione dei numeri del testo.
+  for (const ral of [zona.da, zona.a]) {
+    const tacca = creaNodo('line', {
+      class: 'grafico-tacca',
+      x1: x(ral),
+      y1: altezza - sotto,
+      x2: x(ral),
+      y2: altezza - sotto + 4,
+    })
+    const scritta = creaNodo('text', {
+      class: 'grafico-scala',
+      x: x(ral),
+      y: altezza - 7,
+      'text-anchor': 'middle',
+    })
+    scritta.textContent = formattaEuro(ral)
+    disegno.append(tacca, scritta)
+  }
+
+  // «Tu sei qui»: il punto sulla RAL inserita, in fondo al salto. L'etichetta sta dal lato
+  // dove c'e' spazio, altrimenti uscirebbe dalla tela quando la RAL e' vicina a un estremo.
+  const puntoX = x(tuSeiQui.ral)
+  const aSinistra = puntoX < larghezza / 2
+  const etichetta = creaNodo('text', {
+    class: 'grafico-punto-etichetta',
+    x: aSinistra ? puntoX + 7 : puntoX - 7,
+    y: y(tuSeiQui.netto) - 9,
+    'text-anchor': aSinistra ? 'start' : 'end',
+  })
+  etichetta.textContent = ETICHETTA_TU_SEI_QUI
+  disegno.append(
+    creaNodo('circle', { class: 'grafico-punto', cx: puntoX, cy: y(tuSeiQui.netto), r: 4 }),
+    etichetta,
+  )
+
+  return disegno
+}
+
 function mostraRisultato(cascata) {
   const voci = presentaCascata(cascata)
   const testi = testiCascata(cascata)
@@ -225,8 +337,14 @@ function mostraRisultato(cascata) {
   // sembrerebbe un errore del calcolo. Sta sotto i numeri hero perche' commenta quelli.
   // Fuori dalle zone di non-monotonia il motore restituisce null e il banner sparisce.
   const scalinoDaMostrare = avvisoScalino(cascata)
-  scalino.textContent = scalinoDaMostrare ?? ''
+  scalinoTesto.textContent = scalinoDaMostrare ?? ''
   scalino.hidden = scalinoDaMostrare === null
+
+  // Il grafico illustra il testo, non lo completa: compaiono insieme perche' rispondono
+  // alla stessa condizione di dominio (la RAL dentro una zona), ma se il disegno non ci
+  // fosse il banner resterebbe leggibile e completo da solo.
+  const profilo = presentaScalino(cascata)
+  scalinoGrafico.replaceChildren(...(profilo ? [creaGrafico(profilo)] : []))
 
   eroi.replaceChildren(
     ...EROI.map((voce, posizione) =>

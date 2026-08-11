@@ -397,6 +397,92 @@ a {
   font-size: 0.92rem;
 }
 
+.scalino-testo {
+  margin: 0;
+}
+
+/* Il mini-grafico dentro il banner: illustra il testo che l'utente sta gia' leggendo, a
+   scala ristretta attorno alla zona in cui la RAL e' caduta. E' l'unica scala a cui il
+   salto si vede — su un grafico da zero alla RAL intera sarebbe meno di un pixel — e per
+   questo il disegno vive qui dentro e in nessun altro punto della pagina: fuori dal banner
+   sarebbe un grafico senza l'avvertenza che gli da' senso.
+
+   Largo quanto la colonna ma non oltre: allargandosi all'infinito il salto diventerebbe
+   una scaletta dolce, e il grafico direbbe il contrario di quello che deve dire. */
+
+.scalino-grafico:not(:empty) {
+  margin-top: 0.85rem;
+}
+
+/* Le scritte dentro l'SVG scalano con il disegno: il tetto e' scelto perche' a colonna
+   piena restino appena sotto il corpo del banner — sono annotazioni sul grafico, non testo
+   da leggere prima di esso. */
+.scalino-grafico svg {
+  display: block;
+  width: 100%;
+  max-width: 24rem;
+  height: auto;
+}
+
+.grafico-fondo {
+  fill: var(--carta);
+  stroke: var(--bordo);
+}
+
+/* Il buco: quanto netto si perde, e per quanta RAL. Riempimento tenue, non un secondo
+   accento — il colore forte resta alla curva, che e' il dato. */
+.grafico-perdita {
+  fill: var(--accento);
+  fill-opacity: 0.13;
+}
+
+/* Il livello da cui si scende e a cui si torna: tratteggiato perche' non e' una misura
+   letta dal calcolo, e' una riga di riferimento sopra la quale il netto non e' piu' salito. */
+.grafico-livello {
+  stroke: var(--accento);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+  stroke-opacity: 0.55;
+}
+
+.grafico-curva {
+  fill: none;
+  stroke: var(--accento);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.grafico-tacca {
+  stroke: var(--bordo);
+  stroke-width: 1;
+}
+
+.grafico-scala {
+  fill: var(--inchiostro-tenue);
+  font-size: 12px;
+}
+
+.grafico-punto {
+  fill: var(--accento);
+  stroke: var(--carta);
+  stroke-width: 2;
+}
+
+/* Con la RAL appena sopra la soglia il punto sta in fondo al salto e l'etichetta finisce
+   sopra la risalita della curva: l'alone del colore della carta la stacca dal tratto invece
+   di lasciarle addosso una riga verde. `paint-order: stroke` disegna il bordo prima del
+   pieno, altrimenti l'alone mangerebbe le lettere dall'interno. */
+.grafico-punto-etichetta {
+  fill: var(--accento);
+  font-size: 12px;
+  font-weight: 600;
+  paint-order: stroke;
+  stroke: var(--carta);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+
 /* La cascata, voce per voce */
 
 .cascata {

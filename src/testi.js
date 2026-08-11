@@ -94,6 +94,10 @@ export const ORDINE_VOCI = [
 // ragione di tutte le altre: la UI non contiene stringhe (vedi l'intestazione del file).
 export const ETICHETTA_FONTE = 'Fonte'
 
+// L'unica scritta dentro il mini-grafico dello scalino: marca il punto della RAL inserita
+// sulla curva. Minuscola perche' e' un'annotazione sul disegno, non un titolo.
+export const ETICHETTA_TU_SEI_QUI = 'tu sei qui'
+
 // Quale gruppo di costanti sta dietro ogni voce della cascata, e quindi quale fonte primaria
 // le tocca. La tabella vive qui e non nei file delle costanti perche' e' l'associazione fra
 // una voce dell'interfaccia e un documento: le costanti non sanno che esiste una cascata.

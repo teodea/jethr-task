@@ -75,6 +75,10 @@ export function censimentoSalti(costanti) {
   return salti.sort((a, b) => a.ral - b.ral)
 }
 
+// Ci si scosta di mezzo centesimo dai due lati di una soglia: alla RAL esatta il float puo'
+// cadere indifferentemente sopra o sotto il confine in reddito complessivo.
+const SCOSTAMENTO = 0.005
+
 // Le zone in cui il netto scende al crescere della RAL (issue #4, decisione di prodotto:
 // l'avviso in interfaccia mostra gli estremi espliciti). Per ogni salto in giu' [X, Y]:
 // X e' la RAL della soglia, Y la prima RAL alla quale il netto torna al livello di X.
@@ -87,19 +91,57 @@ export function zoneNonMonotonia(costanti) {
   const netto = (ral) => calcolaCascata({ ral, anno }).nettoAnnuo
   const zone = []
   for (const salto of censimentoSalti(costanti)) {
-    // ci si scosta di mezzo centesimo dai due lati: alla RAL esatta della soglia il
-    // float puo' cadere indifferentemente sopra o sotto il confine in RC
-    const prima = netto(salto.ral - 0.005)
-    const dopo = netto(salto.ral + 0.005)
+    const prima = netto(salto.ral - SCOSTAMENTO)
+    const dopo = netto(salto.ral + SCOSTAMENTO)
     if (dopo >= prima) continue // salto in su o neutro: nessuna zona
 
     let y = salto.ral + 1
     while (netto(y) < prima) y += 1
     while (netto(y - 0.01) >= prima) y -= 0.01
-    zone.push({ da: salto.ral, a: y, perdita: prima - dopo, salto: salto.nome })
+    // `livello` e' il netto appena sopra la soglia perduta: e' insieme il punto piu' alto
+    // da cui si scende e la quota a cui si risale in `a`. Esposto perche' e' l'unica
+    // grandezza della zona che non si ricava dalle altre.
+    zone.push({ da: salto.ral, a: y, perdita: prima - dopo, livello: prima, salto: salto.nome })
   }
   zonePerCostanti.set(costanti, zone)
   return zone
+}
+
+// Quanto la finestra del profilo si allarga oltre la zona, per lato, in frazione della zona
+// stessa: abbastanza da mostrare che la curva sale prima del salto e riprende a salire dopo,
+// non tanto da schiacciarlo. E' la scala che rende visibile una perdita di poche decine di
+// euro: su un grafico da zero alla RAL intera sarebbe meno di un pixel.
+const MARGINE_FINESTRA = 0.35
+const CAMPIONI_FINESTRA = 60
+
+/**
+ * Il profilo del netto attorno allo scalino in cui la RAL e' caduta: la curva a scala
+ * ristretta che il mini-grafico dell'avviso disegna. Numeri, non pixel — quale finestra
+ * guardare e dove campionare e' dominio; mapparli in coordinate e' della pagina.
+ * null fuori dalle zone, come `avvisoNonMonotonia`.
+ */
+export function profiloScalino(ral, costanti) {
+  const zona = zoneNonMonotonia(costanti).find(({ da, a }) => ral > da && ral < a)
+  if (!zona) return null
+
+  const netto = (r) => calcolaCascata({ ral: r, anno: costanti.anno }).nettoAnnuo
+  const margine = (zona.a - zona.da) * MARGINE_FINESTRA
+  const inizio = zona.da - margine
+  const passo = (zona.a - zona.da + 2 * margine) / CAMPIONI_FINESTRA
+
+  const ascisse = []
+  for (let i = 0; i <= CAMPIONI_FINESTRA; i += 1) ascisse.push(inizio + i * passo)
+  // I due bordi del salto, la fine della zona e la RAL dell'utente entrano come punti
+  // espliciti: a passo fisso il salto cadrebbe fra due campioni e la spezzata lo
+  // disegnerebbe come una discesa obliqua, cioe' come una cosa che il netto non fa.
+  ascisse.push(zona.da - SCOSTAMENTO, zona.da + SCOSTAMENTO, zona.a, ral)
+  ascisse.sort((x, y) => x - y)
+
+  return {
+    zona,
+    tuSeiQui: { ral, netto: netto(ral) },
+    punti: ascisse.map((r) => ({ ral: r, netto: netto(r) })),
+  }
 }
 
 // L'avviso da mostrare quando la RAL cade in una zona di non-monotonia, con gli estremi
