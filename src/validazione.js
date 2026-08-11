@@ -6,13 +6,14 @@
 //   contributi, non la validita' dell'input).
 
 export const MENSILITA_AMMESSE = [12, 13, 14] // docs/ASSUNZIONI.md: "Mensilita' come input (12/13/14), default 13"
+export const MENSILITA_DEFAULT = 13 // il caso piu' diffuso per gli impiegati (docs/ASSUNZIONI.md)
 
 export function minimaleContributivoAnnuo(costanti) {
   const c = costanti.contributi
   return c.minimaleGiornaliero * c.giornateAnnoMinimale
 }
 
-export function validaInput({ ral, mensilita = 13 }, costanti) {
+export function validaInput({ ral, mensilita = MENSILITA_DEFAULT }, costanti) {
   const errori = []
   const avvisi = []
 

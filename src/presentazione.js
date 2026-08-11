@@ -52,5 +52,14 @@ export function presentaCascata(cascata) {
   voci.imponibileFiscale = arrotondaCentesimi(voci.ral - voci.contributiDipendente)
   voci.detrazioniEffettive = arrotondaCentesimi(voci.irpefLorda - voci.irpefNetta)
 
+  // Aggregato di presentazione, non una voce della cascata (issue #11): e' la risposta
+  // alla domanda "quanto non mi arriva", che altrimenti l'utente si calcola a mano.
+  // Derivato dai valori GIA' quadrati e non dai grezzi: cosi' e' esattamente la
+  // differenza fra i due numeri che la pagina mostra, senza un centesimo di scarto.
+  // Comprende contributi e imposte ed e' gia' al netto delle erogazioni: e' il motivo
+  // per cui il glossario lo definisce a parte e vieta l'etichetta "tasse" (CONTEXT.md).
+  voci.trattenuteTotali = arrotondaCentesimi(voci.ral - voci.nettoAnnuo)
+  voci.incidenzaTrattenute = voci.trattenuteTotali / voci.ral // RAL > 0 garantita da validaInput
+
   return voci
 }

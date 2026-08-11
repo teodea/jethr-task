@@ -1,5 +1,7 @@
 # RAL → netto
 
+### → **[Apri la pagina](https://teodea.github.io/jethr-task/)**
+
 Data una retribuzione annua lorda, questo prototipo proietta il netto annuale e mensile
 ed espone **ogni singola voce** che sta in mezzo — con, accanto a ciascuna, la spiegazione
 di cosa sia e la fonte normativa da cui il numero proviene.
@@ -40,11 +42,26 @@ Ogni riga porta con sé un testo in lingua comune. Ad esempio, sull'addizionale 
 
 ## Come si usa
 
+La pagina vive su **<https://teodea.github.io/jethr-task/>**: si apre e funziona, senza
+installare niente.
+
+Per servirla in locale serve un server statico — gli ES modules non si caricano da
+`file://`, il browser li blocca per la same-origin policy:
+
+```bash
+python -m http.server 8000
+```
+
+Poi <http://localhost:8000>. Va bene qualunque altro server statico (`npx serve .`,
+`php -S localhost:8000`): non c'è nessun build step da eseguire prima.
+
+La suite di test:
+
 ```bash
 npm test
 ```
 
-Non c'è ancora un'interfaccia: il prototipo è un modulo di calcolo con la sua suite di test.
+Il motore è usabile anche da solo, senza passare dalla pagina:
 
 ```js
 import { calcolaCascata } from './src/cascata.js'
@@ -155,6 +172,8 @@ il risultato annuale a consuntivo e non simula le dodici buste.
 
 | Percorso | Cosa contiene |
 |---|---|
+| [index.html](index.html) | la pagina pubblicata: importa il motore, zero build e zero dipendenze |
+| [web/](web/) | lo strato di pagina — legge gli input, chiama i seam, renderizza; nessuna decisione di dominio |
 | [src/cascata.js](src/cascata.js) | il motore: ogni voce dichiara cosa toglie e su quale base |
 | [src/costanti/](src/costanti/) | un file per anno d'imposta (2025, 2026); ogni valore con la sua fonte |
 | [src/presentazione.js](src/presentazione.js) | arrotondamento ai centesimi e quadratura delle voci esposte |

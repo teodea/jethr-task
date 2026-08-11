@@ -5,7 +5,7 @@
 // L'arrotondamento ai centesimi avviene solo in presentazione (src/presentazione.js).
 
 import { COSTANTI_PER_ANNO, ANNO_CORRENTE } from './costanti/index.js'
-import { validaInput } from './validazione.js'
+import { validaInput, MENSILITA_DEFAULT } from './validazione.js'
 
 // art. 13 c. 6 TUIR: "si assume nelle prime quattro cifre decimali" = troncamento.
 // L'epsilon compensa i quozienti che in decimale sono esatti ma in binario cadono
@@ -109,7 +109,7 @@ export function addizionaleComunale(imponibileFiscale, costanti) {
 // La cascata completa. Le addizionali sono calcolate DOPO l'IRPEF netta perche' la loro
 // debenza dipende da essa (gate "IRPEF netta > 0", D.Lgs. 446/1997 art. 50 c. 2 e
 // D.Lgs. 360/1998 art. 1 c. 4 - scelta registrata in docs/ASSUNZIONI.md).
-export function calcolaCascata({ ral, mensilita = 13, anno = ANNO_CORRENTE }) {
+export function calcolaCascata({ ral, mensilita = MENSILITA_DEFAULT, anno = ANNO_CORRENTE }) {
   const costanti = COSTANTI_PER_ANNO[anno]
   if (!costanti) throw new RangeError(`anno d'imposta non supportato: ${anno}`)
 

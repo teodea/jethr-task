@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RAL → netto</title>
+    <meta
+      name="description"
+      content="Data una retribuzione annua lorda, il netto annuale e mensile e tutte le voci trattenute."
+    />
+    <link rel="stylesheet" href="web/stile.css" />
+  </head>
+  <body>
+    <main class="pagina">
+      <header class="intestazione">
+        <h1>RAL &rarr; netto</h1>
+        <p class="sottotitolo">
+          Quanto della tua retribuzione lorda arriva davvero in banca, e dove finisce il resto.
+        </p>
+        <p class="perimetro">
+          Anno d&rsquo;imposta <strong data-anno></strong> &middot; impiegato privato a tempo
+          indeterminato, tempo pieno &middot; residente a Milano.
+          <a href="docs/ASSUNZIONI.md">Cosa resta fuori</a>
+        </p>
+      </header>
+
+      <form class="calcolatore" id="calcolatore" novalidate>
+        <div class="campo">
+          <label class="etichetta-campo" for="ral">Retribuzione annua lorda (RAL)</label>
+          <div class="campo-valuta">
+            <input
+              id="ral"
+              name="ral"
+              type="number"
+              inputmode="decimal"
+              min="0"
+              step="0.01"
+              value="30000"
+              autocomplete="off"
+              aria-describedby="errore"
+            />
+            <span class="unita" aria-hidden="true">&euro;</span>
+          </div>
+          <p class="errore" id="errore" role="alert" hidden></p>
+        </div>
+
+        <fieldset class="campo">
+          <legend class="etichetta-campo">Mensilit&agrave;</legend>
+          <!-- I segmenti nascono da MENSILITA_AMMESSE: vedi web/pagina.js -->
+          <div class="segmentato" id="mensilita"></div>
+        </fieldset>
+
+        <button class="calcola" type="submit">Calcola</button>
+      </form>
+
+      <!-- Nessun risultato prima del click: il numero arriva da un gesto dell'utente -->
+      <section class="risultato" id="risultato" aria-live="polite" hidden>
+        <div class="eroi" id="eroi"></div>
+      </section>
+
+      <footer class="chiusura">
+        <p>
+          Prototipo per un task di selezione.
+          <a href="https://github.com/teodea/jethr-task">Codice sorgente e fonti su GitHub</a>.
+        </p>
+      </footer>
+    </main>
+
+    <script type="module" src="web/pagina.js"></script>
+  </body>
+</html>

@@ -37,12 +37,22 @@ const EURO_CENTESIMI = new Intl.NumberFormat('it-IT', {
   currency: 'EUR',
   minimumFractionDigits: 2,
   maximumFractionDigits: 2,
+  // CLDR omette il separatore sotto le cinque cifre in italiano ("1801,96"), ma una busta
+  // paga lo scrive sempre — e due numeri hero affiancati, uno raggruppato e uno no, si
+  // leggono come un difetto invece che come una regola di locale.
+  useGrouping: 'always',
 })
 
 const PERCENTUALE = new Intl.NumberFormat('it-IT', {
   style: 'percent',
   maximumFractionDigits: 2,
 })
+
+// Esposti perche' i numeri mostrati dall'interfaccia si scrivano come quelli citati dentro
+// i testi: un netto reso "23.425,48 €" nell'eroe e "23425.48" in una nota sarebbero due
+// voci diverse della stessa pagina.
+export const formattaEuro = (valore) => EURO_CENTESIMI.format(valore)
+export const formattaPercentuale = (quota) => PERCENTUALE.format(quota)
 
 // "23% fino a 28.000 €, 33% fino a 50.000 €, 43% oltre" — generata, mai trascritta.
 function descriviScaglioni(scaglioni) {
@@ -249,6 +259,25 @@ export function testiCascata(cascata) {
         'reale coincide con questo numero, perché le trattenute mensili sono provvisorie fino al ' +
         'conguaglio di dicembre.',
       nota: null,
+    },
+
+    // Non e' una voce della cascata (non sta in ORDINE_VOCI): e' l'aggregato che la pagina
+    // mostra fra i numeri hero. L'etichetta e' "trattenute totali" e mai "tasse": il
+    // glossario tiene contributi e imposte sotto etichette diverse perche' hanno
+    // destinatario e natura diversi.
+    trattenuteTotali: {
+      etichetta: 'Trattenute totali',
+      spiegazione:
+        'La differenza fra la tua RAL e il netto annuo: contributi previdenziali e imposte ' +
+        'messi insieme, già al netto di quello che ti viene aggiunto. Non sono tutte tasse — ' +
+        'la parte previdenziale finanzia la tua pensione.',
+      // Sotto certi redditi le erogazioni esenti superano i prelievi e l'aggregato diventa
+      // negativo: senza dirlo, un "-676,18 €" di trattenute si legge come un errore.
+      nota:
+        cascata.nettoAnnuo > cascata.ral
+          ? 'Il numero è negativo, e non è un errore: le erogazioni esenti che ti spettano ' +
+            'superano contributi e imposte, quindi in un anno incassi più della tua RAL.'
+          : null,
     },
 
     aliquotaMarginale: {

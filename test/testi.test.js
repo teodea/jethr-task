@@ -79,6 +79,26 @@ test('la maggiorazione di 65 euro e’ segnalata solo dentro la sua finestra', (
   assert.equal(testiCascata(cascata2026(60000)).detrazioneLavoroDipendente.nota, null)
 })
 
+test('l’aggregato dei prelievi si chiama «trattenute totali», mai «tasse» [glossario]', () => {
+  // Il glossario tiene contributi e imposte sotto etichette diverse: un'etichetta "tasse"
+  // sull'aggregato le rifonderebbe proprio nel punto piu' visibile della pagina.
+  const { etichetta, spiegazione } = testiCascata(cascata2026(30000)).trattenuteTotali
+  assert.equal(etichetta, 'Trattenute totali')
+  assert.doesNotMatch(etichetta, /tass/i)
+  assert.ok(spiegazione.length > 0)
+})
+
+test('trattenute totali negative: il testo spiega che le erogazioni superano i prelievi', () => {
+  // RAL 9.396,46: trattamento integrativo (1.200) e somma integrativa superano contributi
+  // e IRPEF netta, quindi il netto annuo supera la RAL (caso verificato in cascata.casi).
+  const dentroLaFinestra = cascata2026(9396.46)
+  assert.ok(dentroLaFinestra.nettoAnnuo > dentroLaFinestra.ral)
+  assert.match(testiCascata(dentroLaFinestra).trattenuteTotali.nota, /non è un errore/)
+
+  // fuori dalla finestra la nota non deve comparire
+  assert.equal(testiCascata(cascata2026(30000)).trattenuteTotali.nota, null)
+})
+
 test('l’avviso sullo scalino compare dentro una zona di non-monotonia e non fuori', () => {
   // La zona esiste per costruzione (censimento in src/discontinuita.js); qui si verifica
   // che il testo la intercetti e che citi entrambi gli estremi.

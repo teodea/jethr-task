@@ -1,0 +1,263 @@
+/* Design neutro: una colonna, gerarchia netta, un solo colore d'accento.
+   Nessuna imitazione di brand. La finitura si completa con l'issue #16. */
+
+:root {
+  --accento: #1f5f4f;
+  --accento-tenue: #e8f1ee;
+  --inchiostro: #1a1c1a;
+  --inchiostro-tenue: #5c635e;
+  --carta: #fbfbfa;
+  --bordo: #dcdedb;
+  --allarme: #a3241c;
+  --raggio: 10px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 2.5rem 1.25rem 4rem;
+  background: var(--carta);
+  color: var(--inchiostro);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 17px;
+  line-height: 1.55;
+  -webkit-text-size-adjust: 100%;
+}
+
+.pagina {
+  max-width: 48rem;
+  margin: 0 auto;
+}
+
+/* Intestazione */
+
+h1 {
+  margin: 0;
+  font-size: 2.25rem;
+  letter-spacing: -0.02em;
+}
+
+.sottotitolo {
+  margin: 0.4rem 0 0;
+  color: var(--inchiostro-tenue);
+  font-size: 1.05rem;
+}
+
+.perimetro {
+  margin: 1.1rem 0 0;
+  padding: 0.7rem 0.9rem;
+  border-left: 3px solid var(--accento);
+  background: var(--accento-tenue);
+  border-radius: 0 var(--raggio) var(--raggio) 0;
+  font-size: 0.9rem;
+  color: var(--inchiostro-tenue);
+}
+
+.perimetro strong {
+  color: var(--inchiostro);
+}
+
+a {
+  color: var(--accento);
+}
+
+/* Form */
+
+.calcolatore {
+  margin: 2rem 0 0;
+  display: grid;
+  gap: 1.4rem;
+}
+
+.campo {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.etichetta-campo {
+  padding: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--inchiostro-tenue);
+}
+
+.campo-valuta {
+  display: flex;
+  align-items: stretch;
+  max-width: 20rem;
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: #fff;
+  overflow: hidden;
+}
+
+.campo-valuta:focus-within {
+  border-color: var(--accento);
+  box-shadow: 0 0 0 3px var(--accento-tenue);
+}
+
+.campo-valuta input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.7rem 0.85rem;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  color: inherit;
+}
+
+.unita {
+  display: flex;
+  align-items: center;
+  padding: 0 0.85rem;
+  border-left: 1px solid var(--bordo);
+  background: #f4f5f3;
+  color: var(--inchiostro-tenue);
+}
+
+.segmentato {
+  display: inline-flex;
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: #fff;
+  overflow: hidden;
+  width: fit-content;
+}
+
+.segmento {
+  position: relative;
+  padding: 0.55rem 1.15rem;
+  border-left: 1px solid var(--bordo);
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+}
+
+.segmento:first-child {
+  border-left: 0;
+}
+
+.segmento input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.segmento:has(input:checked) {
+  background: var(--accento);
+  color: #fff;
+  font-weight: 600;
+}
+
+.segmento:has(input:focus-visible) {
+  box-shadow: inset 0 0 0 2px var(--accento-tenue);
+}
+
+.calcola {
+  justify-self: start;
+  padding: 0.75rem 1.9rem;
+  border: 0;
+  border-radius: var(--raggio);
+  background: var(--accento);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.calcola:hover {
+  filter: brightness(1.12);
+}
+
+.errore {
+  margin: 0;
+  color: var(--allarme);
+  font-size: 0.9rem;
+}
+
+/* Risultati */
+
+.risultato {
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--bordo);
+}
+
+.eroi {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+}
+
+.eroe {
+  padding: 1.1rem 1.2rem;
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: #fff;
+}
+
+.eroe-etichetta {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--inchiostro-tenue);
+}
+
+.eroe-valore {
+  margin: 0.3rem 0 0;
+  font-size: 1.85rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.eroe-incidenza {
+  margin: 0.35rem 0 0;
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: var(--accento-tenue);
+  color: var(--accento);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.eroe-glossa {
+  margin: 0.7rem 0 0;
+  font-size: 0.87rem;
+  color: var(--inchiostro-tenue);
+}
+
+.eroe-nota {
+  margin: 0.6rem 0 0;
+  font-size: 0.87rem;
+  color: var(--inchiostro);
+  border-left: 3px solid var(--accento);
+  padding-left: 0.6rem;
+}
+
+/* Chiusura */
+
+.chiusura {
+  margin-top: 3rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--bordo);
+  font-size: 0.85rem;
+  color: var(--inchiostro-tenue);
+}
+
+.chiusura p {
+  margin: 0;
+}

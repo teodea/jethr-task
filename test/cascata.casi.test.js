@@ -177,6 +177,37 @@ test('quadratura per differenza: le voci esposte sommano esattamente al netto mo
   }
 })
 
+test('trattenute totali: quadrano con i due numeri esposti e restano al netto delle erogazioni [issue #11]', () => {
+  // [derivazione] nessuna fonte definisce questo aggregato: e' RAL - netto annuo. Il test
+  // che conta e' che torni con la calcolatrice sui valori ESPOSTI — chi rifa' la
+  // sottrazione a mano leggendo la pagina deve ottenere lo stesso centesimo.
+  for (const ral of [8500, 9396.46, 13457.89, 23000.01, 34567.12, 87654.32, 150000]) {
+    const cascata = calcolaCascata({ ral, anno: 2026 })
+    const voci = presentaCascata(cascata)
+    const cent = (v) => Math.round(v * 100)
+
+    assert.equal(
+      cent(voci.trattenuteTotali),
+      cent(voci.ral) - cent(voci.nettoAnnuo),
+      `trattenute non quadrate a RAL ${ral}`,
+    )
+    assert.ok(voci.incidenzaTrattenute < 1, `incidenza fuori scala a RAL ${ral}`)
+    // un'erogazione non e' una trattenuta (CONTEXT.md): dove ce ne sono, l'aggregato deve
+    // stare sotto la somma dei prelievi esattamente di quanto vale l'erogazione
+    const prelievi =
+      cent(voci.contributiDipendente) +
+      cent(voci.irpefNetta) +
+      cent(voci.addizionaleRegionale) +
+      cent(voci.addizionaleComunale)
+    const erogazioni = cent(voci.trattamentoIntegrativo) + cent(voci.sommaIntegrativa)
+    assert.equal(
+      cent(voci.trattenuteTotali),
+      prelievi - erogazioni,
+      `erogazioni contate come trattenute a RAL ${ral}`,
+    )
+  }
+})
+
 test('aliquota marginale ancorata agli scaglioni: 23/33/43 nel 2026, 35% nel 2025 [art. 11 TUIR]', () => {
   const marginale = (ral, anno) => calcolaCascata({ ral, anno }).aliquotaMarginale
   // RAL scelte perche' l'imponibile (RAL x 0,9081) cada nello scaglione voluto

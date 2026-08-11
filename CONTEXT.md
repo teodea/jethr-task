@@ -23,6 +23,14 @@ con questo numero, perché le trattenute mensili sono provvisorie fino al
 conguaglio.
 _Avoid_: netto in busta, stipendio mensile.
 
+**Trattenute totali**:
+La differenza fra la RAL e il netto annuo: contributi previdenziali e imposte
+insieme, già al netto delle erogazioni. È un aggregato di presentazione, non una
+voce della cascata — esiste per rispondere alla domanda «quante tasse pago»
+senza costringere a una sottrazione.
+_Avoid_: tasse, prelievo fiscale. Entrambi mettono i contributi sotto
+l'etichetta dell'imposta.
+
 **Mensilità**:
 Le rate in cui la RAL viene erogata nell'anno — 12, 13 o 14 secondo il CCNL.
 Secondo input del calcolo e divisore del netto mensile; non incide sul netto
