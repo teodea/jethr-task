@@ -62,7 +62,7 @@ export const COSTANTI_2025 = {
     riduzioneDetrazione: 75, // L. 207/2024 art. 1 c. 3
   },
 
-  // L. 207/2024 art. 1 cc. 4-5 - fonte: https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:legge:2024-12-30;207~art1, anno 2025
+  // L. 207/2024 art. 1 cc. 4-5 - fonte: https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:legge:2024-12-30;207~art1!vig=2025-12-31, anno 2025
   sommaIntegrativa: {
     sogliaRedditoComplessivo: 20000,
     fasce: [
@@ -158,7 +158,7 @@ export const FONTI_2025 = {
 
   sommaIntegrativa: {
     citazione: 'L. 207/2024 art. 1 cc. 4-5',
-    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:legge:2024-12-30;207~art1',
+    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:legge:2024-12-30;207~art1!vig=2025-12-31',
   },
 
   // Le due addizionali non stanno in questa mappa: la loro fonte dipende dal luogo, non

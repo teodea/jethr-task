@@ -18,7 +18,7 @@ export const COSTANTI_2026 = {
   },
 
   irpef: {
-    // art. 11 c. 1 TUIR (DPR 917/1986), testo vigente 2026 - fonte: https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art11!vig=, anno 2026
+    // art. 11 c. 1 TUIR (DPR 917/1986), testo vigente 2026 - fonte: https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art11!vig=2026-12-31, anno 2026
     scaglioni: [
       { fino: 28000, aliquota: 0.23 },
       { fino: 50000, aliquota: 0.33 }, // 33% (era 35% nel 2025): L. 199/2025 art. 1 c. 3, GU S.O. n. 42/L alla GU SG n. 301 del 30/12/2025, https://www.gazzettaufficiale.it/eli/gu/2025/12/30/301/so/42/sg/pdf, dal 1/1/2026
@@ -27,7 +27,7 @@ export const COSTANTI_2026 = {
   },
 
   // art. 13 TUIR, testo vigente 2026 (importi a regime da L. 207/2024 art. 1 c. 2) - fonte:
-  // https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art13!vig=, anno 2026
+  // https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art13!vig=2026-12-31, anno 2026
   detrazioneLavoroDipendente: {
     importoFascia1: 1955, // se RC <= 15.000 (c. 1 lett. a)
     minimo: 690, // minimo effettivo per tempo indeterminato (c. 1 lett. a)
@@ -47,7 +47,7 @@ export const COSTANTI_2026 = {
   },
 
   // L. 207/2024 art. 1 c. 6, vigente per il 2026 (abrogazione D.Lgs. 117/2026 dal 1/1/2027) - fonte:
-  // https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:legge:2024-12-30;207~art1, anno 2026
+  // https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:legge:2024-12-30;207~art1!vig=2026-12-31, anno 2026
   ulterioreDetrazione: {
     importo: 1000, // se 20.000 < RC <= 32.000
     sogliaInferiore: 20000,
@@ -56,14 +56,14 @@ export const COSTANTI_2026 = {
   },
 
   // DL 3/2020 art. 1 conv. L. 21/2020, come modificato da L. 207/2024 art. 1 c. 3 - fonte:
-  // https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.legge:2020-02-05;3~art1, anno 2026
+  // https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.legge:2020-02-05;3~art1!vig=2026-12-31, anno 2026
   trattamentoIntegrativo: {
     importo: 1200, // EUR/anno, rapportato al periodo (anno intero nel prototipo)
     sogliaRedditoComplessivo: 15000, // spetta se RC <= 15.000 (la fascia 15-28k richiede detrazioni extra art. 13 c. 1, mai presenti nel perimetro del prototipo)
     riduzioneDetrazione: 75, // capienza: imposta lorda > detrazione art. 13 c. 1 - 75 (L. 207/2024 art. 1 c. 3)
   },
 
-  // L. 207/2024 art. 1 cc. 4-5 - fonte: https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:legge:2024-12-30;207~art1, anno 2026
+  // L. 207/2024 art. 1 cc. 4-5 - fonte: https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:legge:2024-12-30;207~art1!vig=2026-12-31, anno 2026
   sommaIntegrativa: {
     sogliaRedditoComplessivo: 20000, // soglia secca sul reddito complessivo
     fasce: [
@@ -146,7 +146,7 @@ export const COSTANTI_2026 = {
 export const FONTI_2026 = {
   redditoLavoroDipendente: {
     citazione: 'art. 51 c. 1 TUIR (DPR 917/1986), testo vigente 2026',
-    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art51!vig=',
+    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art51!vig=2026-12-31',
   },
 
   contributi: {
@@ -159,12 +159,12 @@ export const FONTI_2026 = {
   // norma dietro l'identita' imponibile fiscale = RAL - contributi (src/cascata.js).
   imponibile: {
     citazione: 'art. 51 c. 2 lett. a TUIR (DPR 917/1986), testo vigente 2026',
-    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art51!vig=',
+    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art51!vig=2026-12-31',
   },
 
   irpef: {
     citazione: 'art. 11 c. 1 TUIR (DPR 917/1986), testo vigente 2026',
-    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art11!vig=',
+    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art11!vig=2026-12-31',
   },
 
   // "L'imposta netta e' determinata operando sull'imposta lorda, fino alla concorrenza del
@@ -172,27 +172,27 @@ export const FONTI_2026 = {
   // uno sconto che avanza non diventa un credito.
   impostaNetta: {
     citazione: 'art. 11 c. 3 TUIR (DPR 917/1986), testo vigente 2026',
-    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art11!vig=',
+    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art11!vig=2026-12-31',
   },
 
   detrazioneLavoroDipendente: {
     citazione: 'art. 13 cc. 1 e 1.1 TUIR (DPR 917/1986), testo vigente 2026',
-    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art13!vig=',
+    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art13!vig=2026-12-31',
   },
 
   ulterioreDetrazione: {
     citazione: 'L. 207/2024 art. 1 c. 6, vigente per il 2026',
-    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:legge:2024-12-30;207~art1',
+    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:legge:2024-12-30;207~art1!vig=2026-12-31',
   },
 
   trattamentoIntegrativo: {
     citazione: 'DL 3/2020 art. 1 (conv. L. 21/2020), testo vigente 2026',
-    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.legge:2020-02-05;3~art1',
+    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.legge:2020-02-05;3~art1!vig=2026-12-31',
   },
 
   sommaIntegrativa: {
     citazione: 'L. 207/2024 art. 1 cc. 4-5',
-    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:legge:2024-12-30;207~art1',
+    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:legge:2024-12-30;207~art1!vig=2026-12-31',
   },
 
   // Le due addizionali non stanno in questa mappa: la loro fonte dipende dal LUOGO, non
@@ -207,6 +207,6 @@ export const FONTI_2026 = {
   // frase che la pagina ripete: nessuna busta reale coincide con la media mensile.
   ritenutaEConguaglio: {
     citazione: 'art. 23 DPR 600/1973 (ritenuta e conguaglio di fine anno), testo vigente 2026',
-    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:1973-09-29;600~art23!vig=',
+    url: 'https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:1973-09-29;600~art23!vig=2026-12-31',
   },
 }
