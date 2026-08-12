@@ -102,12 +102,19 @@ h1 {
   text-wrap: balance;
 }
 
+/* Il tetto era 44ch, e su un desktop spezzava questa frase in 438px piu' 239px: una riga
+   piena e un moncone, dentro un'intestazione larga 1436px — che non si legge come una
+   scelta ma come un taglio. La misura di lettura serve a proteggere il ritorno a capo, e
+   qui il ritorno a capo non c'e': sono 85 caratteri, 683px, una riga sola. 52rem e' la
+   stessa misura del perimetro qui sotto, cosi' i due blocchi finiscono sullo stesso bordo
+   destro invece di fare scaletta. `balance` e non `pretty` per le finestre in cui la riga
+   non ci sta comunque: pretty sistema l'ultima riga, balance pareggia tutte. */
 .sottotitolo {
   margin: 0.4rem 0 0;
-  max-width: 44ch; /* oltre, l'occhio perde la riga tornando a capo */
+  max-width: 52rem;
   color: var(--inchiostro-tenue);
   font-size: clamp(1rem, 0.95rem + 0.25vw, 1.2rem);
-  text-wrap: pretty;
+  text-wrap: balance;
 }
 
 .perimetro {
@@ -511,12 +518,15 @@ legend.etichetta-campo {
   border-top: 1px solid var(--bordo);
 }
 
+/* Qui il tetto resta: sono cinque righe di prosa, il ritorno a capo c'e' eccome. Cambia
+   solo come si spezzano — con `pretty` l'ultima riga restava un moncone di 84px in una
+   colonna da 336px, con `balance` le cinque righe si pareggiano e il moncone sparisce. */
 .attesa-invito {
   margin: 0 0 1rem;
   max-width: 52ch;
   color: var(--inchiostro-tenue);
   font-size: 0.95rem;
-  text-wrap: pretty;
+  text-wrap: balance;
 }
 
 .attesa-eroi {
@@ -920,10 +930,15 @@ legend.etichetta-campo {
   max-width: 42rem;
 }
 
+/* Il tetto di 42rem sul corpo qui sopra e' giusto — a 672px la spiegazione sta gia' sui 79
+   caratteri — ma dentro una riga larga 926px spezzava in 605px piu' 332px, e una riga piena
+   seguita da mezza riga, in un riquadro che ha un bordo destro visibile, si legge come testo
+   tagliato. Pareggiate (485px e 452px) le stesse due righe si leggono come un blocco. */
 .voce-spiegazione {
   margin: 0;
   font-size: 0.9rem;
   color: var(--inchiostro-tenue);
+  text-wrap: balance;
 }
 
 .voce-nota {
@@ -1061,8 +1076,16 @@ legend.etichetta-campo {
     grid-column: auto;
   }
 
+  /* Il campo non si stira per riempire la sua cella. A 1512px la cella e' 526px e dentro
+     c'erano «30.000» a sinistra e «€» a destra separati da 437px di vuoto: il numero non
+     sembrava allineato a sinistra, sembrava staccato dalla sua unita' di misura. 14rem sono
+     224px, e il valore piu' lungo che il campo possa ricevere («1.000.000,50») ne occupa 94:
+     l'euro resta a un palmo dalle cifre. L'allineamento a sinistra non si tocca — a destra
+     si guadagna il posto in colonna, per incolonnare le unita' di valori impilati (e' quello
+     che fanno gli importi della cascata), e un campo solo non ha nessuna colonna con cui
+     allinearsi. */
   .campo-valuta {
-    max-width: none;
+    max-width: 14rem;
   }
 
   .periodo {
