@@ -143,7 +143,21 @@ Prossimi momenti utili di verifica:
 - **all'uscita di una circolare sui commi 3-4** — usare gli eventuali esempi
   numerici svolti per certificare le coppie a cavallo di soglia oggi marcate
   [derivazione] in `irpef-scaglioni-e-detrazione-lavoro-dipendente.md` e nei
-  test.
+  test;
+- **gennaio 2027**, alla pubblicazione della legge di bilancio 2027 in Gazzetta
+  Ufficiale — sorte delle tre imposte sostitutive della L. 199/2025, le cui
+  scadenze sono **disallineate** e vanno quindi verificate una per una: il c. 7
+  (5% sugli incrementi da rinnovi contrattuali) copre il **solo 2026**; il c. 9
+  (1% entro 5.000 EUR sui premi di risultato) è già scritto **anche per il
+  2027** e va perciò confermato, non ricostruito; i cc. 10-11 (15% entro 1.500
+  EUR su notturno, festivo e turni) coprono il solo 2026. Verificare per
+  ciascuna se è prorogata, con quale aliquota, quale soglia di reddito e — per
+  il c. 7 — se cambia la finestra di sottoscrizione dei rinnovi. Un set di
+  costanti 2027 che ereditasse il 5% o il 15% sarebbe sbagliato per difetto di
+  verifica. Nessuna delle tre è oggi implementata: sono registrate come
+  assunzioni (`docs/ASSUNZIONI.md`, righe sui premi di risultato e sui rinnovi
+  contrattuali) e documentate in
+  `docs/ricerca/incrementi-retributivi-rinnovi-contrattuali.md` (issue #25).
 
 ---
 
