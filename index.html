@@ -185,7 +185,19 @@
         </div>
 
         <section class="cascata" aria-labelledby="titolo-cascata">
-          <h2 class="titolo-sezione" id="titolo-cascata">Voce per voce</h2>
+          <!-- Il comando sta in linea col titolo, non sopra l'elenco: e' un attrezzo della
+               sezione, e messo sopra la prima riga sembrerebbe una voce in piu'. L'etichetta
+               la scrive web/pagina.js perche' cambia col verso dell'azione. -->
+          <div class="cascata-intestazione">
+            <h2 class="titolo-sezione" id="titolo-cascata">Voce per voce</h2>
+            <button
+              class="tutte"
+              id="tutte"
+              type="button"
+              aria-controls="voci"
+              aria-expanded="false"
+            ></button>
+          </div>
           <p class="occhiello">
             L&rsquo;ordine &egrave; quello reale del calcolo: ogni passo parte da dove &egrave;
             arrivato il precedente. Apri una riga per sapere che cos&rsquo;&egrave;.

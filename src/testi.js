@@ -216,6 +216,12 @@ export const ETICHETTA_FONTE = 'Fonte'
 // sulla curva. Minuscola perche' e' un'annotazione sul disegno, non un titolo.
 export const ETICHETTA_TU_SEI_QUI = 'tu sei qui'
 
+// Il comando che apre e chiude tutte le righe della cascata in un gesto solo. Due stringhe e
+// non una: il bottone dice sempre che cosa fara' premendolo, non in che stato si trova — un
+// bottone che si chiama come lo stato attuale lascia indovinare all'utente cosa succede.
+export const ETICHETTA_APRI_TUTTE = 'Apri tutte'
+export const ETICHETTA_CHIUDI_TUTTE = 'Chiudi tutte'
+
 // Quale gruppo di costanti sta dietro ogni voce della cascata, e quindi quale fonte primaria
 // le tocca. La tabella vive qui e non nei file delle costanti perche' e' l'associazione fra
 // una voce dell'interfaccia e un documento: le costanti non sanno che esiste una cascata.

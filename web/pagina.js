@@ -15,6 +15,8 @@ import {
   ORDINE_VOCI,
   ETICHETTA_FONTE,
   ETICHETTA_TU_SEI_QUI,
+  ETICHETTA_APRI_TUTTE,
+  ETICHETTA_CHIUDI_TUTTE,
   etichettaEnte,
   etichettaProvincia,
   etichettaComune,
@@ -51,6 +53,7 @@ const scalinoTesto = document.querySelector('#scalino-testo')
 const scalinoGrafico = document.querySelector('#scalino-grafico')
 const eroi = document.querySelector('#eroi')
 const elencoVoci = document.querySelector('#voci')
+const comandoTutte = document.querySelector('#tutte')
 const attesa = document.querySelector('#attesa')
 const attesaEroi = document.querySelector('#attesa-eroi')
 const attesaVoci = document.querySelector('#attesa-voci')
@@ -619,6 +622,44 @@ function vociAperte() {
   return new Set([...elencoVoci.querySelectorAll('details[open]')].map((riga) => riga.dataset.voce))
 }
 
+// Apri tutte / chiudi tutte. Diciotto righe da aprire una per una sono diciotto click per
+// chi vuole leggere il calcolo per intero, o stamparlo: il comando fa in un gesto quello che
+// resta comunque possibile fare riga per riga — non sostituisce il <details>, lo aziona in
+// blocco. Il verso e' quello che manca: finche' una riga e' chiusa il bottone apre, quando
+// sono tutte aperte chiude.
+function righeDellaCascata() {
+  return [...elencoVoci.querySelectorAll('details')]
+}
+
+function aggiornaComandoTutte() {
+  const righe = righeDellaCascata()
+  // Prima del primo calcolo l'elenco e' vuoto: un bottone che non ha niente da aprire non
+  // si mostra. (L'attesa ha una struttura sua, e le sue righe non si aprono.)
+  comandoTutte.hidden = righe.length === 0
+
+  // `every` su un elenco vuoto dice di si': senza il primo termine il bottone nascerebbe
+  // «Chiudi tutte» prima che esista una riga da chiudere.
+  const tutteAperte = righe.length > 0 && righe.every((riga) => riga.open)
+  comandoTutte.textContent = tutteAperte ? ETICHETTA_CHIUDI_TUTTE : ETICHETTA_APRI_TUTTE
+  comandoTutte.setAttribute('aria-expanded', String(tutteAperte))
+}
+
+comandoTutte.addEventListener('click', () => {
+  const righe = righeDellaCascata()
+  const daAprire = !righe.every((riga) => riga.open)
+  for (const riga of righe) riga.open = daAprire
+  aggiornaComandoTutte()
+})
+
+// Il bottone segue anche le righe aperte a mano: chi apre l'ultima si trova «Chiudi tutte»
+// senza aver toccato il comando. `toggle` non fa bubbling — di qui il terzo argomento, che
+// mette l'ascolto in fase di cattura invece che di risalita.
+elencoVoci.addEventListener('toggle', aggiornaComandoTutte, true)
+
+// Nasce con l'etichetta giusta e senza righe da comandare: l'area risultati e' nascosta
+// finche' non c'e' un calcolo, ma il bottone non deve avere un testo vuoto nel frattempo.
+aggiornaComandoTutte()
+
 function alternaDeroga() {
   iscrittoAnte1996 = !iscrittoAnte1996
 
@@ -694,6 +735,10 @@ function mostraRisultato(cascata, apertura = new Set()) {
       }),
     ),
   )
+
+  // Le righe sono nuove di zecca: nessun `toggle` e' passato di qui, e il verso del comando
+  // va riallineato a mano — dopo un «Calcola» sono tutte chiuse, dopo una deroga no.
+  aggiornaComandoTutte()
 
   attesa.hidden = true
   risultato.hidden = false

@@ -852,6 +852,38 @@ legend.etichetta-campo {
   letter-spacing: -0.01em;
 }
 
+/* Titolo e comando sulla stessa riga, allineati sulla linea di base: il bottone e' un
+   attrezzo del titolo, non un elemento dell'elenco. `baseline` e non `center` perche' i due
+   corpi sono molto diversi e centrarli lascerebbe la parola piccola a mezz'aria. */
+.cascata-intestazione {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+/* Sobrio per costruzione: nessun fondo, nessun bordo, il grigio del testo secondario. Non
+   compete con «Calcola», che resta l'unica cosa piena della pagina, ne' con l'accento, che
+   qui marca solo i link alle fonti. Si accende sull'hover — quanto basta a dire che si
+   preme. Il padding allarga il bersaglio del dito oltre le due parole; il margine negativo
+   lo riassorbe, cosi' il testo resta allineato al bordo dell'elenco qui sotto. */
+.tutte {
+  flex: none;
+  margin: -0.5rem -0.5rem -0.5rem 0;
+  padding: 0.5rem;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--inchiostro-tenue);
+  cursor: pointer;
+}
+
+.tutte:hover {
+  color: var(--accento);
+  text-decoration: underline;
+}
+
 .occhiello {
   margin: 0.3rem 0 1rem;
   font-size: 0.9rem;
