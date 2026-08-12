@@ -54,7 +54,9 @@
 
 body {
   margin: 0;
-  padding: 2.5rem 1.25rem 4rem;
+  /* Il respiro cresce con la finestra: 1rem di margine su un telefono e' giusto, su 1600px
+     farebbe toccare i bordi al contenuto. */
+  padding: clamp(1.75rem, 1rem + 1.4vw, 3rem) clamp(1rem, 0.4rem + 1.6vw, 2.75rem) 4rem;
   background: var(--carta);
   color: var(--inchiostro);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -65,16 +67,28 @@ body {
   -webkit-text-size-adjust: 100%;
 }
 
+/* Il tetto e' 100rem, non la misura di lettura: questa pagina non e' un testo, e' un form
+   con cinque campi e una tabella di quindici voci — contenuto che dalla larghezza ci
+   guadagna. A 48rem su un laptop restava vuoto quasi meta' schermo. Sopra i 1600px la
+   pagina smette di crescere: piu' in la' non c'e' disposizione che regga, e le righe
+   diventano impercorribili. La misura di lettura non sparisce, si sposta dentro — sui
+   testi e sulla cascata, dove serve davvero. */
 .pagina {
-  max-width: 48rem;
+  max-width: 100rem;
   margin: 0 auto;
 }
 
 /* Intestazione */
 
+/* I corpi scalano con la larghezza. Non e' vezzo: se il contenitore raddoppia e il
+   carattere no, lo spazio riempito lo sembra a meta' — la stessa pagina su 1600px si
+   legge come una pagina stretta stirata. Gli estremi del `clamp` sono i due valori che
+   c'erano prima, quello mobile e quello da colonna larga: in mezzo ora c'e' una rampa
+   invece di uno scalino. */
+
 h1 {
   margin: 0;
-  font-size: 2.25rem;
+  font-size: clamp(1.9rem, 1.5rem + 1.2vw, 2.9rem);
   line-height: 1.15;
   letter-spacing: -0.02em;
   text-wrap: balance;
@@ -82,13 +96,16 @@ h1 {
 
 .sottotitolo {
   margin: 0.4rem 0 0;
-  max-width: 34rem; /* ~70 caratteri: oltre, l'occhio perde la riga tornando a capo */
+  max-width: 44ch; /* oltre, l'occhio perde la riga tornando a capo */
   color: var(--inchiostro-tenue);
-  font-size: 1.05rem;
+  font-size: clamp(1rem, 0.95rem + 0.25vw, 1.2rem);
   text-wrap: pretty;
 }
 
 .perimetro {
+  /* Tre righe di testo stese su 1600px diventerebbero un filo: il riquadro tiene la sua
+     misura anche quando l'intestazione prende tutta la larghezza. */
+  max-width: 52rem;
   margin: 1.1rem 0 0;
   padding: 0.7rem 0.9rem;
   border-left: 3px solid var(--accento);
@@ -422,6 +439,109 @@ a {
   flex: none;
 }
 
+/* L'attesa: la pagina prima del click
+   -----------------------------------
+   Occupa lo stesso posto dei risultati e ne ha la forma — tre carte, poi l'elenco delle
+   voci — ma nessun numero. Due pezzi che si reggono a vicenda: l'invito da solo riempirebbe
+   ottanta pixel dove ce ne sono mille, la struttura vuota da sola si leggerebbe come
+   «rotto» invece che «non ancora».
+
+   Il tratteggio e' la convenzione che tiene insieme le due letture: linea continua dove c'e'
+   un dato, spezzata dove manca. Vale sui bordi delle carte, sul filetto fra le voci e sul
+   riquadro dell'elenco. */
+
+.attesa[hidden] {
+  display: none;
+}
+
+.attesa {
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--bordo);
+}
+
+.attesa-invito {
+  margin: 0 0 1rem;
+  max-width: 52ch;
+  color: var(--inchiostro-tenue);
+  font-size: 0.95rem;
+  text-wrap: pretty;
+}
+
+.attesa-eroi {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, 1fr);
+  margin-bottom: 1.5rem;
+}
+
+.attesa-eroe {
+  padding: 1.1rem 1.2rem;
+  border: 1px dashed var(--bordo);
+  border-radius: var(--raggio);
+  background: #fff;
+}
+
+/* Il fondo tenue al posto del verde pieno: l'accento pieno appartiene al numero, e qui il
+   numero non c'e' ancora. La carta dice gia' che sara' la principale senza promettere
+   d'esserlo. */
+.attesa-eroe-primario {
+  grid-column: 1 / -1;
+  border-color: var(--accento);
+  background: var(--accento-tenue);
+}
+
+.attesa-eroe-etichetta {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--inchiostro-tenue);
+}
+
+.attesa-eroe-valore {
+  display: block;
+  margin: 0.3rem 0 0;
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: var(--bordo);
+}
+
+.attesa-eroe-primario .attesa-eroe-valore {
+  font-size: 2.6rem;
+  color: rgb(31 95 79 / 0.3);
+}
+
+.attesa-voci {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px dashed var(--bordo);
+  border-radius: var(--raggio);
+  background: #fff;
+  overflow: hidden;
+}
+
+.attesa-voce {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.75rem;
+  padding: 0.7rem 0.9rem;
+  font-size: 0.95rem;
+  color: var(--inchiostro-tenue);
+}
+
+.attesa-voce + .attesa-voce {
+  border-top: 1px dashed var(--bordo);
+}
+
+/* Il trattino tiene la colonna dell'importo e dice «qui, non ancora». */
+.attesa-segno {
+  color: var(--bordo);
+  font-variant-numeric: tabular-nums;
+}
+
 /* Risultati */
 
 .risultato {
@@ -457,7 +577,7 @@ a {
 }
 
 .eroe-primario .eroe-valore {
-  font-size: 2.6rem;
+  font-size: clamp(2.2rem, 1.7rem + 1.8vw, 3.7rem);
 }
 
 .eroe-primario .eroe-etichetta,
@@ -483,7 +603,7 @@ a {
 
 .eroe-valore {
   margin: 0.3rem 0 0;
-  font-size: 1.85rem;
+  font-size: clamp(1.6rem, 1.35rem + 0.9vw, 2.3rem);
   font-weight: 700;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
@@ -641,7 +761,7 @@ a {
 
 .titolo-sezione {
   margin: 0;
-  font-size: 1.15rem;
+  font-size: clamp(1.15rem, 1.05rem + 0.3vw, 1.4rem);
   letter-spacing: -0.01em;
 }
 
@@ -793,35 +913,224 @@ a {
   margin: 0;
 }
 
-/* Schermo stretto
-   ---------------
-   La domanda «quanto mi arriva davvero» arriva quasi sempre lontano da una scrivania, e la
-   pagina e' gia' a una colonna: da telefono non cambia la struttura, cambiano tre cose che
-   a 375px non funzionerebbero piu'. Primo, i respiri — margini pensati per 768px mangiano
-   mezzo schermo. Secondo, il titolo, che a 2,25rem andrebbe a capo. Terzo, i bersagli:
-   bottone e segmenti si allargano a tutta riga, perche' un pollice non e' un puntatore. */
+/* Schermo largo: il cruscotto
+   ---------------------------
+   Sopra i 1024px la pagina smette di essere una colonna. Il form si stende in una barra
+   sotto l'intestazione, e cio' che ne esce si dispone su due colonne: la cascata a
+   sinistra, i tre numeri in un pannello a destra. Chi scorre le quindici voci ha sempre a
+   fianco il numero di cui sta leggendo la scomposizione.
 
-@media (max-width: 34rem) {
-  body {
-    padding: 1.75rem 1rem 3rem;
+   La lettura resta una sequenza verticale — inserisci, poi leggi — quindi il flusso non si
+   spezza: quello che cambia e' che l'input smette di occupare un'altezza che non gli serve.
+   Il gradino cade a 64rem perche' e' li' che la barra a due righe smette di comprimere i
+   suoi cinque controlli; sotto, la colonna singola resta la disposizione giusta e non c'e'
+   una larghezza intermedia in cui la pagina sembri strizzata. */
+
+@media (min-width: 64rem) {
+  /* La barra. Due righe e non una: cinque controlli in fila sarebbero un pettine, e i tre
+     menu' del luogo sono i piu' larghi dei cinque. Prima riga «quanto e quando», seconda
+     «dove» — la stessa divisione che il form aveva in verticale. */
+  .calcolatore {
+    grid-template-columns: minmax(11rem, 0.9fr) auto minmax(21rem, 1.1fr) auto;
+    /* Allineati in alto, non in basso: sotto il periodo pende «365 giorni su 365», e
+       allineando le basi quella riga in piu' spingerebbe su il suo campo lasciando le
+       quattro etichette a quattro altezze diverse. */
+    align-items: start;
+    gap: 1.1rem 1.5rem;
+    padding: 1.35rem 1.5rem;
+    border: 1px solid var(--bordo);
+    border-radius: var(--raggio);
+    background: #fff;
   }
 
-  h1 {
-    font-size: 1.9rem;
+  .calcolatore > :nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
   }
 
-  .sottotitolo {
-    font-size: 1rem;
+  .calcolatore > :nth-child(2) {
+    grid-column: 2;
+    grid-row: 1;
   }
 
-  /* Nessuna coppia affiancata: due numeri a 1,85rem in meta' schermo andrebbero a capo in
-     mezzo alle migliaia. */
+  .calcolatore > :nth-child(3) {
+    grid-column: 3;
+    grid-row: 1;
+    align-content: start;
+  }
+
+  /* Il bottone e' l'unico dei quattro senza etichetta sopra: senza questo margine
+     galleggerebbe in cima alla barra invece di allinearsi ai campi. */
+  .calcolatore > .calcola {
+    grid-column: 4;
+    grid-row: 1;
+    justify-self: stretch;
+    margin-top: 1.35rem;
+    padding: 0.7rem 2.2rem;
+  }
+
+  .calcolatore > .campo-luogo {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--bordo);
+  }
+
+  /* Nella barra i tre menu' hanno una riga tutta loro e larghezze uguali: il comune non ha
+     piu' bisogno di prendersi la riga intera per i suoi nomi lunghi. */
+  .campo-luogo .sotto-campo:nth-of-type(3) {
+    grid-column: auto;
+  }
+
+  .campo-valuta {
+    max-width: none;
+  }
+
+  /* Affiancati, i controlli devono avere la stessa altezza: tre altezze diverse in fila
+     farebbero ondeggiare la riga. */
+  .campo-valuta,
+  .periodo-estremo,
+  .segmentato,
+  .campo-luogo select {
+    min-height: 2.9rem;
+  }
+
+  .periodo {
+    flex-wrap: nowrap;
+  }
+
+  .periodo-estremo {
+    flex: 1 1 0;
+  }
+
+  .periodo-estremo input {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .periodo-giorni {
+    font-size: 0.8rem;
+  }
+
+  /* Sotto la barra. Il tetto di lettura sta sulla colonna e non sulla lista: messo sulla
+     lista, la colonna resterebbe larga e avanzerebbe un vuoto in mezzo alle due. La terza
+     riga elastica serve perche' la cascata attraversa tutta la griglia ed e' molto piu'
+     alta del pannello — senza, la griglia spalmerebbe la sua altezza su tutte le righe e
+     le carte dei numeri scenderebbero sotto la piega. */
+  .risultato:not([hidden]),
+  .attesa:not([hidden]) {
+    display: grid;
+    grid-template-columns: minmax(0, 58rem) minmax(17rem, 21rem);
+    grid-template-rows: auto auto 1fr;
+    justify-content: space-between;
+    column-gap: clamp(2rem, 1rem + 2.4vw, 3.5rem);
+    align-items: start;
+  }
+
   .eroi {
+    grid-column: 2;
+    grid-row: 1;
     grid-template-columns: 1fr;
   }
 
-  .eroe-primario .eroe-valore {
-    font-size: 2.2rem;
+  .periodo-avviso {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .scalino {
+    grid-column: 2;
+    grid-row: 3;
+  }
+
+  .cascata,
+  .attesa-voci {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    margin-top: 0;
+  }
+
+  /* L'attesa prende la stessa forma che avra' da calcolata — elenco a sinistra, pannello a
+     destra — cosi' il click non sposta niente: riempie. */
+  .attesa-invito {
+    grid-column: 2;
+    grid-row: 1;
+    margin: 0 0 1rem;
+  }
+
+  .attesa-eroi {
+    grid-column: 2;
+    grid-row: 2;
+    grid-template-columns: 1fr;
+    margin: 0;
+  }
+
+  .titolo-sezione {
+    margin-top: 0;
+  }
+
+  /* In un pannello da 21rem il numero grande deve stare in una riga sola: a corpo pieno
+     «23.425,48 €» andrebbe a capo in mezzo alle migliaia, che e' il difetto peggiore che
+     un numero possa avere. */
+  .eroe-primario .eroe-valore,
+  .attesa-eroe-primario .attesa-eroe-valore {
+    font-size: 2.4rem;
+  }
+
+  .eroe-valore,
+  .attesa-eroe-valore {
+    font-size: 1.7rem;
+  }
+}
+
+/* Schermo stretto
+   ---------------
+   La domanda «quanto mi arriva davvero» arriva quasi sempre lontano da una scrivania. Da
+   telefono la struttura resta la colonna singola — il cruscotto qui non ci sta — e cambiano
+   i bersagli: bottone e segmenti si allargano a tutta riga, perche' un pollice non e' un
+   puntatore. I respiri e i corpi non compaiono piu' qui: li porta il `clamp`, che li fa
+   crescere con la finestra invece di scattare a una soglia. */
+
+@media (max-width: 34rem) {
+  /* I due numeri secondari restano affiancati: a corpo ridotto e con le cifre tabellari
+     «1.801,96 €» sta in mezza riga, e netto mensile e trattenute si leggono insieme invece
+     che in sequenza. Sono 230px di scorrimento in meno su una pagina che ne ha tanti. */
+  .eroi,
+  .attesa-eroi {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .eroe:not(.eroe-primario),
+  .attesa-eroe:not(.attesa-eroe-primario) {
+    padding: 0.9rem;
+  }
+
+  .eroe:not(.eroe-primario) .eroe-valore,
+  .attesa-eroe:not(.attesa-eroe-primario) .attesa-eroe-valore {
+    font-size: 1.35rem;
+  }
+
+  .eroe:not(.eroe-primario) .eroe-etichetta,
+  .attesa-eroe:not(.attesa-eroe-primario) .attesa-eroe-etichetta {
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+  }
+
+  .eroe:not(.eroe-primario) .eroe-glossa {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  /* I due estremi del periodo si impilavano a larghezze diverse (200px e 192px): non e' una
+     coppia, sembrava un difetto. Ora o stanno affiancati uguali o impilati uguali. */
+  .periodo-estremo {
+    flex: 1 1 11rem;
+  }
+
+  .periodo-estremo input {
+    flex: 1;
+    min-width: 0;
   }
 
   .campo-valuta {
@@ -844,7 +1153,8 @@ a {
     padding: 0.85rem 1.9rem;
   }
 
-  .risultato {
+  .risultato,
+  .attesa {
     margin-top: 2rem;
     padding-top: 1.5rem;
   }

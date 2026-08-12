@@ -137,6 +137,25 @@
            fra il form e i risultati, e non impedisce a nessuno dei due di esserci. -->
       <div class="avvisi" id="avvisi" role="status" hidden></div>
 
+      <!-- Prima del click, al posto dei risultati. Non e' un segnaposto: sullo schermo di un
+           laptop occupa mezza pagina, quindi e' la prima cosa che si vede aprendo il link, e
+           porta la stessa struttura che avra' da calcolata — le tre carte dei numeri e le
+           voci della cascata — senza una sola cifra. Il click riempie una struttura che c'e'
+           gia' invece di sostituirne una con un'altra.
+
+           Le etichette le scrive web/pagina.js leggendole dal dominio: due di esse portano
+           la regione e il comune scelti, e un elenco riscritto qui divergerebbe da
+           ORDINE_VOCI alla prima voce aggiunta. -->
+      <section class="attesa" id="attesa">
+        <p class="attesa-invito">
+          Compila e premi &laquo;Calcola&raquo;: qui compariranno il netto annuo, il netto
+          mensile e le trattenute totali, e sotto le voci che li compongono &mdash; una per
+          una, ognuna con la fonte normativa da cui viene il suo numero.
+        </p>
+        <div class="attesa-eroi" id="attesa-eroi"></div>
+        <ol class="attesa-voci" id="attesa-voci"></ol>
+      </section>
+
       <!-- Nessun risultato prima del click: il numero arriva da un gesto dell'utente -->
       <section class="risultato" id="risultato" aria-live="polite" hidden>
         <div class="eroi" id="eroi"></div>

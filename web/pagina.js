@@ -51,6 +51,9 @@ const scalinoTesto = document.querySelector('#scalino-testo')
 const scalinoGrafico = document.querySelector('#scalino-grafico')
 const eroi = document.querySelector('#eroi')
 const elencoVoci = document.querySelector('#voci')
+const attesa = document.querySelector('#attesa')
+const attesaEroi = document.querySelector('#attesa-eroi')
+const attesaVoci = document.querySelector('#attesa-voci')
 const menuEnte = document.querySelector('#ente')
 const menuProvincia = document.querySelector('#provincia')
 const menuComune = document.querySelector('#comune')
@@ -173,6 +176,9 @@ function mostraComuniDi(slug, provincia, comuneDaSelezionare) {
   )
   menuComune.disabled = false
   luogoScelto = menuComune.value
+  // Due etichette della cascata portano il nome della regione e del comune: cambiando
+  // luogo cambiano anche prima che ci sia un calcolo.
+  mostraAttesa()
 }
 
 // Il gradino di mezzo, e con lui quello sotto. Il comune a `null` vuol dire «scegli tu»: e'
@@ -217,6 +223,7 @@ menuProvincia.addEventListener('change', () => {
 
 menuComune.addEventListener('change', () => {
   luogoScelto = menuComune.value
+  mostraAttesa()
 })
 
 preparaSelettore().catch(() => {
@@ -228,6 +235,9 @@ preparaSelettore().catch(() => {
   menuComune.disabled = true
   aiutoDelComune.textContent =
     'Non riesco a caricare l’elenco dei comuni: il calcolo usa il comune predefinito.'
+  // Il selettore non c'e', ma la pagina calcola lo stesso sul luogo predefinito: l'attesa
+  // va riempita comunque, altrimenti resterebbe un riquadro vuoto dove sta l'invito.
+  mostraAttesa()
 })
 
 // Un solo stile per tutti i messaggi bloccanti — quelli di forma (src/formato.js, «non
@@ -250,6 +260,10 @@ function mostraErrore(slot, messaggio) {
   // stanno fuori dall'area risultati e vanno tolti a mano, altrimenti resterebbero in
   // pagina a commentare una RAL che non e' piu' quella scritta nel campo.
   risultato.hidden = true
+  // Al posto del risultato ritorna l'attesa: sono le due facce della stessa area, e
+  // lasciarla vuota rimpicciolirebbe la pagina di colpo sotto le dita di chi sta ancora
+  // correggendo il campo.
+  attesa.hidden = false
   mostraAvvisi([])
 }
 
@@ -411,6 +425,76 @@ function creaVoce({ voce, etichetta, valore, spiegazione, nota, fonte, deroga, a
   dettaglio.append(intestazione, corpo)
   riga.append(dettaglio)
   return riga
+}
+
+// Lo stato d'attesa: la pagina prima del click. Ha la forma che avra' da calcolata — tre
+// carte e le voci della cascata — e nessun numero. Il trattino tiene la colonna
+// dell'importo e sta fuori dall'albero di accessibilita': diciotto trattini annunciati a
+// voce non aggiungono niente all'invito che li precede.
+function creaAttesaCarta({ etichetta, primario }) {
+  const carta = document.createElement('article')
+  carta.className = primario ? 'attesa-eroe attesa-eroe-primario' : 'attesa-eroe'
+
+  const nome = document.createElement('p')
+  nome.className = 'attesa-eroe-etichetta'
+  nome.textContent = etichetta
+
+  carta.append(nome, creaAttesaSegno('attesa-eroe-valore'))
+  return carta
+}
+
+function creaAttesaVoce(etichetta) {
+  const riga = document.createElement('li')
+  riga.className = 'attesa-voce'
+
+  const nome = document.createElement('span')
+  nome.textContent = etichetta
+
+  riga.append(nome, creaAttesaSegno('attesa-segno'))
+  return riga
+}
+
+function creaAttesaSegno(classe) {
+  const segno = document.createElement('span')
+  segno.className = classe
+  segno.textContent = '—'
+  segno.setAttribute('aria-hidden', 'true')
+  return segno
+}
+
+// Le etichette dell'attesa sono quelle vere della cascata, non un elenco riscritto nella
+// pagina: due di esse portano il nome della regione e del comune scelti, e una voce nuova
+// in ORDINE_VOCI deve comparire anche prima del calcolo senza che nessuno se ne ricordi.
+// Il motore gira per i soli nomi e i valori si buttano — nessuna cifra raggiunge la pagina
+// finche' l'utente non preme «Calcola». Si rifa' a ogni cambio di luogo, che e' l'unico
+// input da cui quelle due etichette dipendono.
+function mostraAttesa() {
+  let testi
+  try {
+    const importo = interpretaImporto(campoRal.value)
+    if (!importo.valido) return
+    testi = testiCascata(
+      calcolaCascata({
+        ral: importo.valore,
+        mensilita: leggiMensilita(),
+        anno: ANNO_CORRENTE,
+        ...leggiPeriodo(),
+        comune: luogoScelto ?? COMUNE_DEFAULT,
+      }),
+    )
+  } catch {
+    // Input a meta' di una correzione: restano le etichette gia' in pagina, che al
+    // massimo portano il luogo di un istante fa. Nessun motivo di svuotare la struttura
+    // per un input che non riguarda i nomi.
+    return
+  }
+
+  attesaEroi.replaceChildren(
+    ...EROI.map((voce, posizione) =>
+      creaAttesaCarta({ etichetta: testi[voce].etichetta, primario: posizione === 0 }),
+    ),
+  )
+  attesaVoci.replaceChildren(...ORDINE_VOCI.map((voce) => creaAttesaVoce(testi[voce].etichetta)))
 }
 
 // Il mini-grafico dello scalino. La curva, la finestra e i punti arrivano gia' decisi da
@@ -611,6 +695,7 @@ function mostraRisultato(cascata, apertura = new Set()) {
     ),
   )
 
+  attesa.hidden = true
   risultato.hidden = false
 }
 
