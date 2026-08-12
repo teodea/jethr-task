@@ -275,7 +275,9 @@ export function testiCascata(cascata) {
         `un ${PERCENTUALE.format(c.contributi.aliquotaAggiuntiva)} aggiuntivo.`,
     )
   }
-  if (cascata.baseContributiva < cascata.ral) {
+  // Il metro e' la retribuzione del periodo, non la RAL: su un rapporto parziale la base
+  // sta sotto la RAL per costruzione, e non perche' il tetto abbia morso.
+  if (cascata.baseContributiva < cascata.retribuzioneEffettiva) {
     noteContributi.push(
       `Oltre ${EURO.format(c.contributi.massimaleAnnuo)} i contributi si fermano: ` +
         'la parte eccedente non ne genera altri.',
@@ -285,13 +287,15 @@ export function testiCascata(cascata) {
   // L'offerta di precisione sulla data di prima iscrizione (issue #23). Non e' un campo del
   // form: sotto il massimale la risposta non sposta un centesimo — qualunque data, il netto
   // e' identico — e un input che non cambia niente lo pagano tutti per servire quasi
-  // nessuno. Compare qui, alla stessa condizione della nota sul massimale (RAL oltre il
-  // tetto), che e' l'unica in cui la risposta vale qualcosa: ~1.500 EUR su RAL 150.000.
+  // nessuno. Compare qui, alla stessa condizione della nota sul massimale (retribuzione del
+  // periodo oltre il tetto: su un rapporto parziale la RAL puo' superarlo senza che i
+  // contributi lo tocchino), che e' l'unica in cui la risposta vale qualcosa: ~1.500 EUR
+  // su RAL 150.000 ad anno intero.
   //
   // Nei due versi, e non solo in andata: chi ha attivato la deroga vede sparire la nota sul
   // tetto — giustamente, per lui il tetto non c'e' piu' — e senza una strada di ritorno
   // resterebbe dentro un'ipotesi che la pagina non nomina piu'.
-  const oltreIlMassimale = cascata.ral > c.contributi.massimaleAnnuo
+  const oltreIlMassimale = cascata.retribuzioneEffettiva > c.contributi.massimaleAnnuo
   const anteIscrizione = c.contributi.massimaleSoloIscrittiDopo
   const deroga = !oltreIlMassimale
     ? null
@@ -299,7 +303,7 @@ export function testiCascata(cascata) {
       ? {
           testo:
             `Stai calcolando come chi versava contributi già entro il ${anteIscrizione}: per ` +
-            'te il tetto non esiste e i contributi corrono su tutta la RAL.',
+            'te il tetto non esiste e i contributi corrono su tutta la retribuzione.',
           comando: 'torna al calcolo standard',
           attiva: true,
         }

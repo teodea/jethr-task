@@ -152,6 +152,26 @@ test('con la deroga attiva sparisce la nota sul tetto e resta la strada di ritor
   assert.notEqual(conDeroga.deroga.comando, testiCascata(cascata2026(150000)).contributiDipendente.deroga.comando)
 })
 
+test('su un periodo parziale nota e offerta seguono la retribuzione del periodo, non la RAL', () => {
+  // RAL 150.000 su un semestre: la retribuzione effettiva (~75.616) sta sotto il tetto di
+  // 122.295 — il massimale non morde e la data di prima iscrizione non sposta un centesimo.
+  // Condizionate alla RAL pattuita, nota e offerta comparirebbero su qualunque rapporto
+  // parziale: la base contributiva sta sotto la RAL per costruzione, non per il tetto.
+  const semestre = testiCascata(
+    calcolaCascata({ ral: 150000, anno: 2026, ...SEMESTRE }),
+  ).contributiDipendente
+  assert.doesNotMatch(semestre.nota ?? '', /i contributi si fermano/)
+  assert.equal(semestre.deroga, null)
+
+  // Quando anche la retribuzione del periodo supera il tetto, nota e offerta tornano:
+  // 250.000 x 184/365 = 126.027, sopra il massimale 2026.
+  const sopra = testiCascata(
+    calcolaCascata({ ral: 250000, anno: 2026, ...SEMESTRE }),
+  ).contributiDipendente
+  assert.match(sopra.nota, /i contributi si fermano/)
+  assert.equal(sopra.deroga.attiva, false)
+})
+
 test('anche la soglia dell’offerta segue l’anno: 121.000 e’ sopra il massimale 2025, sotto quello 2026', () => {
   // Massimali: 120.607 nel 2025, 122.295 nel 2026 (circolari INPS 26/2025 e 6/2026, par. 6).
   // Stessa RAL, stessa pagina, due anni: l'offerta compare in uno e tace nell'altro.
