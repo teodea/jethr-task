@@ -285,11 +285,27 @@ test('il banner nomina le voci che si accendono e quelle che si spengono, non un
   assert.match(avviso, /si spengono ulteriore detrazione e addizionale comunale/)
   assert.match(avviso, /voci che compaiono o spariscono/)
 
-  // Le etichette non sono riscritte a mano: sono quelle della cascata, in minuscolo.
+  // Le etichette non sono riscritte a mano: sono quelle della cascata, con la sola
+  // iniziale in minuscolo perche' cadono in mezzo a una frase.
   const testi = testiCascata(calcolaCascata({ ral: 30000, anno: 2026, ...SEMESTRE }))
   for (const voce of ['trattamentoIntegrativo', 'sommaIntegrativa', 'ulterioreDetrazione']) {
     assert.ok(avviso.includes(testi[voce].etichetta.toLowerCase()), `etichetta assente: ${voce}`)
   }
+
+  // La minuscola tocca solo l'iniziale dell'etichetta: il nome del comune dentro
+  // l'etichetta dell'addizionale e' un nome proprio e resta maiuscolo.
+  assert.match(avviso, /addizionale comunale \(Milano\)/)
+  assert.doesNotMatch(avviso, /\(milano\)/)
+})
+
+test('il verbo del banner concorda con quante voci cambiano stato', () => {
+  // A RAL 25.500 da marzo in poi cambia stato una voce sola per verso l'alto: la somma
+  // integrativa. «Si accendono somma integrativa» sarebbe un errore che si legge.
+  const avviso = avvisoPeriodo(
+    calcolaCascata({ ral: 25500, anno: 2026, dataInizio: '2026-03-01', dataFine: '2026-12-31' }),
+  )
+  assert.match(avviso, /si accende somma integrativa/)
+  assert.match(avviso, /si spengono ulteriore detrazione e addizionale comunale/)
 })
 
 test('il numero derivato accanto ai campi data e’ uno solo: i giorni su 365', () => {

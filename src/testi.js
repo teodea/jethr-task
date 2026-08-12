@@ -625,17 +625,22 @@ export function avvisoPeriodo(cascata) {
 
   const { accese, spente } = cambiDiStatoDelPeriodo(cascata)
   const testi = testiCascata(cascata)
-  // Minuscola perche' i nomi delle voci cadono in mezzo a una frase. Le voci con soglia sono
-  // tutte nominali («trattamento integrativo», «addizionale comunale»): nessuna sigla da
-  // rovinare, a differenza di «IRPEF netta», che non e' fra quelle censite.
-  const nomi = (voci) => elenco(voci.map((voce) => testi[voce].etichetta.toLowerCase()))
+  // Minuscola perche' i nomi delle voci cadono in mezzo a una frase — ma solo l'iniziale:
+  // l'etichetta dell'addizionale comunale porta il nome del comune («Addizionale comunale
+  // (Milano)»), e un toLowerCase sull'intera stringa scriverebbe «(milano)». Le voci con
+  // soglia sono tutte nominali: nessuna sigla da rovinare, a differenza di «IRPEF netta»,
+  // che non e' fra quelle censite.
+  const nomi = (voci) =>
+    elenco(voci.map((voce) => testi[voce].etichetta.replace(/^./, (c) => c.toLowerCase())))
 
   // Le due clausole si legano con «mentre» e non con «e»: con entrambe piene, un «e» finirebbe
   // accanto a quelli che uniscono i nomi delle voci — «somma integrativa e si spengono» —
   // e la frase perderebbe il confine fra cio' che compare e cio' che sparisce.
+  // Il verbo concorda con quante voci sono: le censite sono tutte al singolare («somma
+  // integrativa»), quindi con una voce sola il plurale sarebbe un errore che si legge.
   const cambi = []
-  if (accese.length > 0) cambi.push(`si accendono ${nomi(accese)}`)
-  if (spente.length > 0) cambi.push(`si spengono ${nomi(spente)}`)
+  if (accese.length > 0) cambi.push(`${accese.length === 1 ? 'si accende' : 'si accendono'} ${nomi(accese)}`)
+  if (spente.length > 0) cambi.push(`${spente.length === 1 ? 'si spegne' : 'si spengono'} ${nomi(spente)}`)
 
   return (
     `Il tuo rapporto copre ${descriviGiorniDelRapporto(cascata)}: quello che vedi è il netto di ` +

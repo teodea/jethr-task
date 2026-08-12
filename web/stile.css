@@ -385,10 +385,17 @@ legend.etichetta-campo {
 
 /* «Dal» e «Al» stanno dentro il controllo, dal lato da cui si legge: fuori sarebbero due
    etichette in piu' in una colonna che ne ha gia' tre. Stesso trattamento del simbolo
-   dell'euro accanto alla RAL, dall'altro lato. */
+   dell'euro accanto alla RAL, dall'altro lato.
+
+   La larghezza e' dichiarata, non intrinseca: «Dal» e «Al» misurano diversi, e la differenza
+   usciva due volte — impilati, le due date partivano a otto pixel l'una dall'altra; affiancati,
+   le due scatole non erano larghe uguali. Sono un intervallo, cioe' una coppia: qualunque
+   disposizione deve dirlo. */
 .periodo-preposizione {
   display: flex;
   align-items: center;
+  justify-content: center;
+  min-width: 2.9rem;
   padding: 0 0.7rem;
   border-right: 1px solid var(--bordo);
   background: #f4f5f3;
@@ -797,6 +804,32 @@ legend.etichetta-campo {
   stroke-linejoin: round;
 }
 
+/* Le scritte scalano geometricamente con il disegno: i 12px dichiarati sono 12 veri solo
+   quando l'SVG e' largo quanto il suo viewBox (340px). Dove il contenitore lo stringe — il
+   pannello dei risultati sul cruscotto, la colonna di un telefono — l'effettivo scendeva
+   fino a ~9px, sotto la leggibilita'. Il corpo cresce a gradini dove la scala scende, cosi'
+   il testo reso resta fra gli 11 e i 14px a ogni larghezza. */
+@media (min-width: 64rem) {
+  .grafico-scala,
+  .grafico-punto-etichetta {
+    font-size: 13.5px;
+  }
+}
+
+@media (max-width: 24rem) {
+  .grafico-scala,
+  .grafico-punto-etichetta {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 22rem) {
+  .grafico-scala,
+  .grafico-punto-etichetta {
+    font-size: 16px;
+  }
+}
+
 /* La cascata, voce per voce */
 
 .cascata {
@@ -1129,33 +1162,14 @@ legend.etichetta-campo {
    crescere con la finestra invece di scattare a una soglia. */
 
 @media (max-width: 34rem) {
-  /* I due numeri secondari restano affiancati: a corpo ridotto e con le cifre tabellari
-     «1.801,96 €» sta in mezza riga, e netto mensile e trattenute si leggono insieme invece
-     che in sequenza. Sono 230px di scorrimento in meno su una pagina che ne ha tanti. */
+  /* Le carte dei numeri si impilano. Affiancate promettevano di risparmiare scorrimento,
+     ma erano le glosse a pagare: dieci righe da quindici caratteri in una colonna da 135px,
+     due torri piu' alte della carta principale — e l'altezza delle torri si era gia' mangiata
+     quasi tutto il risparmio per cui la coppia esisteva. Impilate, ogni carta tiene il corpo
+     e il respiro delle altre e la glossa torna a una misura di lettura. */
   .eroi,
   .attesa-eroi {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .eroe:not(.eroe-primario),
-  .attesa-eroe:not(.attesa-eroe-primario) {
-    padding: 0.9rem;
-  }
-
-  .eroe:not(.eroe-primario) .eroe-valore,
-  .attesa-eroe:not(.attesa-eroe-primario) .attesa-eroe-valore {
-    font-size: 1.35rem;
-  }
-
-  .eroe:not(.eroe-primario) .eroe-etichetta,
-  .attesa-eroe:not(.attesa-eroe-primario) .attesa-eroe-etichetta {
-    font-size: 0.72rem;
-    letter-spacing: 0.04em;
-  }
-
-  .eroe:not(.eroe-primario) .eroe-glossa {
-    margin-top: 0.5rem;
-    font-size: 0.8rem;
+    grid-template-columns: 1fr;
   }
 
   /* I due estremi del periodo si impilavano a larghezze diverse (200px e 192px): non e' una
