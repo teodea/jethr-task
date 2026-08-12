@@ -336,10 +336,15 @@ const VOCI_CON_SOGLIA = [
 export function cambiDiStatoDelPeriodo(cascata) {
   if (cascata.annoIntero) return { accese: [], spente: [] }
 
+  // Stesso luogo e stessa ipotesi contributiva della cascata in ingresso: il confronto
+  // e' fra le date, tutto il resto deve restare fermo — altrimenti la baseline ricade sul
+  // luogo predefinito e giudica accensioni e spegnimenti con le soglie di un altro comune.
   const annoIntero = calcolaCascata({
     ral: cascata.ral,
     mensilita: cascata.mensilita,
     anno: cascata.anno,
+    comune: cascata.comune,
+    iscrittoAnte1996: cascata.iscrittoAnte1996,
   })
 
   const accese = VOCI_CON_SOGLIA.filter((voce) => cascata[voce] > 0 && annoIntero[voce] === 0)

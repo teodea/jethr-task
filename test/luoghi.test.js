@@ -14,7 +14,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync, readdirSync } from 'node:fs'
-import { calcolaCascata, addizionale } from '../src/cascata.js'
+import { calcolaCascata, addizionale, cambiDiStatoDelPeriodo } from '../src/cascata.js'
 import {
   registraEnte,
   costantiPerLuogo,
@@ -386,6 +386,27 @@ test('un refuso della fonte si dichiara, non si aggiusta a indovinare', () => {
     const testi = testiCascata(calcolaCascata({ ral: 40000, anno: ANNO, comune: codice }))
     assert.match(testi.addizionaleComunale.nota, /indicativo/)
   }
+})
+
+test('i cambi di stato del periodo si giudicano nel luogo della cascata, non a Milano', () => {
+  // Aidomaggiore (OR) non ha mai istituito l'addizionale comunale: la voce e' zero con
+  // qualunque data. Se la baseline ad anno intero ricadesse sul luogo predefinito, la
+  // comunale milanese positiva farebbe sembrare che il periodo parziale l'abbia «spenta» —
+  // un cambio di stato che in quel comune non puo' esistere, e il banner direbbe il falso.
+  const mezzo = calcolaCascata({
+    ral: 30000,
+    anno: ANNO,
+    comune: 'A097',
+    dataInizio: '2026-01-01',
+    dataFine: '2026-06-30',
+  })
+  assert.equal(mezzo.addizionaleComunale, 0)
+
+  const { accese, spente } = cambiDiStatoDelPeriodo(mezzo)
+  assert.deepEqual(accese.sort(), ['sommaIntegrativa', 'trattamentoIntegrativo'])
+  // l'ulteriore detrazione si spegne davvero (il reddito del periodo scende sotto i
+  // 20.000); la comunale no: era zero anche ad anno intero, nello stesso comune.
+  assert.deepEqual(spente, ['ulterioreDetrazione'])
 })
 
 test('un comune non caricato e’ un errore esplicito, non un calcolo sulle aliquote di Milano', () => {
