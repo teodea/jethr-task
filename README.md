@@ -8,8 +8,11 @@ di cosa sia e la fonte normativa da cui il numero proviene.
 
 Anno d'imposta **2026**. Impiegato privato a tempo indeterminato, tempo pieno, in uno
 qualunque dei **7.896 comuni italiani**: regione e comune si scelgono, e con loro cambiano
-le due addizionali, la fonte linkata e il punto in cui la curva fa il suo salto. Il
-perimetro completo, e cosa resta fuori, sta in [docs/ASSUNZIONI.md](docs/ASSUNZIONI.md).
+le due addizionali, la fonte linkata e il punto in cui la curva fa il suo salto. Anche il
+**periodo di lavoro** è un input: per un rapporto iniziato o finito a metà anno i numeri
+non scendono in proporzione, e la pagina dice quali voci le date accendono e quali
+spengono. Il perimetro completo, e cosa resta fuori, sta in
+[docs/ASSUNZIONI.md](docs/ASSUNZIONI.md).
 
 ---
 
@@ -35,7 +38,7 @@ Per una RAL di 30.000 € su 13 mensilità, a Milano:
 
 Ogni riga porta con sé un testo in lingua comune. Ad esempio, sull'addizionale comunale:
 
-> *Imposta del Comune sullo stesso imponibile: 0,8%, con esenzione fino a 23.000 € di imponibile.*
+> *Imposta del Comune di Milano sullo stesso imponibile: 0,8%, con esenzione fino a 23.000 € di imponibile.*
 > ⚠️ *Attenzione: sopra 23.000 € l’aliquota si applica all’intero imponibile, non solo alla
 > parte eccedente. È una soglia, non una franchigia.*
 
@@ -77,6 +80,16 @@ const cascata = calcolaCascata({ ral: 30000, mensilita: 13, anno: 2026 })
 const voci = presentaCascata(cascata) // importi arrotondati e quadrati
 const testi = testiCascata(cascata) // etichetta, spiegazione e nota di ogni voce
 const avviso = avvisoScalino(cascata) // null fuori dalle zone critiche
+
+// Il rapporto può coprire solo parte dell'anno: due date ISO, e giorni, quota e mensilità
+// maturate li deriva il motore (src/periodo.js). Rapportare non basta: alcune voci
+// cambiano proprio di stato, e cambiDiStatoDelPeriodo dice quali si accendono e spengono.
+const semestre = calcolaCascata({
+  ral: 30000,
+  anno: 2026,
+  dataInizio: '2026-07-01',
+  dataFine: '2026-12-31',
+})
 
 // Il massimale contributivo vale per i soli iscritti dopo il 1995: chi ha iniziato prima
 // paga contributi su tutta la RAL. È un flag opzionale, non un input — sotto il massimale
@@ -139,12 +152,14 @@ Sono la ragione per cui un calcolatore serve più di una percentuale a mente.
 ### A volte guadagnare di più fa scendere il netto
 
 Alcune agevolazioni si perdono **per intero** superando una soglia, invece di ridursi
-gradualmente. Nel 2026 succede in tre punti, tutti censiti in
-[src/discontinuita.js](src/discontinuita.js) e derivati dalle costanti, mai scritti a mano:
+gradualmente. Sul luogo predefinito succede in quattro punti, tutti censiti in
+[src/discontinuita.js](src/discontinuita.js) e derivati dalle costanti, mai scritti a mano.
+Tre stanno su soglie di reddito nazionali; il quarto è l'esenzione comunale, raccontata
+più sotto perché si sposta con il comune scelto:
 
 | Il reddito passa da | a | e il netto |
 |---|---|---|
-| 8.500 € | 8.501 € | **−153 €** (cala la percentuale della somma integrativa) |
+| 8.500 € | 8.501 € | **−257 €** (cala la percentuale della somma integrativa e, finita la no tax area, si accende l'addizionale regionale) |
 | 15.000 € | 15.001 € | **−130 €** (finisce il trattamento integrativo) |
 | 35.000 € | 35.001 € | **−65 €** (si perde la maggiorazione dell'art. 13) |
 
@@ -198,6 +213,7 @@ il risultato annuale a consuntivo e non simula le dodici buste.
 | [src/cascata.js](src/cascata.js) | il motore: ogni voce dichiara cosa toglie e su quale base |
 | [src/costanti/](src/costanti/) | un file per anno d'imposta (2025, 2026); ogni valore con la sua fonte |
 | [src/luoghi.js](src/luoghi.js) | dal codice catastale alle costanti del luogo: registro dei comuni e caricamento per regione |
+| [src/periodo.js](src/periodo.js) | il periodo di lavoro nell'anno: giorni del rapporto, quota d'anno, mensilità maturate |
 | [dati/addizionali/](dati/addizionali/) | le addizionali di tutti i comuni, importate dal MEF: un JSON per ente impositore, con la data di scarico |
 | [strumenti/](strumenti/) | lo script rieseguibile che rigenera quei JSON dalle fonti MEF e ISTAT |
 | [src/presentazione.js](src/presentazione.js) | arrotondamento ai centesimi e quadratura delle voci esposte |
