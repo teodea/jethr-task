@@ -116,6 +116,15 @@ netto ed è ciò che separa la base imponibile contributiva dall'imponibile
 fiscale.
 _Avoid_: contributi INPS — ambiguo, non dice a carico di chi.
 
+**IVS**:
+Invalidità, vecchiaia e superstiti: l'assicurazione pensionistica obbligatoria
+la cui quota a carico del lavoratore è la componente principale dei contributi a
+carico del dipendente — per i dipendenti privati la gestisce il Fondo pensione
+lavoratori dipendenti (FPLD). Distinta dall'aliquota aggiuntiva, che scatta solo
+oltre la prima fascia di retribuzione pensionabile.
+_Avoid_: usare la sigla senza mai scioglierla; "contributi INPS" per la sola
+quota IVS — anche l'aggiuntiva va all'INPS.
+
 **Contributi a carico del datore**:
 La quota versata dall'azienda in aggiunta alla RAL. Non tocca né la RAL né il
 netto: sta fuori dal calcolo.
@@ -197,6 +206,14 @@ residenza attuale: un trasferimento produce effetti dal sessantesimo giorno, e
 chi trasloca in corso d'anno paga per l'anno intero agli enti di partenza.
 _Avoid_: residenza, "dove abiti" — raccolgono la risposta sbagliata da chi ha
 traslocato di recente.
+
+**Codice catastale**:
+Il codice alfanumerico con cui lo Stato identifica ogni comune (F205 è Milano).
+È la chiave con cui il MEF indicizza le addizionali comunali, e quindi la forma
+in cui il comune del domicilio fiscale viaggia nel calcolo: il selettore mostra
+un nome, il dominio riceve un codice.
+_Avoid_: codice ISTAT — è un identificativo diverso, numerico; il nome del
+comune come chiave — l'Italia ha comuni omonimi, il codice no.
 
 **Soglia di esenzione**:
 Il limite di imponibile sotto il quale un'addizionale non è dovuta. Superandolo
