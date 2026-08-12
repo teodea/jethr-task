@@ -925,20 +925,25 @@ legend.etichetta-campo {
   transform: translateY(0.1rem) rotate(225deg);
 }
 
+/* Il tetto era 42rem, e in una riga larga 926px lasciava un quarto di riquadro vuoto a
+   destra di ogni glossa: dentro un contenitore che ha un bordo visibile quel vuoto non si
+   legge come margine, si legge come testo tagliato. 52rem sono 832px e ne restano 65 di
+   respiro prima del bordo — il testo si allarga ma non ci va a sbattere. */
 .voce-corpo {
   padding: 0 0.9rem 0.9rem;
-  max-width: 42rem;
+  max-width: 52rem;
 }
 
-/* Il tetto di 42rem sul corpo qui sopra e' giusto — a 672px la spiegazione sta gia' sui 79
-   caratteri — ma dentro una riga larga 926px spezzava in 605px piu' 332px, e una riga piena
-   seguita da mezza riga, in un riquadro che ha un bordo destro visibile, si legge come testo
-   tagliato. Pareggiate (485px e 452px) le stesse due righe si leggono come un blocco. */
+/* Niente `balance` qui: pareggiando le righe le accorcia tutte, e su quindici glosse teneva
+   la riga piu' lunga a una media di 482px in un riquadro da 926 — il difetto che il tetto
+   piu' alto doveva togliere, rimesso dall'altra parte. Con `pretty` la media sale a 702px e
+   le glosse occupano cinque righe in meno in altezza. Il prezzo sono due glosse che
+   finiscono con una riga corta, che e' come finisce un paragrafo qualunque. */
 .voce-spiegazione {
   margin: 0;
   font-size: 0.9rem;
   color: var(--inchiostro-tenue);
-  text-wrap: balance;
+  text-wrap: pretty;
 }
 
 .voce-nota {
@@ -1076,16 +1081,13 @@ legend.etichetta-campo {
     grid-column: auto;
   }
 
-  /* Il campo non si stira per riempire la sua cella. A 1512px la cella e' 526px e dentro
-     c'erano «30.000» a sinistra e «€» a destra separati da 437px di vuoto: il numero non
-     sembrava allineato a sinistra, sembrava staccato dalla sua unita' di misura. 14rem sono
-     224px, e il valore piu' lungo che il campo possa ricevere («1.000.000,50») ne occupa 94:
-     l'euro resta a un palmo dalle cifre. L'allineamento a sinistra non si tocca — a destra
-     si guadagna il posto in colonna, per incolonnare le unita' di valori impilati (e' quello
-     che fanno gli importi della cascata), e un campo solo non ha nessuna colonna con cui
-     allinearsi. */
+  /* Il campo riempie la sua cella come gli altri tre controlli della barra. Stretto a 14rem
+     avvicinava le cifre al loro «€» — a 1512px ci sono 437px di vuoto in mezzo — ma lasciava
+     un buco di 302px dentro la cella, e in una barra dove tutto il resto arriva al proprio
+     bordo quel buco costa piu' della distanza che risparmia. La coerenza della fila vince
+     sulla vicinanza fra numero e unita'. */
   .campo-valuta {
-    max-width: 14rem;
+    max-width: none;
   }
 
   .periodo {
