@@ -663,9 +663,15 @@ aggiornaComandoTutte()
 function alternaDeroga() {
   iscrittoAnte1996 = !iscrittoAnte1996
 
-  const { ral, mensilita, anno } = ultimaCascata
+  // Tutti gli input del risultato mostrato, non solo i primi tre: senza comune e date il
+  // motore ricadrebbe sul luogo predefinito e sull'anno intero, e il ridisegno cambierebbe
+  // luogo e periodo in silenzio mentre i menu' dicono ancora la scelta dell'utente.
+  const { ral, mensilita, anno, comune, dataInizio, dataFine } = ultimaCascata
   const apertura = vociAperte()
-  mostraRisultato(calcolaCascata({ ral, mensilita, anno, iscrittoAnte1996 }), apertura)
+  mostraRisultato(
+    calcolaCascata({ ral, mensilita, anno, comune, dataInizio, dataFine, iscrittoAnte1996 }),
+    apertura,
+  )
 
   // Il bottone appena premuto e' stato distrutto dal ridisegno: il fuoco va sul suo
   // sostituto, che dice ora il verso opposto. Senza, chi naviga da tastiera si ritrova
