@@ -52,81 +52,88 @@
       </header>
 
       <form class="calcolatore" id="calcolatore" novalidate>
-        <div class="campo">
-          <label class="etichetta-campo" for="ral">Retribuzione annua lorda (RAL)</label>
-          <div class="campo-valuta">
-            <!-- Campo testo, non number: il parsing dei formati italiani e' nostro
-                 (src/formato.js). Un input numerico accetterebbe solo il punto decimale
-                 inglese e scarterebbe in silenzio «30.000,50». -->
-            <input
-              id="ral"
-              name="ral"
-              type="text"
-              inputmode="decimal"
-              value="30.000"
-              autocomplete="off"
-              spellcheck="false"
-              aria-describedby="errore"
-            />
-            <span class="unita" aria-hidden="true">&euro;</span>
+        <!-- I campi stanno insieme dentro un contenitore, il bottone no: sopra i 1024px
+             questo diventa il cruscotto — la barra di controlli sotto l'intestazione — e
+             «Calcola» gli sta sotto, largo quanto lui. Da dentro la barra il bottone era il
+             quinto controllo di una fila, indistinguibile per posizione da una tendina; da
+             sotto e' l'unica cosa che si puo' premere. -->
+        <div class="cruscotto">
+          <div class="campo">
+            <label class="etichetta-campo" for="ral">Retribuzione annua lorda (RAL)</label>
+            <div class="campo-valuta">
+              <!-- Campo testo, non number: il parsing dei formati italiani e' nostro
+                   (src/formato.js). Un input numerico accetterebbe solo il punto decimale
+                   inglese e scarterebbe in silenzio «30.000,50». -->
+              <input
+                id="ral"
+                name="ral"
+                type="text"
+                inputmode="decimal"
+                value="30.000"
+                autocomplete="off"
+                spellcheck="false"
+                aria-describedby="errore"
+              />
+              <span class="unita" aria-hidden="true">&euro;</span>
+            </div>
+            <p class="errore" id="errore" role="alert" hidden></p>
           </div>
-          <p class="errore" id="errore" role="alert" hidden></p>
-        </div>
 
-        <fieldset class="campo">
-          <legend class="etichetta-campo">Mensilit&agrave;</legend>
-          <!-- I segmenti nascono da MENSILITA_AMMESSE: vedi web/pagina.js -->
-          <div class="segmentato" id="mensilita"></div>
-        </fieldset>
+          <fieldset class="campo">
+            <legend class="etichetta-campo">Mensilit&agrave;</legend>
+            <!-- I segmenti nascono da MENSILITA_AMMESSE: vedi web/pagina.js -->
+            <div class="segmentato" id="mensilita"></div>
+          </fieldset>
 
-        <fieldset class="campo">
-          <legend class="etichetta-campo">Periodo di lavoro nell&rsquo;anno</legend>
-          <!-- Due date e nient'altro: sono loro a cambiare il numero. Un calendario mostrerebbe
-               *quali* giorni, che non sposta una cifra — e con le caselle riempite insegnerebbe
-               che il sabato non conta, mentre e' esattamente il contrario (src/periodo.js).
-               Valori, minimo e massimo li scrive web/pagina.js dalle costanti dell'anno: qui
-               una data scritta a mano sarebbe dominio nel posto sbagliato. -->
-          <div class="periodo">
-            <label class="periodo-estremo">
-              <span class="periodo-preposizione">Dal</span>
-              <input id="data-inizio" name="data-inizio" type="date" aria-describedby="errore-periodo" />
-            </label>
-            <label class="periodo-estremo">
-              <span class="periodo-preposizione">Al</span>
-              <input id="data-fine" name="data-fine" type="date" aria-describedby="errore-periodo" />
-            </label>
-          </div>
-          <!-- L'unico numero derivato accanto ai campi: «184 giorni su 365». Si aggiorna
-               mentre l'utente tocca le date, prima che esista un risultato. -->
-          <p class="periodo-giorni" id="periodo-giorni" aria-live="polite"></p>
-          <p class="errore" id="errore-periodo" role="alert" hidden></p>
-        </fieldset>
+          <fieldset class="campo">
+            <legend class="etichetta-campo">Periodo di lavoro nell&rsquo;anno</legend>
+            <!-- Due date e nient'altro: sono loro a cambiare il numero. Un calendario mostrerebbe
+                 *quali* giorni, che non sposta una cifra — e con le caselle riempite insegnerebbe
+                 che il sabato non conta, mentre e' esattamente il contrario (src/periodo.js).
+                 Valori, minimo e massimo li scrive web/pagina.js dalle costanti dell'anno: qui
+                 una data scritta a mano sarebbe dominio nel posto sbagliato. -->
+            <div class="periodo">
+              <label class="periodo-estremo">
+                <span class="periodo-preposizione">Dal</span>
+                <input id="data-inizio" name="data-inizio" type="date" aria-describedby="errore-periodo" />
+              </label>
+              <label class="periodo-estremo">
+                <span class="periodo-preposizione">Al</span>
+                <input id="data-fine" name="data-fine" type="date" aria-describedby="errore-periodo" />
+              </label>
+            </div>
+            <!-- L'unico numero derivato accanto ai campi: «184 giorni su 365». Si aggiorna
+                 mentre l'utente tocca le date, prima che esista un risultato. -->
+            <p class="periodo-giorni" id="periodo-giorni" aria-live="polite"></p>
+            <p class="errore" id="errore-periodo" role="alert" hidden></p>
+          </fieldset>
 
-        <!-- Tre menu' a cascata, la scala geografica per intero: ognuno restringe il
-             successivo, e ogni stato incoerente — «Lombardia + comune del Lazio», «Milano +
-             comune bergamasco» — resta inesprimibile perche' cambiando un menu' quelli sotto
-             ripartono. Il passo della provincia esiste per gli occhi: senza, il terzo menu'
-             della Lombardia sarebbe una lista di millecinquecento voci. Nel calcolo la
-             provincia non entra mai (CONTEXT.md). Le voci, le etichette e il testo di aiuto
-             arrivano tutti da src/: qui non c'e' nessuna stringa di dominio. -->
-        <div class="campo campo-luogo">
-          <div class="sotto-campo">
-            <label class="etichetta-campo" for="ente"></label>
-            <select id="ente" name="ente" disabled></select>
+          <!-- Tre menu' a cascata, la scala geografica per intero: ognuno restringe il
+               successivo, e ogni stato incoerente — «Lombardia + comune del Lazio», «Milano +
+               comune bergamasco» — resta inesprimibile perche' cambiando un menu' quelli sotto
+               ripartono. Il passo della provincia esiste per gli occhi: senza, il terzo menu'
+               della Lombardia sarebbe una lista di millecinquecento voci. Nel calcolo la
+               provincia non entra mai (CONTEXT.md). Le voci, le etichette e il testo di aiuto
+               arrivano tutti da src/: qui non c'e' nessuna stringa di dominio. -->
+          <div class="campo campo-luogo">
+            <div class="sotto-campo">
+              <label class="etichetta-campo" for="ente"></label>
+              <select id="ente" name="ente" disabled></select>
+            </div>
+            <div class="sotto-campo">
+              <label class="etichetta-campo" for="provincia"></label>
+              <select id="provincia" name="provincia" disabled></select>
+            </div>
+            <div class="sotto-campo">
+              <label class="etichetta-campo" for="comune"></label>
+              <select id="comune" name="comune" aria-describedby="aiuto-comune" disabled></select>
+            </div>
+            <!-- Non e' un vezzo: le addizionali seguono il domicilio fiscale al 1° gennaio,
+                 non la residenza attuale, e senza questa riga chi ha traslocato di recente
+                 sceglierebbe il comune sbagliato (ricerca issue #19). E' anche il posto in cui
+                 vive la data esatta, che il titolo del menu' non porta piu'. -->
+            <p class="aiuto" id="aiuto-comune"></p>
           </div>
-          <div class="sotto-campo">
-            <label class="etichetta-campo" for="provincia"></label>
-            <select id="provincia" name="provincia" disabled></select>
-          </div>
-          <div class="sotto-campo">
-            <label class="etichetta-campo" for="comune"></label>
-            <select id="comune" name="comune" aria-describedby="aiuto-comune" disabled></select>
-          </div>
-          <!-- Non e' un vezzo: le addizionali seguono il domicilio fiscale al 1° gennaio,
-               non la residenza attuale, e senza questa riga chi ha traslocato di recente
-               sceglierebbe il comune sbagliato (ricerca issue #19). E' anche il posto in cui
-               vive la data esatta, che il titolo del menu' non porta piu'. -->
-          <p class="aiuto" id="aiuto-comune"></p>
         </div>
 
         <button class="calcola" type="submit">Calcola</button>

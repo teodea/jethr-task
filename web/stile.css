@@ -18,6 +18,14 @@
   --attenzione-tenue: #fdf4de;
   --raggio: 10px;
 
+  /* Un'altezza sola per ogni cosa che si tocca: campo, segmenti, date, tendine, bottone.
+     Lasciati alla loro altezza naturale non coincidono mai — il padding di un input di
+     testo, quello di un segmento e i due pixel che l'input[type=date] si porta dietro dal
+     controllo nativo danno tre misure diverse — e in colonna non si nota, ma affiancati
+     nella barra ogni bordo cade a una quota sua. Il valore vive qui perche' e' la stessa
+     misura in tutte e tre le disposizioni. */
+  --altezza-controllo: 3rem;
+
   /* La pagina ha una sola veste. Dichiararlo evita che un browser mobile in tema scuro
      inverta da solo campo e bottone, ottenendo l'unica combinazione che non abbiamo
      verificato. */
@@ -137,8 +145,16 @@ a {
 
 /* Form */
 
+/* Il form e' due cose impilate: il cruscotto dei campi e, sotto, l'azione. In colonna
+   singola la distinzione non si vede — e' una sequenza verticale come tutto il resto — ma
+   e' la stessa struttura che sopra i 64rem diventa barra + bottone a tutta larghezza. */
 .calcolatore {
   margin: 2rem 0 0;
+  display: grid;
+  gap: 1.4rem;
+}
+
+.cruscotto {
   display: grid;
   gap: 1.4rem;
 }
@@ -156,6 +172,26 @@ a {
   font-size: 0.9rem;
   font-weight: 600;
   color: var(--inchiostro-tenue);
+}
+
+/* Su una <label> il distacco dal campo lo mette il `gap` della griglia; su una <legend> no,
+   perche' dentro un fieldset in `display: grid` la legenda non e' un grid item — sta fuori
+   dalla griglia, e il gap non la tocca. Senza questo margine la RAL scende di 0.45rem
+   rispetto a mensilita' e periodo, e nella barra la differenza si legge tutta. */
+legend.etichetta-campo {
+  margin-bottom: 0.45rem;
+}
+
+/* I quattro controlli condividono l'altezza, e la impongono al loro contenuto invece di
+   riceverla da lui: gli input dentro non hanno padding verticale (sotto) e si stirano fino
+   ai bordi, cosi' l'altezza e' un valore dichiarato e non la somma accidentale di tre
+   padding diversi. `min-height` e non `height`: chi ingrandisce il carattere nel browser
+   deve poter far crescere il controllo invece di veder tagliare il testo. */
+.campo-valuta,
+.periodo-estremo,
+.segmentato,
+.campo-luogo select {
+  min-height: var(--altezza-controllo);
 }
 
 .campo-valuta {
@@ -182,7 +218,7 @@ a {
 .campo-valuta input {
   flex: 1;
   min-width: 0;
-  padding: 0.7rem 0.85rem;
+  padding: 0 0.85rem;
   border: 0;
   outline: 0;
   background: transparent;
@@ -234,7 +270,7 @@ a {
 .campo-luogo select {
   width: 100%;
   min-width: 0;
-  padding: 0.7rem 0.85rem;
+  padding: 0 0.85rem;
   border: 1px solid var(--bordo);
   border-radius: var(--raggio);
   background: #fff;
@@ -275,9 +311,14 @@ a {
   width: fit-content;
 }
 
+/* Flex e non blocco con padding: da flex item il segmento si stira all'altezza del gruppo,
+   e il numero resta al centro di qualunque altezza sia. */
 .segmento {
   position: relative;
-  padding: 0.55rem 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1.15rem;
   border-left: 1px solid var(--bordo);
   cursor: pointer;
   font-variant-numeric: tabular-nums;
@@ -357,7 +398,7 @@ a {
 
 .periodo-estremo input {
   min-width: 0;
-  padding: 0.7rem 0.85rem;
+  padding: 0 0.85rem;
   border: 0;
   outline: 0;
   background: transparent;
@@ -380,9 +421,12 @@ a {
   display: none;
 }
 
+/* Alto quanto un campo: e' un controllo anche lui, e in colonna singola sta nella stessa
+   sequenza verticale degli altri. */
 .calcola {
   justify-self: start;
-  padding: 0.75rem 1.9rem;
+  min-height: var(--altezza-controllo);
+  padding: 0 1.9rem;
   border: 0;
   border-radius: var(--raggio);
   background: var(--accento);
@@ -915,26 +959,27 @@ a {
 
 /* Schermo largo: il cruscotto
    ---------------------------
-   Sopra i 1024px la pagina smette di essere una colonna. Il form si stende in una barra
-   sotto l'intestazione, e cio' che ne esce si dispone su due colonne: la cascata a
-   sinistra, i tre numeri in un pannello a destra. Chi scorre le quindici voci ha sempre a
-   fianco il numero di cui sta leggendo la scomposizione.
+   Sopra i 1024px la pagina smette di essere una colonna. I campi si stendono in una barra
+   sotto l'intestazione, «Calcola» le sta sotto per tutta la sua larghezza, e cio' che ne
+   esce si dispone su due colonne: la cascata a sinistra, i tre numeri in un pannello a
+   destra. Chi scorre le quindici voci ha sempre a fianco il numero di cui sta leggendo la
+   scomposizione.
 
-   La lettura resta una sequenza verticale — inserisci, poi leggi — quindi il flusso non si
-   spezza: quello che cambia e' che l'input smette di occupare un'altezza che non gli serve.
-   Il gradino cade a 64rem perche' e' li' che la barra a due righe smette di comprimere i
-   suoi cinque controlli; sotto, la colonna singola resta la disposizione giusta e non c'e'
-   una larghezza intermedia in cui la pagina sembri strizzata. */
+   La lettura resta una sequenza verticale — inserisci, premi, leggi — quindi il flusso non
+   si spezza: quello che cambia e' che l'input smette di occupare un'altezza che non gli
+   serve. Il gradino cade a 64rem perche' e' li' che la barra a due righe smette di
+   comprimere i suoi quattro controlli; sotto, la colonna singola resta la disposizione
+   giusta e non c'e' una larghezza intermedia in cui la pagina sembri strizzata. */
 
 @media (min-width: 64rem) {
-  /* La barra. Due righe e non una: cinque controlli in fila sarebbero un pettine, e i tre
-     menu' del luogo sono i piu' larghi dei cinque. Prima riga «quanto e quando», seconda
-     «dove» — la stessa divisione che il form aveva in verticale. */
-  .calcolatore {
-    grid-template-columns: minmax(11rem, 0.9fr) auto minmax(21rem, 1.1fr) auto;
+  /* La barra. Due righe e non una: i tre menu' del luogo sono larghi quanto tutti gli altri
+     campi messi insieme, e in fila unica sarebbero un pettine. Prima riga «quanto e quando»,
+     seconda «dove» — la stessa divisione che il form aveva in verticale. */
+  .cruscotto {
+    grid-template-columns: minmax(11rem, 0.9fr) auto minmax(21rem, 1.1fr);
     /* Allineati in alto, non in basso: sotto il periodo pende «365 giorni su 365», e
        allineando le basi quella riga in piu' spingerebbe su il suo campo lasciando le
-       quattro etichette a quattro altezze diverse. */
+       tre etichette a tre altezze diverse. */
     align-items: start;
     gap: 1.1rem 1.5rem;
     padding: 1.35rem 1.5rem;
@@ -943,33 +988,33 @@ a {
     background: #fff;
   }
 
-  .calcolatore > :nth-child(1) {
+  .cruscotto > :nth-child(1) {
     grid-column: 1;
     grid-row: 1;
   }
 
-  .calcolatore > :nth-child(2) {
+  .cruscotto > :nth-child(2) {
     grid-column: 2;
     grid-row: 1;
   }
 
-  .calcolatore > :nth-child(3) {
+  .cruscotto > :nth-child(3) {
     grid-column: 3;
     grid-row: 1;
     align-content: start;
   }
 
-  /* Il bottone e' l'unico dei quattro senza etichetta sopra: senza questo margine
-     galleggerebbe in cima alla barra invece di allinearsi ai campi. */
+  /* Fuori dalla barra, non piu' largo di quanto gli serve. L'importanza gliela da' la
+     posizione — sotto il cruscotto, sul bianco della pagina, unica superficie premibile —
+     non la stazza: a tutta larghezza diventava una fascia verde da 1300px, che grida invece
+     di guidare. Alto quanto i controlli sopra, cosi' la barra e la sua azione stanno sullo
+     stesso ritmo verticale. */
   .calcolatore > .calcola {
-    grid-column: 4;
-    grid-row: 1;
-    justify-self: stretch;
-    margin-top: 1.35rem;
-    padding: 0.7rem 2.2rem;
+    min-width: 12rem;
+    padding: 0 2.2rem;
   }
 
-  .calcolatore > .campo-luogo {
+  .cruscotto > .campo-luogo {
     grid-column: 1 / -1;
     grid-row: 2;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -985,15 +1030,6 @@ a {
 
   .campo-valuta {
     max-width: none;
-  }
-
-  /* Affiancati, i controlli devono avere la stessa altezza: tre altezze diverse in fila
-     farebbero ondeggiare la riga. */
-  .campo-valuta,
-  .periodo-estremo,
-  .segmentato,
-  .campo-luogo select {
-    min-height: 2.9rem;
   }
 
   .periodo {
@@ -1150,7 +1186,6 @@ a {
   .calcola {
     justify-self: stretch;
     width: 100%;
-    padding: 0.85rem 1.9rem;
   }
 
   .risultato,
