@@ -15,4 +15,5 @@ export const FONTI_PER_ANNO = {
 
 export const ANNO_CORRENTE = 2026 // anno d'imposta del prototipo (docs/ASSUNZIONI.md: "Anno d'imposta 2026, unico")
 
-export { COSTANTI_2026, COSTANTI_2025, FONTI_2026, FONTI_2025 }
+// Le fonti non si ri-esportano per nome: la via d'accesso e' FONTI_PER_ANNO, una sola.
+export { COSTANTI_2026, COSTANTI_2025 }

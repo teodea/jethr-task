@@ -7,8 +7,9 @@ desktop.ini
 Thumbs.db
 ~$*
 
-# Configurazione locale dell'agente (permessi di questa macchina)
+# Configurazione locale dell'agente (permessi e worktree di questa macchina)
 .claude/settings.local.json
+.claude/worktrees/
 
 # Dipendenze e build
 node_modules/
